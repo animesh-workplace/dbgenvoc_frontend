@@ -1,5 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* :root { color-scheme: dark; } */
+@theme {
+    --font-sans: 'Lexend Deca', sans-serif;
+}
