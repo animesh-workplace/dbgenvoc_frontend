@@ -1,6 +1,6 @@
 <template>
 	<main>
-		<div class="relative bg-gradient-to-br from-blue-500/20 to-green-500/20 overflow-hidden">
+		<section class="relative bg-gradient-to-br from-blue-500/10 to-green-500/10 overflow-hidden">
 			<div class="absolute inset-0 opacity-20 hero-background" />
 
 			<div class="px-8 py-8 my-5">
@@ -36,9 +36,10 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 
-		<div class="-mt-7 mx-8 w-[calc(100%-2rem)]">
+		<!-- Autocomplete search -->
+		<section class="-mt-7 mx-8 xl:mx-0 w-[calc(100%-2rem)] xl:w-full mb-12">
 			<div class="flex xl:justify-center">
 				<AutoComplete
 					fluid
@@ -47,91 +48,105 @@
 					v-model="value2"
 					:suggestions="items"
 					class="min-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
-					placeholder="Enter gene name or multiple gene names or region"
-					:pt="{ inputMultiple: '!rounded-r-none !rounded-l-xl !py-3 !px-5 !shadow-xl' }"
+					placeholder="Enter gene name or multiple gene names or region or pathway"
+					:pt="{
+						input: 'placeholder:text-sm',
+						inputMultiple:
+							'!rounded-r-none !rounded-l-xl !py-3 !px-5 !shadow-xl !border-gray-200 !border-r-0',
+					}"
 				/>
-				<Button severity="info" :pt="{ root: '!rounded-l-none !rounded-r-xl !w-20 !shadow-xl' }">
+				<Button
+					raised
+					:pt="{
+						root: '!rounded-l-none !rounded-r-xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-l-0',
+					}"
+				>
 					<template #icon>
-						<Icon name="solar:magnifer-bold-duotone" class="!w-6 !h-6" />
+						<Icon name="solar:magnifer-bold-duotone" class="!w-6 !h-6 text-blue-800" />
 					</template>
 				</Button>
 			</div>
-		</div>
+			<div class="flex justify-center mt-2">
+				<span class="text-gray-500 text-sm ml-2"> Provide examples here </span>
+			</div>
+		</section>
 
 		<!-- Data Sources -->
-		<!-- <div class="mb-12">
-			<h2 class="text-xl font-semibold text-gray-600 mb-4">Data Sources</h2>
-			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				<div
-					:key="index"
-					v-for="(source, index) in data_sources"
-					class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm"
-				>
-					<h3 class="text-lg font-semibold text-blue-700 mb-3">{{ source.title }}</h3>
-					<p class="text-gray-600 mb-4">
-						{{ source.description }}
-					</p>
-					<div class="text-sm text-gray-500">Source: {{ source.source }}</div>
+		<section class="relative bg-slate-50 mx-8">
+			<div>
+				<h2 class="text-xl font-semibold text-gray-600 mb-4">Data Sources</h2>
+				<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+					<div
+						:key="index"
+						v-for="(source, index) in data_sources"
+						class="bg-white border border-gray-200 rounded-lg p-4 shadow"
+					>
+						<h3 class="text-lg font-semibold text-blue-700 mb-1">{{ source.title }}</h3>
+						<p class="text-gray-600 mb-2">
+							{{ source.description }}
+						</p>
+						<div class="text-sm text-gray-500">Source: {{ source.source }}</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Features -->
+		<!-- <div class="mb-12 mx-8">
+			<h2 class="text-2xl font-semibold text-gray-800 mb-6">Key Features</h2>
+			<div class="bg-gray-200 rounded-lg p-8">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									fill-rule="evenodd"
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</div>
+						<span class="text-gray-700">Access & Query</span>
+					</div>
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									fill-rule="evenodd"
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</div>
+						<span class="text-gray-700">Browse & Download</span>
+					</div>
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									fill-rule="evenodd"
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</div>
+						<span class="text-gray-700">Best Practice Protocols</span>
+					</div>
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									fill-rule="evenodd"
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</div>
+						<span class="text-gray-700">Multi-pipeline Annotation</span>
+					</div>
 				</div>
 			</div>
 		</div> -->
-
-		<!-- Features -->
-		<!-- <div class="mb-12">
-					<h2 class="text-2xl font-semibold text-gray-800 mb-6">Key Features</h2>
-					<div class="bg-gray-50 rounded-lg p-8">
-						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-							<div class="flex items-center space-x-3">
-								<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-									<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											fill-rule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
-								</div>
-								<span class="text-gray-700">Access & Query</span>
-							</div>
-							<div class="flex items-center space-x-3">
-								<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-									<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											fill-rule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
-								</div>
-								<span class="text-gray-700">Browse & Download</span>
-							</div>
-							<div class="flex items-center space-x-3">
-								<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-									<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											fill-rule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
-								</div>
-								<span class="text-gray-700">Best Practice Protocols</span>
-							</div>
-							<div class="flex items-center space-x-3">
-								<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-									<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-										<path
-											fill-rule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clip-rule="evenodd"
-										></path>
-									</svg>
-								</div>
-								<span class="text-gray-700">Multi-pipeline Annotation</span>
-							</div>
-						</div>
-					</div>
-				</div> -->
 
 		<!-- Mission Statement -->
 		<!-- <div class="bg-blue-50 rounded-lg p-4">
