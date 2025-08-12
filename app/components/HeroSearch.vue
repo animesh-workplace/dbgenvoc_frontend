@@ -7,7 +7,7 @@ const onSearch = () => {};
   <section class="relative overflow-hidden">
     <div
       class="absolute inset-0 pointer-events-none bg-gradient-to-b from-brand-50 via-light-bg to-light-bg dark:from-brand-900/30 dark:via-dark-surface dark:to-dark-bg"
-    ></div>
+    />
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-8">
       <p class="text-brand-600 dark:text-brand-300 text-sm font-medium">
         dbGENVOC v2
