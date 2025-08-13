@@ -5,6 +5,14 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 	compatibilityDate: '2025-07-15',
 	css: ['@/assets/css/tailwind.css'],
+	app: {
+		// baseURL: process.env.ROUTER_BASE || '/dbgenvoc/',
+		head: {
+			title: 'dbGENVOC | National Institute of Biomedical Genomics | BRIC-NIBMG',
+			meta: [],
+			link: [],
+		},
+	},
 	vite: { plugins: [tailwindcss()] },
 	googleFonts: {
 		preload: true,
