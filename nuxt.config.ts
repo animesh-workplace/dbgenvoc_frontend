@@ -10,11 +10,11 @@ export default defineNuxtConfig({
 		preload: true,
 		prefetch: true,
 		useStylesheet: true,
-		families: { Poppins: true, 'Lexend+Deca': { wght: '100..900' } },
 		outputDir: 'app/assets',
+		families: { Poppins: true, 'Lexend+Deca': { wght: '100..900' } },
 	},
-	modules: ['@nuxt/icon', '@primevue/nuxt-module', '@nuxtjs/google-fonts'],
 	icon: { clientBundle: { scan: true }, serverBundle: { collections: ['solar'] } },
+	modules: ['@nuxt/icon', '@primevue/nuxt-module', '@nuxtjs/google-fonts', '@nuxt/image'],
 	primevue: {
 		options: {
 			ripple: true,
