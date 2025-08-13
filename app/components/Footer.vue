@@ -7,13 +7,35 @@
 					class="border-b border-gray-100 py-8 lg:order-last lg:border-s lg:border-b-0 lg:py-16 lg:p-16 dark:border-gray-800"
 				>
 					<div class="mt-8 space-y-4 lg:mt-0">
-						<div>
-							<!-- <h2 class="text-2xl font-medium text-gray-900 dark:text-white">About </h2> -->
+						<!-- Website Logo -->
+						<div class="text-teal-600 lg:hidden dark:text-teal-300">
+							<div class="flex justify-center items-center px-4">
+								<div class="text-2xl font-extrabold cursor-pointer text-white">dbGENVOC</div>
+								<div>
+									<button
+										class="rounded-2xl bg-gray-100/10 py-0.5 px-2 text-xs font-medium text-gray-50 cursor-pointer"
+									>
+										v2
+									</button>
+								</div>
+							</div>
+						</div>
 
+						<div>
 							<p class="mt-4 text-gray-500 dark:text-gray-400" align="justify">
 								dbGENVOC is a comprehensive, flexible database framework designed to provide
 								researchers with seamless access to somatic variation data from Indian oral cancer
 								patients.
+							</p>
+
+							<h2 class="mt-4 text-2xl font-medium text-gray-900 dark:text-white">Cite us</h2>
+							<p class="mt-2 text-gray-500 dark:text-gray-400">
+								Sanchari Pradhan, Subrata Das, Animesh K Singh, Chitrarpita Das, Analabha Basu,
+								Partha P Majumder, Nidhan K Biswas, dbGENVOC: database of GENomic Variants of Oral
+								Cancer, with special reference to India, Database, Volume 2021, 2021, baab034,
+								<NuxtLink to="https://doi.org/10.1093/database/baab034" class="hover:underline">
+									https://doi.org/10.1093/database/baab034
+								</NuxtLink>
 							</p>
 						</div>
 					</div>
