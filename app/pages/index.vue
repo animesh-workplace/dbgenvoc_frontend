@@ -66,7 +66,7 @@
 				</Button>
 			</div>
 
-			<div class="flex xl:justify-center text-center mt-2">
+			<div class="flex xl:justify-center xl:text-center mt-2">
 				<div class="text-gray-500 text-sm ml-2">
 					<h3 class="text-sm font-semibold text-gray-700 mb-3">Example Searches:</h3>
 
@@ -106,7 +106,7 @@
 					<div>
 						<span class="text-gray-500 text-sm mr-2">Multi-sites:</span>
 						<span
-							class="inline-flex flex-wrap items-center gap-1 bg-white text-purple-600 px-3 py-1 rounded-full cursor-pointer hover:bg-purple-100 transition"
+							class="inline-flex flex-wrap items-center gap-1 bg-white text-purple-600 lg:px-3 py-1 rounded-full cursor-pointer hover:bg-purple-100 transition"
 						>
 							<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr11:534289</span>
 							<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr17:7578406</span>
