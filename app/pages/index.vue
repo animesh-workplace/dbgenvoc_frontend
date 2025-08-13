@@ -27,7 +27,7 @@
 								:key="index"
 								:class="`${stat.bgColor} shadow-sm`"
 								v-for="(stat, index) in key_statistics"
-								class="rounded-xl p-3 text-center content-center"
+								class="rounded-2xl p-3 text-center content-center"
 							>
 								<div class="text-lg font-bold mb-1" :class="stat.textColor">{{ stat.title }}</div>
 								<div class="text-gray-500">{{ stat.description }}</div>
@@ -52,13 +52,13 @@
 					:pt="{
 						input: 'placeholder:text-sm',
 						inputMultiple:
-							'!rounded-r-none !rounded-l-xl !py-3 !px-5 !shadow-xl !border-gray-200 !border-r-0',
+							'!rounded-r-none !rounded-l-2xl !py-3 !px-5 !shadow-xl !border-gray-200 !border-r-0',
 					}"
 				/>
 				<Button
 					raised
 					:pt="{
-						root: '!rounded-l-none !rounded-r-xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-l-0',
+						root: '!rounded-l-none !rounded-r-2xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-l-0',
 					}"
 				>
 					<template #icon>
@@ -66,98 +66,133 @@
 					</template>
 				</Button>
 			</div>
+
 			<div class="flex justify-center mt-2">
 				<span class="text-gray-500 text-sm ml-2"> Provide examples here </span>
+
+				<!-- <div class="search-examples">
+					<div class="examples-header">
+						<h3>Example Searches</h3>
+						<p>Click to try or copy to use in the search bar</p>
+					</div>
+
+					<div class="examples-list">
+						<div v-for="example in examples" :key="example.id" class="example-item">
+							<div class="example-label">{{ example.label }}</div>
+							<div class="example-content">
+								<code class="example-code">{{ example.query }}</code>
+								<div class="example-actions">
+									<button
+										@click="copyToClipboard(example.query)"
+										class="action-btn copy-btn"
+										title="Copy to clipboard"
+									>
+										Copy
+									</button>
+									<a :href="example.link" class="action-btn try-btn" title="Try this search">
+										Try
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="search-tips">
+						<span
+							>Tips: Separate multiple genes with spaces • Region queries limited to 100KB •
+							Auto-complete enabled</span
+						>
+					</div>
+				</div> -->
 			</div>
 		</section>
 
 		<!-- Data Sources -->
-		<section class="relative bg-slate-50 mx-8">
-			<div>
-				<h2 class="text-xl font-semibold text-gray-600 mb-4">Data Sources</h2>
+		<section class="relative bg-[#05192d] py-28 overflow-clip">
+			<div class="relative mx-8 z-10 text-center">
+				<h2 class="text-2xl font-semibold text-gray-100 mb-8">Data Sources</h2>
 				<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-					<div
-						:key="index"
-						v-for="(source, index) in data_sources"
-						class="bg-white border border-gray-200 rounded-lg p-4 shadow"
-					>
-						<h3 class="text-lg font-semibold text-blue-700 mb-1">{{ source.title }}</h3>
-						<p class="text-gray-600 mb-2">
+					<div :key="index" v-for="(source, index) in data_sources" class="bg-white/95 rounded-2xl p-8">
+						<div class="mb-12">
+							<div class="flex items-center justify-between mb-2">
+								<Icon :name="source.icon" class="!w-12 !h-12 text-gray-700" />
+								<Icon name="solar:arrow-right-up-line-duotone" class="!w-8 !h-8 text-gray-400" />
+							</div>
+						</div>
+
+						<h3 class="text-xl font-semibold text-gray-800 mb-1">{{ source.title }}</h3>
+						<p class="text-gray-500 my-4 text-sm">
 							{{ source.description }}
 						</p>
-						<div class="text-sm text-gray-500">Source: {{ source.source }}</div>
+						<div class="text-sm text-gray-400">Source: {{ source.source }}</div>
 					</div>
 				</div>
+			</div>
+
+			<div class="absolute top-0 right-0 z-0 rotate-180">
+				<svg fill="none" width="758" height="228" xmlns="http://www.w3.org/2000/svg">
+					<path fill="#05192D" d="M700.07 176.6 367.4 368.67l-17.59-30.46L682.5 146.14z"></path>
+					<path fill="#db2777" d="M747.48 199.21 330.45 440l-49.15-85.12 417.04-240.78z"></path>
+					<path fill="#9333ea" d="M609.8 212.3 184.98 457.56l-49.14-85.12 424.83-245.28z"></path>
+					<path fill="#05192D" d="m610.01 212.72-308.47 178.1-20.74-35.93 308.47-178.1z"></path>
+					<path fill="#1d4ed8" d="m-195.1 490.13 417.04-240.77-49.15-85.13-417.03 240.78z"></path>
+					<path fill="#16a34a" d="M-114.94 377.44 309.9 132.16l-49.14-85.12-424.84 245.28z"></path>
+					<path fill="#05192D" d="m-114.67 377.83 308.47-178.1-20.74-35.92-308.47 178.1z"></path>
+					<path fill="#d97706" d="m167.8 30.59-349.1 201.54-17.58-30.46L150.21.13z"></path>
+				</svg>
 			</div>
 		</section>
 
 		<!-- Features -->
-		<!-- <div class="mb-12 mx-8">
-			<h2 class="text-2xl font-semibold text-gray-800 mb-6">Key Features</h2>
-			<div class="bg-gray-200 rounded-lg p-8">
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
+		<section class="my-12 mx-8">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+				<div class="bg-gray-200 rounded-2xl p-4">
+					<div class="bg-gray-50 p-4 rounded-2xl shadow-sm border border-gray-200 relative">
+						<img src="/graph.png" />
+						<div class="bg-white rounded-2xl shadow-lg p-2 max-w-sm absolute bottom-10 right-10">
+							<img src="/table.png" />
 						</div>
-						<span class="text-gray-700">Access & Query</span>
-					</div>
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-						</div>
-						<span class="text-gray-700">Browse & Download</span>
-					</div>
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-						</div>
-						<span class="text-gray-700">Best Practice Protocols</span>
-					</div>
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-							<svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-						</div>
-						<span class="text-gray-700">Multi-pipeline Annotation</span>
 					</div>
 				</div>
+
+				<!-- Right Column with features -->
+				<div>
+					<h2 class="text-3xl font-bold text-gray-900 mb-2">Key Features of dbGENVOC</h2>
+					<p class="text-gray-600 mb-8">
+						Explore the database capabilities to accelerate your research and analysis.
+					</p>
+
+					<ul class="space-y-6">
+						<li class="flex items-start" v-for="(feature, index) in key_features" :key="index">
+							<div
+								class="bg-blue-100 text-blue-800 rounded-full p-2 flex justify-center items-center"
+							>
+								<Icon :name="feature.icon" class="!w-5 !h-5" />
+							</div>
+							<div class="ml-4">
+								<h3 class="text-lg font-semibold text-gray-900">{{ feature.title }}</h3>
+								<p class="text-gray-600">
+									{{ feature.description }}
+								</p>
+							</div>
+						</li>
+					</ul>
+				</div>
 			</div>
-		</div> -->
+		</section>
 
 		<!-- Mission Statement -->
-		<!-- <div class="bg-blue-50 rounded-lg p-4">
-					<h2 class="text-2xl font-semibold text-blue-800 mb-4">Our Mission</h2>
-					<p class="text-gray-700">
-						This repository has the potential to support advances in oral cancer research and
-						represents a major step forward from simply cataloging variants to gaining insight into
-						their significance. dbGENVOC is freely available and will be updated frequently with
-						variation data from additional oral cancer patients.
-					</p>
-				</div> -->
+		<!-- <section class="bg-red-200 p-24">
+			<div class="bg-blue-50 rounded-lg p-4 max-w-4xl mx-auto text-center">
+				<h2 class="text-2xl font-semibold text-blue-800 mb-4">Our Mission</h2>
+				<p class="text-gray-700">
+					This repository has the potential to support advances in oral cancer research and represents a
+					major step forward from simply cataloging variants to gaining insight into their significance.
+					dbGENVOC is freely available and will be updated frequently with variation data from additional
+					oral cancer patients.
+				</p>
+			</div>
+		</section> -->
 
 		<!-- <HeroSearch /> -->
 		<!-- <FeaturesGrid /> -->
@@ -165,8 +200,6 @@
 </template>
 
 <script setup>
-import { TerminalStyle } from 'primevue'
-
 const key_statistics = [
 	{
 		title: '24 Million+',
@@ -203,20 +236,46 @@ const key_statistics = [
 const data_sources = [
 	{
 		title: 'Indian Cohort',
-		source: 'Indian studies',
+		icon: 'solar:filters-line-duotone',
+		source: 'ICGC Indian Oral Cancer Project',
 		description:
 			'Whole exome sequences from 100 Indian oral cancer patients and whole genome sequences from 5 patients',
 	},
 	{
 		title: 'TCGA-HNSCC',
 		source: 'USA cohort',
+		icon: 'solar:football-line-duotone',
 		description:
 			'Somatic variation data from 220 patient samples analyzed by the TCGA Head and Neck Squamous Cell Carcinoma project',
 	},
 	{
 		source: 'Published studies',
 		title: 'Literature Curation',
+		icon: 'solar:layers-minimalistic-bold-duotone',
 		description: 'Manually curated variation data from 118 patients sourced from peer-reviewed publications',
+	},
+]
+
+const key_features = [
+	{
+		title: 'Advanced Search',
+		icon: 'solar:magnifer-broken',
+		description: 'Multi-dimensional search across genes, genomic regions, pathways, and patient cohorts.',
+	},
+	{
+		title: 'Data Visualization',
+		icon: 'solar:chart-square-broken',
+		description: 'Interactive charts and genomic browsers for comprehensive data exploration.',
+	},
+	{
+		title: 'Data Export',
+		icon: 'solar:file-download-broken',
+		description: 'Download filtered datasets in multiple formats for further analysis.',
+	},
+	{
+		title: 'Population Data',
+		icon: 'solar:global-broken',
+		description: 'Cross-population comparisons with Indian, TCGA, and literature-curated datasets.',
 	},
 ]
 
@@ -231,67 +290,5 @@ const search = () => {
 <style scoped>
 .hero-background {
 	background: url('data:image/svg+xml, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-}
-
-.hero-search {
-	position: relative;
-	margin-bottom: var(--space-32);
-}
-
-.search-container {
-	display: flex;
-	background: var(--color-surface);
-	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-lg);
-	overflow: hidden;
-	border: 1px solid var(--color-border);
-}
-
-.search-input {
-	flex: 1;
-	padding: var(--space-16) var(--space-20);
-	border: none;
-	background: transparent;
-	font-size: var(--font-size-base);
-	color: var(--color-text);
-}
-
-.search-input:focus {
-	outline: none;
-}
-
-.search-btn {
-	padding: var(--space-16) var(--space-20);
-	border-radius: 0;
-	border: none;
-}
-
-.search-suggestions {
-	position: absolute;
-	top: 100%;
-	left: 0;
-	right: 0;
-	background: var(--color-surface);
-	border: 1px solid var(--color-border);
-	border-top: none;
-	border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-	box-shadow: var(--shadow-lg);
-	z-index: 10;
-	display: none;
-}
-
-.suggestion-item {
-	padding: var(--space-12) var(--space-20);
-	cursor: pointer;
-	transition: background var(--duration-fast) var(--ease-standard);
-}
-
-.suggestion-item:hover {
-	background: var(--color-secondary);
-}
-
-.hero-actions {
-	display: flex;
-	gap: var(--space-16);
 }
 </style>
