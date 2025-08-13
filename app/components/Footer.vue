@@ -28,7 +28,7 @@
 								patients.
 							</p>
 
-							<h2 class="mt-4 text-2xl font-medium text-gray-900 dark:text-white">Cite us</h2>
+							<h2 class="mt-4 text-xl font-medium text-gray-900 dark:text-white">Cite us</h2>
 							<p class="mt-2 text-gray-500 dark:text-gray-400">
 								Sanchari Pradhan, Subrata Das, Animesh K Singh, Chitrarpita Das, Analabha Basu,
 								Partha P Majumder, Nidhan K Biswas, dbGENVOC: database of GENomic Variants of Oral
