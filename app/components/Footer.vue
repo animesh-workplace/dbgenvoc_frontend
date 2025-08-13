@@ -42,7 +42,7 @@
 				</div>
 
 				<!-- Links -->
-				<div class="py-8 lg:py-16 lg:p-16">
+				<div class="py-8 lg:py-16 lg:px-8 xl:px-16">
 					<!-- Website Logo -->
 					<div class="hidden text-teal-600 lg:block dark:text-teal-300">
 						<div class="grid grid-cols-2">
