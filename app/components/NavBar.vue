@@ -3,7 +3,7 @@
 		:model="items"
 		:pt="{
 			start: '!bg-sky-200',
-			itemContent: 'group',
+			itemContent: 'group !rounded-2xl px-2',
 			rootList: '!bg-sky-200',
 			root: '!bg-sky-200 shadow !border-0 !justify-between !px-7 !py-4 !sticky top-0 z-50',
 		}"
@@ -24,13 +24,13 @@
 			</div>
 		</template>
 
-		<template #item="{ item, props, hasSubmenu, root }">
-			<a v-ripple class="flex items-center" v-bind="props.action">
+		<template #item="{ item, props }">
+			<NuxtLink :to="item.href" v-ripple class="flex items-center p-2">
 				<div class="flex items-center" :class="{ 'gap-2': item.label }">
 					<Icon :name="item.icon" class="!w-5 !h-5 group-hover:text-blue-800" />
 					<span class="text-gray-800"> {{ item.label }} </span>
 				</div>
-			</a>
+			</NuxtLink>
 		</template>
 	</Menubar>
 </template>
@@ -39,9 +39,9 @@
 import { ref } from 'vue'
 
 const items = ref([
-	{ label: 'Home', icon: 'solar:home-2-bold-duotone' },
-	{ label: 'Help', icon: 'solar:question-square-bold-duotone' },
-	{ label: 'Contact us', icon: 'solar:user-speak-bold-duotone' },
-	{ label: '', icon: 'solar:sun-2-bold-duotone' },
+	{ label: 'Home', icon: 'solar:home-2-bold-duotone', href: '/' },
+	{ label: 'Help', icon: 'solar:question-square-bold-duotone', href: '/help' },
+	{ label: 'Contact us', icon: 'solar:user-speak-bold-duotone', href: '/contact' },
+	{ label: '', icon: 'solar:sun-2-bold-duotone', action: '' },
 ])
 </script>
