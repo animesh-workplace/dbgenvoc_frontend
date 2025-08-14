@@ -55,10 +55,10 @@
 						</div>
 
 						<h3 class="text-xl font-semibold text-gray-800 mb-1">{{ source.title }}</h3>
-						<p class="text-gray-500 my-4 text-sm">
+						<p class="text-gray-600 my-4 text-sm">
 							{{ source.description }}
 						</p>
-						<div class="text-sm text-gray-400">Source: {{ source.source }}</div>
+						<div class="text-sm text-gray-500">Source: {{ source.source }}</div>
 					</div>
 				</div>
 			</div>
@@ -82,9 +82,9 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 				<div class="bg-gray-200 rounded-2xl p-4">
 					<div class="bg-gray-50 p-4 rounded-2xl shadow-sm border border-gray-200 relative">
-						<img src="/graph.png" />
+						<img src="/graph.png" alt="Graph Image" />
 						<div class="bg-white rounded-2xl shadow-lg p-2 max-w-sm absolute bottom-10 right-10">
-							<img src="/table.png" />
+							<img src="/table.png" alt="Table Image" />
 						</div>
 					</div>
 				</div>
