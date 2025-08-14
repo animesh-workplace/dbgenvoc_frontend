@@ -39,84 +39,7 @@
 		</section>
 
 		<!-- Autocomplete search -->
-		<section class="-mt-7 mx-8 xl:mx-0 w-[calc(100%-2rem)] xl:w-full mb-12">
-			<div class="flex xl:justify-center">
-				<AutoComplete
-					fluid
-					multiple
-					size="large"
-					v-model="value2"
-					:suggestions="items"
-					class="min-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
-					placeholder="Enter gene name or multiple gene names or region or pathway"
-					:pt="{
-						input: 'placeholder:text-sm caret-blue-800',
-						inputMultiple:
-							'!rounded-r-none !rounded-l-2xl !py-3 !px-5 !shadow-xl !border-gray-200 !border-r-0 caret-blue-800',
-					}"
-				/>
-				<Button
-					:pt="{
-						root: '!rounded-l-none !rounded-r-2xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-0 z-10',
-					}"
-				>
-					<template #icon>
-						<Icon name="solar:magnifer-bold-duotone" class="!w-6 !h-6 text-blue-800" />
-					</template>
-				</Button>
-			</div>
-
-			<div class="flex xl:justify-center xl:text-center mt-2">
-				<div class="text-gray-500 text-sm ml-2">
-					<h3 class="text-sm font-semibold text-gray-700 mb-3">Example Searches:</h3>
-
-					<!-- Single Gene -->
-					<div class="mb-2">
-						<span class="text-gray-500 text-sm mr-2">Gene:</span>
-						<span
-							class="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-100 transition text-xs"
-						>
-							FAT1
-						</span>
-					</div>
-
-					<!-- Region -->
-					<div class="mb-2">
-						<span class="text-gray-500 text-sm mr-2">Region:</span>
-						<span
-							class="inline-block bg-green-50 text-green-600 px-3 py-1 rounded-full cursor-pointer hover:bg-green-100 transition text-xs"
-						>
-							chr1:915188-1015188
-						</span>
-					</div>
-
-					<!-- Multi Genes -->
-					<div class="mb-2">
-						<span class="text-gray-500 text-sm mr-2">Multiple Genes:</span>
-						<span
-							class="inline-flex items-center gap-1 bg-white text-blue-600 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-100 transition"
-						>
-							<span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">TP53</span>
-							<span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">BRCA2</span>
-							<span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">NOTCH1</span>
-						</span>
-					</div>
-
-					<!-- Multi Sites -->
-					<div>
-						<span class="text-gray-500 text-sm mr-2">Multi-sites:</span>
-						<span
-							class="inline-flex flex-wrap items-center gap-1 bg-white text-purple-600 lg:px-3 py-1 rounded-full cursor-pointer hover:bg-purple-100 transition"
-						>
-							<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr11:534289</span>
-							<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr17:7578406</span>
-							<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr17:7577538</span>
-							<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr17:7577120</span>
-						</span>
-					</div>
-				</div>
-			</div>
-		</section>
+		<Search />
 
 		<!-- Data Sources -->
 		<section class="relative bg-[#05192d] py-28 overflow-clip">
@@ -273,13 +196,6 @@ const key_features = [
 		description: 'Cross-population comparisons with Indian, TCGA, and literature-curated datasets.',
 	},
 ]
-
-const value2 = ref(null)
-const items = ref(['AbortController', 'TerminalStyle', 'oks'])
-
-const search = () => {
-	items.value = []
-}
 </script>
 
 <style scoped>
