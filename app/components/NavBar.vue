@@ -3,8 +3,8 @@
 		:model="items"
 		:pt="{
 			start: '!bg-sky-200',
-			itemContent: 'group !rounded-2xl px-2',
 			rootList: '!bg-sky-200',
+			itemContent: 'group !rounded-2xl',
 			root: '!bg-sky-200 shadow !border-0 !justify-between !px-7 !py-4 !sticky top-0 z-50',
 		}"
 	>
@@ -25,23 +25,46 @@
 		</template>
 
 		<template #item="{ item, props }">
-			<NuxtLink :to="item.href" v-ripple class="flex items-center p-2">
-				<div class="flex items-center" :class="{ 'gap-2': item.label }">
+			<NuxtLink
+				v-ripple
+				:to="item.href"
+				v-if="item.type === 'button'"
+				class="flex items-center py-2 rounded-2xl px-3"
+			>
+				<div class="flex items-center gap-2">
 					<Icon :name="item.icon" class="!w-5 !h-5 group-hover:text-blue-800" />
 					<span class="text-gray-800"> {{ item.label }} </span>
 				</div>
 			</NuxtLink>
+
+			<div class="flex items-center py-2 rounded-2xl px-3" v-else @click="item.action">
+				<div class="flex items-center">
+					<Icon
+						:name="item.icon_dark"
+						v-if="colorMode == 'light'"
+						class="!w-5 !h-5 group-hover:text-blue-800"
+					/>
+					<Icon :name="item.icon_light" class="!w-5 !h-5 group-hover:text-blue-800" v-else />
+					<span class="text-gray-800"> {{ item.label }} </span>
+				</div>
+			</div>
 		</template>
 	</Menubar>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+const { colorMode, toggle } = useTheme()
 
 const items = ref([
-	{ label: 'Home', icon: 'solar:home-2-bold-duotone', href: '/' },
-	{ label: 'Help', icon: 'solar:question-square-bold-duotone', href: '/help' },
-	{ label: 'Contact us', icon: 'solar:user-speak-bold-duotone', href: '/contact' },
-	{ label: '', icon: 'solar:sun-2-bold-duotone', action: '' },
+	{ label: 'Home', icon: 'solar:home-2-bold-duotone', href: '/', type: 'button' },
+	{ label: 'Help', icon: 'solar:question-square-bold-duotone', href: '/help', type: 'button' },
+	{ label: 'Contact us', icon: 'solar:user-speak-bold-duotone', href: '/contact', type: 'button' },
+	{
+		label: '',
+		icon_light: 'solar:sun-2-bold-duotone',
+		icon_dark: 'solar:moon-bold-duotone',
+		action: toggle,
+		type: 'action',
+	},
 ])
 </script>
