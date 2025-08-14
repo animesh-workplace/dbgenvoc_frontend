@@ -50,6 +50,7 @@
 								</p>
 
 								<div class="grid grid-cols-3 my-8 items-center">
+									<!-- Laptop Mockup -->
 									<div>
 										<div
 											class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[8px] rounded-t-xl h-[172px] max-w-[301px] md:h-[294px] md:max-w-[512px]"
@@ -73,6 +74,7 @@
 										</div>
 									</div>
 
+									<!-- Tab Mockup -->
 									<div>
 										<div
 											class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] max-w-[341px]"
@@ -106,6 +108,7 @@
 										</div>
 									</div>
 
+									<!-- Mobile Mockup -->
 									<div>
 										<div
 											class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] w-[300px] shadow-xl"
