@@ -1,690 +1,371 @@
 <template>
-	<div class="help-container">
-		<!-- Header Section -->
-		<div class="help-header">
-			<h1 class="main-title">
-				<i class="fas fa-dna"></i>
-				dbGENVOC Help Center
-			</h1>
-			<p class="subtitle">Your comprehensive guide to using the Genomic Variants of Oral Cancer Database</p>
-		</div>
+	<div class="bg-gradient-to-br from-blue-500/10 to-green-500/10 min-h-[calc(100vh-56px)]">
+		<section class="relative overflow-hidden">
+			<!-- Header Section -->
+			<div class="text-center px-8 py-12 bg-gradient-to-br from-blue-500/10 to-green-500/10">
+				<h1 class="text-3xl font-bold text-blue-800">dbGENVOC Help Center</h1>
+				<p class="text-gray-500">
+					Your comprehensive guide to using the Genomic Variants of Oral Cancer Database
+				</p>
+			</div>
 
-		<!-- Navigation Pills -->
-		<div class="help-nav">
-			<button class="nav-pill" data-section="about"><i class="fas fa-info-circle"></i> About</button>
-			<button class="nav-pill" data-section="search"><i class="fas fa-search"></i> Search Guide</button>
-			<button class="nav-pill active" data-section="results">
-				<i class="fas fa-table"></i> Results & Filtering
-			</button>
-		</div>
+			<!-- Navigation Tabs -->
+			<div>
+				<Tabs v-model:value="selectedTab">
+					<TabList
+						:pt="{ tablist: 'justify-center text-center px-8', activeBar: 'border-blue-800 border-2' }"
+					>
+						<Tab
+							:key="index"
+							:value="tab.value"
+							v-for="(tab, index) in tabs"
+							class="flex items-center gap-2"
+							:class="{
+								'!text-blue-800': tab.value === selectedTab,
+								'!text-gray-500': tab.value !== selectedTab,
+							}"
+						>
+							<Icon :name="tab.icon" class="!w-5 !h-5" />
+							<span>
+								{{ tab.title }}
+							</span>
+						</Tab>
+					</TabList>
 
-		<!-- Content Sections -->
-		<div class="help-content">
-			<!-- About Section -->
-			<section id="about-section" class="content-section">
-				<div class="section-card">
-					<div class="card-header">
-						<h2><i class="fas fa-database"></i> About dbGENVOC</h2>
-					</div>
-					<div class="card-body">
-						<p class="lead">
-							dbGENVOC is a comprehensive, flexible database framework designed to provide
-							researchers with access to somatic variation data from Indian oral cancer patients.
-						</p>
-
-						<div class="feature-grid">
-							<div class="feature-item">
-								<div class="feature-icon">
-									<i class="fas fa-chart-bar"></i>
-								</div>
-								<h4>24M+ Variants</h4>
-								<p>From 100 Indian oral cancer patients (WES) and 5 patients (WGS)</p>
-							</div>
-
-							<div class="feature-item">
-								<div class="feature-icon">
-									<i class="fas fa-globe-americas"></i>
-								</div>
-								<h4>TCGA Data</h4>
-								<p>220 patient samples from TCGA-HNSCC project (USA)</p>
-							</div>
-
-							<div class="feature-item">
-								<div class="feature-icon">
-									<i class="fas fa-book"></i>
-								</div>
-								<h4>Literature Data</h4>
-								<p>Manually curated data from 118 patients in published studies</p>
-							</div>
-						</div>
-
-						<div class="data-summary">
-							<h3><i class="fas fa-table"></i> Data Summary</h3>
-							<div class="summary-stats">
-								<div class="stat-item">
-									<span class="stat-number">~24M</span>
-									<span class="stat-label">Somatic Variants</span>
-								</div>
-								<div class="stat-item">
-									<span class="stat-number">325+</span>
-									<span class="stat-label">Total Patients</span>
-								</div>
-								<div class="stat-item">
-									<span class="stat-number">3</span>
-									<span class="stat-label">Data Sources</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- Search Guide Section -->
-			<section id="search-section" class="content-section">
-				<div class="section-card">
-					<div class="card-header">
-						<h2><i class="fas fa-search"></i> Search Guide</h2>
-					</div>
-					<div class="card-body">
-						<div class="search-intro">
-							<div class="intro-box">
-								<i class="fas fa-lightbulb"></i>
-								<p>
-									Use the live search box on the home page to quickly find variants by entering
-									gene names, genomic regions, or patient IDs. Auto-complete and spell-checking
-									are enabled!
+					<TabPanels
+						class="text-center !bg-gradient-to-br from-blue-500/10 to-green-500/10 !pt-12 min-h-full"
+					>
+						<TabPanel value="0">
+							<div>
+								<p class="p-4" align="justify">
+									dbGENVOC is a comprehensive and flexible database framework developed to enable
+									users to access, query, browse, and download somatic variation data from Indian
+									oral cancer patients. It stores variant calls generated through massively
+									parallel sequencing across multiple studies. The first release of dbGENVOC
+									includes around 24 million somatic variants from whole exome sequences of 100
+									Indian oral cancer patients and whole genome sequences of 5 patients from
+									India, along with somatic variation data from 220 patient samples analyzed by
+									the TCGA-HNSCC project in the USA, and manually curated variation data from 118
+									patients reported in recently published peer-reviewed studies.
 								</p>
-							</div>
-						</div>
 
-						<div class="search-options">
-							<h3>Search Options</h3>
+								<div class="grid grid-cols-3 my-8 items-center">
+									<div>
+										<div
+											class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[8px] rounded-t-xl h-[172px] max-w-[301px] md:h-[294px] md:max-w-[512px]"
+										>
+											<div
+												class="rounded-lg overflow-hidden h-[156px] md:h-[278px] bg-white dark:bg-gray-800"
+											>
+												<img
+													src="https://flowbite.s3.amazonaws.com/docs/device-mockups/laptop-screen-dark.png"
+													class="hidden dark:block h-[156px] md:h-[278px] w-full rounded-lg"
+													alt=""
+												/>
+											</div>
+										</div>
+										<div
+											class="relative mx-auto bg-gray-900 dark:bg-gray-700 rounded-b-xl rounded-t-sm h-[17px] max-w-[351px] md:h-[21px] md:max-w-[597px]"
+										>
+											<div
+												class="absolute left-1/2 top-0 -translate-x-1/2 rounded-b-xl w-[56px] h-[5px] md:w-[96px] md:h-[8px] bg-gray-800"
+											></div>
+										</div>
+									</div>
 
-							<div class="option-grid">
-								<div class="search-option">
-									<div class="option-header">
-										<i class="fas fa-dna"></i>
-										<h4>Gene Search</h4>
+									<div>
+										<div
+											class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] max-w-[341px]"
+										>
+											<div
+												class="h-[32px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -start-[17px] top-[72px] rounded-s-lg"
+											></div>
+											<div
+												class="h-[46px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -start-[17px] top-[124px] rounded-s-lg"
+											></div>
+											<div
+												class="h-[46px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -start-[17px] top-[178px] rounded-s-lg"
+											></div>
+											<div
+												class="h-[64px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -end-[17px] top-[142px] rounded-e-lg"
+											></div>
+											<div
+												class="rounded-[2rem] overflow-hidden h-[426px] bg-white dark:bg-gray-800"
+											>
+												<img
+													src="https://flowbite.s3.amazonaws.com/docs/device-mockups/tablet-mockup-image.png"
+													class="dark:hidden h-[426px]"
+													alt=""
+												/>
+												<img
+													src="https://flowbite.s3.amazonaws.com/docs/device-mockups/tablet-mockup-image-dark.png"
+													class="hidden dark:block h-[426px]"
+													alt=""
+												/>
+											</div>
+										</div>
 									</div>
-									<p>Search by gene symbol, alias, or name</p>
-									<div class="example">
-										<strong>Example:</strong> <code>BRCA2</code>, <code>TP53</code>
-									</div>
-								</div>
 
-								<div class="search-option">
-									<div class="option-header">
-										<i class="fas fa-map-marked-alt"></i>
-										<h4>Genomic Region</h4>
+									<div>
+										<div
+											class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] w-[300px] shadow-xl"
+										>
+											<div
+												class="w-[148px] h-[18px] bg-gray-800 top-0 rounded-b-[1rem] left-1/2 -translate-x-1/2 absolute"
+											></div>
+											<div
+												class="h-[46px] w-[3px] bg-gray-800 absolute -start-[17px] top-[124px] rounded-s-lg"
+											></div>
+											<div
+												class="h-[46px] w-[3px] bg-gray-800 absolute -start-[17px] top-[178px] rounded-s-lg"
+											></div>
+											<div
+												class="h-[64px] w-[3px] bg-gray-800 absolute -end-[17px] top-[142px] rounded-e-lg"
+											></div>
+											<div
+												class="rounded-[2rem] overflow-hidden w-[272px] bg-white dark:bg-gray-800"
+											>
+												<img
+													src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/hero/mockup-2-light.png"
+													class="dark:hidden w-[272px]"
+													alt=""
+												/>
+												<img
+													src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/hero/mockup-2-dark.png"
+													class="hidden dark:block w-[272px]"
+													alt=""
+												/>
+											</div>
+										</div>
 									</div>
-									<p>Search specific chromosomal regions (max 100KB)</p>
-									<div class="example">
-										<strong>Example:</strong> <code>1:915188-1015188</code>
-									</div>
-								</div>
-
-								<div class="search-option">
-									<div class="option-header">
-										<i class="fas fa-list"></i>
-										<h4>Multi-Gene</h4>
-									</div>
-									<p>Search multiple genes simultaneously</p>
-									<div class="example">
-										<strong>Example:</strong> <code>TP53 BRCA2 NOTCH1</code>
-									</div>
-								</div>
-
-								<div class="search-option">
-									<div class="option-header">
-										<i class="fas fa-crosshairs"></i>
-										<h4>Multi-Sites</h4>
-									</div>
-									<p>Search multiple specific genomic positions</p>
-									<div class="example">
-										<strong>Example:</strong> <code>chr11:534289,chr17:7578406</code>
-									</div>
-								</div>
-
-								<div class="search-option">
-									<div class="option-header">
-										<i class="fas fa-user"></i>
-										<h4>Patient ID</h4>
-									</div>
-									<p>Search by specific patient identifier</p>
-									<div class="example">
-										<strong>Example:</strong> <code>NIBMG-F316-GB</code>, <code>OT54</code>
-									</div>
-								</div>
-
-								<div class="search-option">
-									<div class="option-header">
-										<i class="fas fa-project-diagram"></i>
-										<h4>Pathway Search</h4>
-									</div>
-									<p>Search by biological pathways</p>
-									<div class="example">
-										<strong>Example:</strong> <code>Wnt signaling pathway</code>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- Results Section -->
-			<section id="results-section" class="content-section active">
-				<div class="section-card">
-					<div class="card-header">
-						<h2><i class="fas fa-table"></i> Results & Filtering</h2>
-					</div>
-					<div class="card-body">
-						<div class="results-overview">
-							<h3><i class="fas fa-eye"></i> Results Page Overview</h3>
-							<p>The results page is organized into three main panels for easy data exploration:</p>
-
-							<div class="panel-grid">
-								<div class="panel-item">
-									<div class="panel-number">1</div>
-									<h4>dbGENVOC Data</h4>
-									<p>Detailed variant information from our database</p>
-								</div>
-								<div class="panel-item">
-									<div class="panel-number">2</div>
-									<h4>TCGA Data</h4>
-									<p>Corresponding variants from TCGA oral cancer data</p>
-								</div>
-								<div class="panel-item">
-									<div class="panel-number">3</div>
-									<h4>Literature Data</h4>
-									<p>Curated variations from peer-reviewed publications</p>
 								</div>
 							</div>
-						</div>
+						</TabPanel>
 
-						<div class="filtering-tools">
-							<h3><i class="fas fa-filter"></i> Filtering & Tools</h3>
-
-							<div class="tools-grid">
-								<div class="tool-item">
-									<i class="fas fa-eye"></i>
-									<h4>View Options</h4>
-									<p>Adjust the number of rows displayed using the dropdown menu</p>
+						<TabPanel value="1">
+							<div class="px-4 py-8">
+								<div
+									id="alert"
+									class="flex items-center p-4 mb-4 text-blue-800 rounded-lg bg-blue-100"
+								>
+									<Icon name="solar:danger-circle-bold-duotone" class="!w-5 !h-5" />
+									<span class="sr-only">Info</span>
+									<div class="ms-3 text-sm font-medium">
+										Use the live search box on the home page to quickly find variants by
+										entering gene names, genomic regions, or patient IDs. Auto-complete and
+										spell-checking are enabled!
+									</div>
 								</div>
 
-								<div class="tool-item">
-									<i class="fas fa-search"></i>
-									<h4>Search Within Results</h4>
-									<p>Use the search box above data tables to filter current results</p>
-								</div>
-
-								<div class="tool-item">
-									<i class="fas fa-sort"></i>
-									<h4>Sorting</h4>
-									<p>Click on any column header to sort data ascending or descending</p>
-								</div>
-
-								<div class="tool-item">
-									<i class="fas fa-columns"></i>
-									<h4>Show/Hide Columns</h4>
-									<p>Customize your view by showing or hiding specific data columns</p>
-								</div>
-
-								<div class="tool-item">
-									<i class="fas fa-download"></i>
-									<h4>Download Results</h4>
-									<p>Export your search results in Excel format for further analysis</p>
+								<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+									<div
+										:key="index"
+										v-for="(guide, index) in searchGuide"
+										class="bg-white p-4 rounded-2xl shadow-sm relative overflow-hidden"
+									>
+										<Icon
+											name="solar:bacteria-line-duotone"
+											class="absolute !w-36 !h-36 opacity-30 -top-14 -right-8 rotate-45"
+										/>
+										<h3 class="text-lg font-semibold mb-2">{{ guide.title }}</h3>
+										<p>{{ guide.description }}</p>
+										<p class="text-sm text-gray-500">
+											<strong>Example: </strong>{{ guide.example }}
+										</p>
+									</div>
 								</div>
 							</div>
-						</div>
+						</TabPanel>
 
-						<div class="tips-section">
-							<h3><i class="fas fa-tips"></i> Pro Tips</h3>
-							<div class="tips-grid">
-								<div class="tip-item">
-									<i class="fas fa-bolt"></i>
-									<p>
-										Use the <strong>Somatic</strong> button to switch between Exome and Whole
-										Genome data views
-									</p>
+						<TabPanel value="2">
+							<div class="px-4 py-4">
+								<Divider
+									align="center"
+									:pt="{ root: '!border-red-500', content: '!bg-transparent' }"
+								>
+									<span class="font-semibold text-2xl">Result Page Overview</span>
+								</Divider>
+
+								<p class="mb-8">
+									The results page is organized into three main panels for easy data exploration:
+								</p>
+
+								<div class="grid grid-cols-3 gap-6 mb-12">
+									<div
+										:key="index"
+										v-for="(panel, index) in resultsOverview"
+										class="relative overflow-hidden bg-gray-100 rounded-2xl shadow"
+									>
+										<Icon
+											name="solar:chart-bold-duotone"
+											class="absolute !w-36 !h-36 opacity-30 -bottom-8 -left-8 rotate-45"
+										/>
+										<div class="px-4 py-5 sm:p-6">
+											<dl>
+												<dd class="mt-1 text-3xl font-semibold leading-9 text-gray-900">
+													{{ panel.title }}
+												</dd>
+												<dd class="font-semibold text-gray-500">
+													<span> {{ panel.description }} </span>
+												</dd>
+											</dl>
+										</div>
+									</div>
 								</div>
-								<div class="tip-item">
-									<i class="fas fa-filter"></i>
-									<p>Combine multiple filters to narrow down results to exactly what you need</p>
+
+								<Divider
+									align="center"
+									:pt="{ root: '!border-red-500', content: '!bg-transparent' }"
+								>
+									<span class="font-semibold text-2xl">Filtering & Tools</span>
+								</Divider>
+
+								<div class="grid grid-cols-4 gap-6 mb-12">
+									<div
+										:key="index"
+										v-for="(panel, index) in filteringTools"
+										class="relative p-4 bg-slate-100 shadow-lg rounded-2xl"
+									>
+										<div class="w-full h-full text-center">
+											<Icon :name="panel.icon" class="!w-20 !h-20" />
+											<p class="mt-4 text-lg text-gray-800">{{ panel.title }}</p>
+											<p class="px-6 py-2 text-xs text-gray-500">
+												{{ panel.description }}
+											</p>
+										</div>
+									</div>
 								</div>
-								<div class="tip-item">
-									<i class="fas fa-save"></i>
-									<p>Always download your results for offline analysis and record keeping</p>
+
+								<Divider
+									align="center"
+									:pt="{ root: '!border-red-500', content: '!bg-transparent' }"
+								>
+									<span class="font-semibold text-2xl">Pro Tips</span>
+								</Divider>
+
+								<div class="grid grid-cols-3 gap-4">
+									<div
+										id="alert"
+										class="flex items-center p-4 mb-4 text-rose-800 rounded-lg bg-rose-100"
+									>
+										<Icon name="solar:danger-circle-bold-duotone" class="!w-5 !h-5" />
+										<span class="sr-only">Info</span>
+										<div class="ms-3 text-sm font-medium">
+											Use the button to switch between Exome and Whole Genome data views
+										</div>
+									</div>
+
+									<div
+										id="alert"
+										class="flex items-center p-4 mb-4 text-rose-800 rounded-lg bg-rose-100"
+									>
+										<Icon name="solar:danger-circle-bold-duotone" class="!w-5 !h-5" />
+										<span class="sr-only">Info</span>
+										<div class="ms-3 text-sm font-medium">
+											Combine multiple filters to narrow down results to exactly what you
+											need
+										</div>
+									</div>
+
+									<div
+										id="alert"
+										class="flex items-center p-4 mb-4 text-rose-800 rounded-lg bg-rose-100"
+									>
+										<Icon name="solar:danger-circle-bold-duotone" class="!w-5 !h-5" />
+										<span class="sr-only">Info</span>
+										<div class="ms-3 text-sm font-medium">
+											Always download your results for offline analysis and record keeping
+										</div>
+									</div>
 								</div>
 							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-		</div>
+						</TabPanel>
+					</TabPanels>
+				</Tabs>
+			</div>
+		</section>
 	</div>
 </template>
 
-<style scoped>
-/* Help Container Styles */
-.help-container {
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 20px;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	line-height: 1.6;
-	color: #333;
-}
-
-/* Header Styles */
-.help-header {
-	text-align: center;
-	margin-bottom: 40px;
-	padding: 40px 20px;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	border-radius: 15px;
-	color: white;
-}
-
-.main-title {
-	font-size: 2.5rem;
-	margin-bottom: 15px;
-	font-weight: 700;
-}
-
-.main-title i {
-	margin-right: 15px;
-	color: #ffd700;
-}
-
-.subtitle {
-	font-size: 1.2rem;
-	opacity: 0.9;
-	margin: 0;
-}
-
-/* Navigation Pills */
-.help-nav {
-	display: flex;
-	justify-content: center;
-	gap: 10px;
-	margin-bottom: 40px;
-	flex-wrap: wrap;
-}
-
-.nav-pill {
-	padding: 12px 24px;
-	border: none;
-	border-radius: 25px;
-	background: #f8f9fa;
-	color: #666;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	font-weight: 500;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.nav-pill:hover,
-.nav-pill.active {
-	background: #007bff;
-	color: white;
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-/* Content Sections */
-.content-section {
-	display: none;
-	animation: fadeIn 0.5s ease-in;
-}
-
-.content-section.active {
-	display: block;
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(20px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-/* Card Styles */
-.section-card {
-	background: white;
-	border-radius: 15px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-	overflow: hidden;
-	margin-bottom: 30px;
-}
-
-.card-header {
-	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-	color: white;
-	padding: 25px 30px;
-}
-
-.card-header h2 {
-	margin: 0;
-	font-size: 1.8rem;
-	font-weight: 600;
-}
-
-.card-header i {
-	margin-right: 12px;
-}
-
-.card-body {
-	padding: 30px;
-}
-
-.lead {
-	font-size: 1.1rem;
-	color: #666;
-	margin-bottom: 30px;
-}
-
-/* Feature Grid */
-.feature-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 25px;
-	margin: 30px 0;
-}
-
-.feature-item {
-	text-align: center;
-	padding: 25px;
-	background: #f8f9fa;
-	border-radius: 12px;
-	transition: transform 0.3s ease;
-}
-
-.feature-item:hover {
-	transform: translateY(-5px);
-}
-
-.feature-icon {
-	width: 60px;
-	height: 60px;
-	margin: 0 auto 15px;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: white;
-	font-size: 1.5rem;
-}
-
-.feature-item h4 {
-	margin: 15px 0 10px;
-	color: #333;
-}
-
-/* Data Summary */
-.data-summary {
-	background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-	padding: 25px;
-	border-radius: 12px;
-	margin-top: 30px;
-}
-
-.data-summary h3 {
-	color: #2d3436;
-	margin-bottom: 20px;
-	text-align: center;
-}
-
-.summary-stats {
-	display: flex;
-	justify-content: space-around;
-	flex-wrap: wrap;
-	gap: 20px;
-}
-
-.stat-item {
-	text-align: center;
-}
-
-.stat-number {
-	display: block;
-	font-size: 2rem;
-	font-weight: bold;
-	color: #2d3436;
-}
-
-.stat-label {
-	font-size: 0.9rem;
-	color: #636e72;
-}
-
-/* Search Options */
-.search-intro {
-	margin-bottom: 30px;
-}
-
-.intro-box {
-	background: #e3f2fd;
-	padding: 20px;
-	border-radius: 10px;
-	border-left: 4px solid #2196f3;
-	display: flex;
-	align-items: center;
-	gap: 15px;
-}
-
-.intro-box i {
-	font-size: 1.5rem;
-	color: #2196f3;
-}
-
-.option-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-	gap: 20px;
-	margin-top: 25px;
-}
-
-.search-option {
-	background: #f8f9fa;
-	padding: 20px;
-	border-radius: 10px;
-	border: 1px solid #e9ecef;
-	transition: all 0.3s ease;
-}
-
-.search-option:hover {
-	border-color: #007bff;
-	box-shadow: 0 5px 15px rgba(0, 123, 255, 0.1);
-}
-
-.option-header {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	margin-bottom: 10px;
-}
-
-.option-header i {
-	color: #007bff;
-	font-size: 1.2rem;
-}
-
-.option-header h4 {
-	margin: 0;
-	color: #333;
-}
-
-.example {
-	background: #fff;
-	padding: 10px;
-	border-radius: 5px;
-	border-left: 3px solid #28a745;
-	margin-top: 10px;
-	font-size: 0.9rem;
-}
-
-.example code {
-	background: #f8f9fa;
-	padding: 2px 6px;
-	border-radius: 3px;
-	font-family: 'Courier New', monospace;
-	color: #e83e8c;
-}
-
-/* Results & Filtering Styles */
-.results-overview h3,
-.filtering-tools h3,
-.tips-section h3 {
-	color: #333;
-	border-bottom: 2px solid #007bff;
-	padding-bottom: 10px;
-	margin-bottom: 25px;
-}
-
-.panel-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 20px;
-	margin: 25px 0;
-}
-
-.panel-item {
-	background: #f8f9fa;
-	padding: 20px;
-	border-radius: 10px;
-	position: relative;
-	border-left: 4px solid #007bff;
-}
-
-.panel-number {
-	position: absolute;
-	top: -10px;
-	right: -10px;
-	background: #007bff;
-	color: white;
-	width: 30px;
-	height: 30px;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: bold;
-}
-
-.tools-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 20px;
-	margin: 25px 0;
-}
-
-.tool-item {
-	background: #fff;
-	padding: 20px;
-	border: 1px solid #e9ecef;
-	border-radius: 8px;
-	text-align: center;
-	transition: all 0.3s ease;
-}
-
-.tool-item:hover {
-	border-color: #007bff;
-	box-shadow: 0 5px 15px rgba(0, 123, 255, 0.1);
-}
-
-.tool-item i {
-	font-size: 2rem;
-	color: #007bff;
-	margin-bottom: 15px;
-}
-
-.tool-item h4 {
-	color: #333;
-	margin: 10px 0;
-}
-
-.tips-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-	gap: 15px;
-	margin-top: 20px;
-}
-
-.tip-item {
-	background: #e8f5e8;
-	padding: 15px;
-	border-radius: 8px;
-	border-left: 4px solid #28a745;
-	display: flex;
-	align-items: center;
-	gap: 15px;
-}
-
-.tip-item i {
-	color: #28a745;
-	font-size: 1.2rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-	.help-container {
-		padding: 10px;
-	}
-
-	.main-title {
-		font-size: 2rem;
-	}
-
-	.nav-pill {
-		font-size: 0.9rem;
-		padding: 10px 16px;
-	}
-
-	.card-body {
-		padding: 20px;
-	}
-
-	.feature-grid,
-	.option-grid,
-	.panel-grid,
-	.tools-grid {
-		grid-template-columns: 1fr;
-	}
-
-	.summary-stats {
-		flex-direction: column;
-		gap: 15px;
-	}
-}
-</style>
-
 <script setup>
-// Navigation functionality
-// document.addEventListener('DOMContentLoaded', function() {
-//     const navPills = document.querySelectorAll('.nav-pill');
-//     const contentSections = document.querySelectorAll('.content-section');
+const selectedTab = ref('0')
 
-//     navPills.forEach(pill => {
-//         pill.addEventListener('click', function() {
-//             // Remove active class from all pills and sections
-//             navPills.forEach(p => p.classList.remove('active'));
-//             contentSections.forEach(s => s.classList.remove('active'));
+const tabs = ref([
+	{ title: 'About', icon: 'solar:chat-square-bold-duotone', value: '0' },
+	{
+		title: 'Search Guide',
+		icon: 'solar:minimalistic-magnifer-bold-duotone',
+		value: '1',
+	},
+	{ title: 'Results & Filtering', icon: 'solar:filter-bold-duotone', value: '2' },
+])
 
-//             // Add active class to clicked pill
-//             this.classList.add('active');
+const searchGuide = ref([
+	{
+		title: 'Gene Search',
+		description: 'Search by gene symbol, alias, or name',
+		example: 'BRCA2, TP53',
+	},
+	{
+		title: 'Genomic Region',
+		description: 'Search specific chromosomal regions',
+		example: 'chr1:915188-1015188',
+	},
+	{
+		title: 'Multi-Gene',
+		description: 'Search multiple genes simultaneously',
+		example: 'TP53, BRCA2, NOTCH1',
+	},
+	{
+		title: 'Multi-Sites',
+		description: 'Search multiple specific genomic positions',
+		example: 'chr11:534289, chr17:7578406',
+	},
+	{
+		title: 'Patient ID',
+		description: 'Search by specific patient identifier',
+		example: 'NIBMG-F316-GB, OT54',
+	},
+	{
+		title: 'Pathway Search',
+		description: 'Search by biological pathways',
+		example: 'Glycolysis Gluceoneogenesis Pathway, Wnt Signaling Pathway',
+	},
+])
 
-//             // Show corresponding section
-//             const sectionId = this.getAttribute('data-section') + '-section';
-//             document.getElementById(sectionId).classList.add('active');
-//         });
-//     });
-// });
+const filteringTools = ref([
+	{
+		icon: 'solar:eye-bold-duotone',
+		title: 'View Options',
+		description: 'Adjust the number of rows displayed using the dropdown menu',
+	},
+	{
+		icon: 'solar:rounded-magnifer-bold-duotone',
+		title: 'Search Within Results',
+		description: 'Use the search box above data tables to filter current results',
+	},
+	{
+		icon: 'solar:sort-bold-duotone',
+		title: 'Sorting',
+		description: 'Click on any column header to sort data ascending or descending',
+	},
+	{
+		icon: 'solar:bill-list-bold-duotone',
+		title: 'Show/Hide Columns',
+		description: 'Customize your view by showing or hiding specific data columns',
+	},
+	{
+		icon: 'solar:file-download-bold-duotone',
+		title: 'Download Results',
+		description: 'Export your search results in Excel format for further analysis',
+	},
+])
+
+const resultsOverview = ref([
+	{ title: 'dbGENVOC Data', description: 'Detailed variant information from our database' },
+	{ title: 'TCGA Data', description: 'Corresponding variants from TCGA oral cancer data' },
+	{ title: 'Literature Data', description: 'Curated variations from peer-reviewed publications' },
+])
 </script>
+
+<style scoped></style>
