@@ -1,9 +1,9 @@
 <template>
 	<div class="font-sans">
 		<NavBar />
-		<div class="min-h-[calc(100vh-56px)]">
+		<main>
 			<slot />
-		</div>
+		</main>
 		<Footer />
 	</div>
 </template>
