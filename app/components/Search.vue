@@ -7,7 +7,9 @@
 				size="large"
 				v-model="search"
 				@blur="handleBlur"
+				name="Search Input"
 				@focus="handleFocus"
+				aria-label="Search Input"
 				:suggestions="searchSuggestions"
 				:class="{ 'gradient-bg': !isFocused }"
 				class="min-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
@@ -19,6 +21,9 @@
 				}"
 			/>
 			<Button
+				id="Search Button"
+				aria-label="Search Button"
+				@click="() => console.log('Search clicked')"
 				:pt="{
 					root: '!rounded-l-none !rounded-r-2xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-0 z-10',
 				}"
@@ -123,7 +128,7 @@ const handleBlur = () => {
 	border-radius: 1.2rem;
 	transition: all 1s ease-in-out;
 	min-width: calc(100% + 5rem + 4px);
-	animation: spin 4s linear infinite;
+	animation: spin 10s linear infinite;
 	background-image: conic-gradient(
 		from var(--rotate),
 		#ffffff 0%,
