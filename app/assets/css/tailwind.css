@@ -1,5 +1,5 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-    --font-sans: 'Lexend Deca', sans-serif;
+	--font-sans: 'Lexend Deca', sans-serif;
 }
