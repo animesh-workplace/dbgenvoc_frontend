@@ -1,5 +1,5 @@
 <template>
-	<main>
+	<div class="min-h-[calc(100vh-56px)]">
 		<section class="relative bg-gradient-to-br from-blue-500/10 to-green-500/10 overflow-hidden">
 			<div class="absolute inset-0 opacity-20 hero-background" />
 
@@ -78,7 +78,7 @@
 		</section>
 
 		<!-- Features -->
-		<section class="my-12 mx-8">
+		<section class="py-12 mx-8">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 				<div class="bg-gray-200 rounded-2xl p-4">
 					<div class="bg-gray-50 p-4 rounded-2xl shadow-sm border border-gray-200 relative">
@@ -114,7 +114,7 @@
 				</div>
 			</div>
 		</section>
-	</main>
+	</div>
 </template>
 
 <script setup>
@@ -198,8 +198,4 @@ const key_features = [
 ]
 </script>
 
-<style scoped>
-.hero-background {
-	background: url('data:image/svg+xml, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-}
-</style>
+<style scoped></style>
