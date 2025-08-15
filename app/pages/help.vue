@@ -182,15 +182,21 @@
 
 						<TabPanel value="2">
 							<div class="px-4 py-4">
-								<Divider
-									align="center"
-									:pt="{ root: '!border-red-500', content: '!bg-transparent' }"
-								>
-									<span class="font-semibold text-2xl">Result Page Overview</span>
-								</Divider>
+								<div class="flex items-center">
+									<span class="h-px flex-1 bg-gray-300"></span>
 
-								<p class="mb-8">
-									The results page is organized into three main panels for easy data exploration:
+									<span class="shrink-0 px-4 text-gray-700 font-semibold text-2xl">
+										Result Page Overview
+									</span>
+
+									<span class="h-px flex-1 bg-gray-300"></span>
+								</div>
+
+								<p class="my-4 text-gray-600 max-w-3xl mx-auto">
+									After performing a search, you will be directed to the results page where you
+									can view and filter the data. The results are displayed in a user-friendly
+									table format with options to sort, filter, and download the data. The results
+									page is organized into three main panels for easy data exploration:
 								</p>
 
 								<div class="grid grid-cols-3 gap-6 mb-12">
@@ -216,14 +222,17 @@
 									</div>
 								</div>
 
-								<Divider
-									align="center"
-									:pt="{ root: '!border-red-500', content: '!bg-transparent' }"
-								>
-									<span class="font-semibold text-2xl">Filtering & Tools</span>
-								</Divider>
+								<div class="flex items-center">
+									<span class="h-px flex-1 bg-gray-300"></span>
 
-								<div class="grid grid-cols-4 gap-6 mb-12">
+									<span class="shrink-0 px-4 text-gray-700 font-semibold text-2xl">
+										Filtering & Tools
+									</span>
+
+									<span class="h-px flex-1 bg-gray-300"></span>
+								</div>
+
+								<div class="grid grid-cols-4 gap-6 my-12">
 									<div
 										:key="index"
 										v-for="(panel, index) in filteringTools"
@@ -239,14 +248,17 @@
 									</div>
 								</div>
 
-								<Divider
-									align="center"
-									:pt="{ root: '!border-red-500', content: '!bg-transparent' }"
-								>
-									<span class="font-semibold text-2xl">Pro Tips</span>
-								</Divider>
+								<div class="flex items-center">
+									<span class="h-px flex-1 bg-gray-300"></span>
 
-								<div class="grid grid-cols-3 gap-4">
+									<span class="shrink-0 px-4 text-gray-700 font-semibold text-2xl">
+										Pro Tips
+									</span>
+
+									<span class="h-px flex-1 bg-gray-300"></span>
+								</div>
+
+								<div class="grid grid-cols-3 gap-4 my-12">
 									<div
 										id="alert"
 										class="flex items-center p-4 mb-4 text-rose-800 rounded-lg bg-rose-100"
