@@ -46,25 +46,10 @@
 						<div class="space-y-6">
 							<!-- Address -->
 							<div class="flex items-start gap-3">
-								<div class="p-2 bg-blue-100 text-blue-600 rounded-xl">
-									<svg
-										class="w-6 h-6"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M17.657 16.657L13.414 20.9a1 1 0 01-1.414 0l-4.243-4.243a8 8 0 1111.314 0z"
-										/>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-										/>
-									</svg>
+								<div
+									class="p-2 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"
+								>
+									<Icon name="solar:map-point-wave-line-duotone" class="!w-5 !h-5" />
 								</div>
 								<div>
 									<h3 class="font-medium text-gray-700">Address</h3>
@@ -78,20 +63,10 @@
 
 							<!-- Maintained By -->
 							<div class="flex items-start gap-3">
-								<div class="p-2 bg-green-100 text-green-600 rounded-xl">
-									<svg
-										class="w-6 h-6"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M16 12H8m0 0l4-4m-4 4l4 4"
-										/>
-									</svg>
+								<div
+									class="p-2 bg-green-100 text-green-600 rounded-xl flex items-center justify-center"
+								>
+									<Icon name="solar:chat-square-code-line-duotone" class="!w-5 !h-5" />
 								</div>
 								<div>
 									<h3 class="font-medium text-gray-700">Maintained By</h3>
@@ -106,20 +81,10 @@
 
 							<!-- Correspondence -->
 							<div class="flex items-start gap-3">
-								<div class="p-2 bg-purple-100 text-purple-600 rounded-xl">
-									<svg
-										class="w-6 h-6"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M16 12H8m0 0l4-4m-4 4l4 4"
-										/>
-									</svg>
+								<div
+									class="p-2 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center"
+								>
+									<Icon name="solar:user-id-line-duotone" class="!w-5 !h-5" />
 								</div>
 								<div>
 									<h3 class="font-medium text-gray-700">Correspondence</h3>
