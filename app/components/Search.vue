@@ -12,7 +12,7 @@
 				aria-label="Search Input"
 				:suggestions="searchSuggestions"
 				:class="{ 'gradient-bg': !isFocused }"
-				class="min-w-[calc(100%-2rem-5rem)] xl:min-w-4xl peer hover:bg-red-700"
+				class="min-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
 				placeholder="Enter gene name or multiple gene names or region or pathway"
 				:pt="{
 					input: 'placeholder:text-sm caret-blue-800',
@@ -23,7 +23,6 @@
 			<Button
 				id="Search Button"
 				aria-label="Search Button"
-				class="peer-hover:!bg-red-700"
 				@click="() => console.log('Search clicked')"
 				:pt="{
 					root: '!rounded-l-none !rounded-r-2xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-0 z-10',
