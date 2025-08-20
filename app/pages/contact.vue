@@ -1,6 +1,6 @@
 <template>
-	<div class="">
-		<div class="grid grid-cols-2 items-center gap-6 relative p-8 w-full h-full md:h-auto">
+	<div>
+		<section class="grid grid-cols-2 items-center gap-6 relative p-8 w-full h-full md:h-auto">
 			<div class="relative p-4 bg-gray-200 rounded-lg shadow sm:p-5">
 				<!-- Header -->
 				<div
@@ -37,7 +37,7 @@
 			</div>
 
 			<div>
-				<section class="max-w-6xl mx-auto p-8 bg-white rounded-2xl shadow-md">
+				<div class="max-w-6xl mx-auto p-8 bg-white rounded-2xl shadow-md">
 					<!-- Header -->
 					<h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Contact Details</h2>
 
@@ -122,9 +122,9 @@
 							></iframe>
 						</div>
 					</div>
-				</section>
+				</div>
 			</div>
-		</div>
+		</section>
 	</div>
 </template>
 
