@@ -23,18 +23,18 @@ const chartOption = ref({
 	xAxis: { axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 } },
 	series: [
 		{
-			data: [120, 200, 150, 80, 70, 110, 130],
 			type: 'bar',
 			name: 'B1',
 			stack: 'total',
 			showBackground: true,
+			data: [120, 200, 150, 80, 70, 110, 130],
 			backgroundStyle: { color: 'rgba(180, 180, 180, 0.2)' },
 		},
 		{
-			data: [10, 20, 15, 8, 7, 11, 13],
 			type: 'bar',
 			stack: 'total',
 			showBackground: true,
+			data: [10, 20, 15, 8, 7, 11, 13],
 			// itemStyle: { borderRadius: [5, 5, 0, 0] }, // Apply border for vertical bars
 			itemStyle: { borderRadius: [0, 5, 5, 0] }, // Apply border for horizontal bars
 			backgroundStyle: { color: 'rgba(180, 180, 180, 0.2)' },
@@ -42,6 +42,7 @@ const chartOption = ref({
 		},
 	],
 })
+
 // Initialize on mount
 onMounted(() => {
 	nextTick(() => {
@@ -54,6 +55,5 @@ onMounted(() => {
 .chart {
 	width: 100%;
 	height: 34rem;
-	font-family: 'Lexend Deca';
 }
 </style>
