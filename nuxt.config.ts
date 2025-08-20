@@ -13,6 +13,7 @@ export default defineNuxtConfig({
 			link: [],
 		},
 	},
+	build: { transpile: ['echarts', 'echarts-gl', 'zrender'] },
 	vite: { plugins: [tailwindcss()] },
 	googleFonts: {
 		preload: true,
@@ -22,7 +23,7 @@ export default defineNuxtConfig({
 		families: { Poppins: true, 'Lexend+Deca': { wght: '100..900' } },
 	},
 	icon: { clientBundle: { scan: true }, serverBundle: { collections: ['solar'] } },
-	modules: ['@nuxt/icon', '@primevue/nuxt-module', '@nuxtjs/google-fonts', '@nuxt/image'],
+	modules: ['@nuxt/icon', '@primevue/nuxt-module', '@nuxtjs/google-fonts', '@nuxt/image', 'nuxt-echarts'],
 	primevue: {
 		options: {
 			ripple: true,
@@ -31,5 +32,22 @@ export default defineNuxtConfig({
 		components: {
 			include: [],
 		},
+	},
+	echarts: {
+		renderer: ['canvas'],
+		features: ['UniversalTransition'],
+		charts: ['ScatterChart', 'HeatmapChart', 'CustomChart', 'ThemeRiverChart', 'BoxplotChart', 'BarChart'],
+		components: [
+			'GridComponent',
+			'TitleComponent',
+			'LegendComponent',
+			'GraphicComponent',
+			'DatasetComponent',
+			'TooltipComponent',
+			'ToolboxComponent',
+			'DataZoomComponent',
+			'VisualMapComponent',
+			'SingleAxisComponent',
+		],
 	},
 })
