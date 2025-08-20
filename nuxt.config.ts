@@ -29,9 +29,7 @@ export default defineNuxtConfig({
 			ripple: true,
 			theme: { preset: Aura, options: { darkModeSelector: '.dark' } },
 		},
-		components: {
-			include: [],
-		},
+		components: { include: [] },
 	},
 	echarts: {
 		renderer: ['canvas'],
