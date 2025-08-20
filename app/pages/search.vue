@@ -5,7 +5,6 @@
 			<GraphBar />
 			<GraphBar />
 			<GraphLollipop class="col-span-3" />
-			<GraphTest class="col-span-3" />
 		</div>
 	</div>
 </template>
