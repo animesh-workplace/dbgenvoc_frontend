@@ -70,7 +70,7 @@ const pieDataArray = [
 	], // L7
 ]
 
-function scaleValue(value, min = 0, max = 300, newMin = 1, newMax = 96) {
+function scaleValue(value, min = 0, max = 300, newMin = 1, newMax = 100) {
 	if (value < min) value = min
 	if (value > max) value = max
 
@@ -79,35 +79,80 @@ function scaleValue(value, min = 0, max = 300, newMin = 1, newMax = 96) {
 
 // Calculate positions for pie charts based on data values and categories
 const calculatePiePosition = (categoryIndex, value, maxValue) => {
-	const xPercent = (categoryIndex * 2 + 1) * 7 + 1.85
+	const xPercent = (categoryIndex * 2 + 1) * 7 + 0.45
 	const yPercent = Math.round(scaleValue(value), 2)
 	console.log('🚀 ~ :58 ~ calculatePiePosition ~ xPercent, yPercent:', xPercent, yPercent)
 	return [xPercent + '%', 100 - yPercent + '%']
 }
 
+const truncateText = (text, maxWidth, fontSize = 10) => {
+	// Approximate text width (ECharts doesn't give exact here, so use char * fontSize * factor)
+	const avgCharWidth = fontSize * 0.6
+	const maxChars = Math.floor(maxWidth / avgCharWidth)
+	if (text.length > maxChars) {
+		return text.substring(0, maxChars - 2) + '…'
+	}
+	return text
+}
+
 const maxValue = Math.max(...data1)
 
 const chartOption = ref({
-	yAxis: {
-		show: false,
-		type: 'category',
-		data: [1, 2, 3, 4, 5, 6, 7], // L1 to L7
-		id: 'lollipopXAxis',
-		name: 'lollipopXAxis',
-		axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-	},
-
 	animation: false,
-	xAxis: {
-		show: true,
-		type: 'value',
-		id: 'lollipopYAxis',
-		max: maxValue + 100, // Add some padding
-		axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-		axisTick: { show: true },
-		axisLine: { show: true },
-		splitLine: { show: false },
-	},
+	yAxis: [
+		{
+			show: false,
+			type: 'category',
+			id: 'normalYAxis',
+			position: 'left',
+			data: [1, 2, 3, 4, 5, 6, 7], // L1 to L7
+			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		},
+		{
+			min: -32,
+			show: false,
+			type: 'value',
+			position: 'left',
+			id: 'lollipopYAxis',
+			max: maxValue + 100, // Add some padding
+			axisTick: { show: true },
+			axisLine: { show: true },
+			splitLine: { show: true },
+			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		},
+	],
+	xAxis: [
+		{
+			show: false,
+			type: 'value',
+			id: 'normalXAxis',
+			position: 'bottom',
+			max: maxValue + 100, // Add some padding
+			axisTick: { show: true },
+			axisLine: { show: true },
+			splitLine: { show: false },
+			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		},
+		{
+			show: false,
+			type: 'category',
+			position: 'bottom',
+			id: 'lollipopXAxis',
+			data: [1, 2, 3, 4, 5, 6, 7], // L1 to L7
+			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		},
+		{
+			show: true,
+			type: 'value',
+			id: 'normalXAxis2',
+			position: 'bottom',
+			max: maxValue + 100, // Add some padding
+			axisTick: { show: true },
+			axisLine: { show: true },
+			splitLine: { show: false },
+			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		},
+	],
 	grid: {
 		top: '0%',
 		left: '0%',
@@ -117,85 +162,123 @@ const chartOption = ref({
 	},
 	series: [
 		{
+			z: 1,
 			type: 'bar',
-			data: data2,
 			barWidth: 30,
-			itemStyle: { borderRadius: 30, color: '#4b5563', opacity: 0.6 },
-			z: -1,
+			xAxisId: 'normalXAxis',
+			yAxisId: 'normalYAxis',
+			data: [maxValue + 1000],
+			itemStyle: { borderRadius: 30, color: '#4b5563', opacity: 0.2 },
 		},
 		{
+			data,
+			z: 10,
 			type: 'custom',
+			xAxisId: 'normalXAxis',
+			yAxisId: 'normalYAxis',
+			// encode: { x: [1, 2], y: 0 },
 			renderItem(params, api) {
 				const categoryIndex = api.value(0)
 				const start = api.coord([api.value(1), categoryIndex])
 				const end = api.coord([api.value(2), categoryIndex])
 				const height = api.size([0, 1])[1] * 0.6
+				const rectWidth = end[0] - start[0]
+
 				return {
-					type: 'rect',
-					shape: {
-						x: start[0],
-						y: start[1] - height / 2,
-						width: end[0] - start[0],
-						height,
-						r: 20,
-					},
-					style: api.style(),
+					type: 'group',
+					children: [
+						// Rounded rectangle
+						{
+							type: 'rect',
+							shape: {
+								x: start[0],
+								y: start[1] - height / 2,
+								width: rectWidth,
+								height,
+								r: 20, // rounded corners
+							},
+							style: api.style(),
+						},
+						// Label text centered in the rectangle
+						// {
+						// 	type: 'text',
+						// 	style: {
+						// 		text: truncateText('params.name', rectWidth, 10), // use rect's name
+						// 		x: start[0] + rectWidth / 2,
+						// 		y: start[1],
+						// 		textAlign: 'center',
+						// 		textVerticalAlign: 'middle',
+						// 		fontFamily: 'Lexend Deca',
+						// 		fontWeight: 400,
+						// 		fontSize: 10,
+						// 	},
+						// 	z: 10,
+						// },
+					],
 				}
 			},
-			encode: { x: [1, 2], y: 0 },
-			data,
-			z: 10,
 		},
 		// Stem series (thin bars from 0 to value)
-		// {
-		// 	xAxisId: 'lollipopXAxis',
-		// 	yAxisId: 'lollipopYAxis',
-		// 	type: 'bar',
-		// 	data: data1,
-		// 	barWidth: 2,
-		// 	name: 'Stems',
-		// 	itemStyle: {
-		// 		color: '#666666',
-		// 		borderRadius: [0, 2, 2, 0],
-		// 	},
-		// },
+		{
+			z: -1,
+			type: 'bar',
+			data: data1,
+			xAxisId: 'lollipopXAxis',
+			yAxisId: 'lollipopYAxis',
+			barWidth: 2,
+			name: 'Stems',
+			itemStyle: {
+				color: '#666666',
+				borderRadius: [0, 2, 2, 0],
+			},
+		},
 		// Dot series
-		// {
-		// 	xAxisId: 'lollipopXAxis',
-		// 	yAxisId: 'lollipopYAxis',
-		// 	data: data1,
-		// 	name: 'Values',
-		// 	symbolSize: 20,
-		// 	type: 'scatter',
-		// 	itemStyle: { color: 'red' },
-		// },
+		{
+			xAxisId: 'lollipopXAxis',
+			yAxisId: 'lollipopYAxis',
+			data: data1,
+			name: 'Values',
+			symbolSize: 20,
+			type: 'scatter',
+			itemStyle: { color: 'red' },
+		},
+		{
+			show: false,
+			name: 'NonShownGraph',
+			symbolSize: 0,
+			type: 'scatter',
+			xAxisId: 'normalXAxis2',
+			yAxisId: 'lollipopYAxis',
+			data: [0, 0, 0, 0, 0, 0, 0],
+			itemStyle: { color: 'red' },
+		},
 		// Create multiple pie series - one for each data point
-		// ...pieDataArray.map((pieData, index) => ({
-		// 	type: 'pie',
-		// 	data: pieData,
-		// 	xAxisId: 'lollipopXAxis',
-		// 	yAxisId: 'lollipopYAxis',
-		// 	radius: ['6%', '3%'], // Small donut charts
-		// 	name: `Distribution ${categories[index]}`,
-		// 	center: calculatePiePosition(index, data1[index], maxValue),
-		// 	itemStyle: {
-		// 		borderWidth: 1,
-		// 		borderRadius: 2,
-		// 		borderColor: '#fff',
-		// 	},
-		// 	padAngle: 5,
-		// 	label: { show: false },
-		// 	labelLine: { show: false },
-		// 	emphasis: {
-		// 		itemStyle: {
-		// 			shadowBlur: 5,
-		// 			shadowOffsetX: 0,
-		// 			shadowColor: 'rgba(0, 0, 0, 0.3)',
-		// 		},
-		// 	},
-		// 	z: 10,
-		// 	showInLegend: false, // Don't show each pie in legend individually
-		// })),
+		...pieDataArray.map((pieData, index) => ({
+			z: 10,
+			type: 'pie',
+			data: pieData,
+			showInLegend: false, // Don't show each pie in legend individually
+			radius: ['6%', '3%'], // Small donut charts
+			xAxisId: 'lollipopXAxis',
+			yAxisId: 'lollipopYAxis',
+			name: `Distribution ${categories[index]}`,
+			center: calculatePiePosition(index, data1[index], maxValue),
+			itemStyle: {
+				borderWidth: 1,
+				borderRadius: 2,
+				borderColor: '#fff',
+			},
+			padAngle: 5,
+			label: { show: false },
+			labelLine: { show: false },
+			emphasis: {
+				itemStyle: {
+					shadowBlur: 5,
+					shadowOffsetX: 0,
+					shadowColor: 'rgba(0, 0, 0, 0.3)',
+				},
+			},
+		})),
 	],
 })
 
