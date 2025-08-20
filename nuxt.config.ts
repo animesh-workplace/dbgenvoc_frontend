@@ -34,7 +34,15 @@ export default defineNuxtConfig({
 	echarts: {
 		renderer: ['canvas'],
 		features: ['UniversalTransition'],
-		charts: ['ScatterChart', 'HeatmapChart', 'CustomChart', 'ThemeRiverChart', 'BoxplotChart', 'BarChart'],
+		charts: [
+			'ScatterChart',
+			'HeatmapChart',
+			'CustomChart',
+			'ThemeRiverChart',
+			'BoxplotChart',
+			'BarChart',
+			'PieChart',
+		],
 		components: [
 			'GridComponent',
 			'TitleComponent',
