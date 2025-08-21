@@ -2,11 +2,12 @@ import Aura from '@primeuix/themes/aura'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
+	devServer: { port: 3011 },
 	devtools: { enabled: true },
 	compatibilityDate: '2025-07-15',
 	css: ['@/assets/css/tailwind.css'],
 	app: {
-		// baseURL: process.env.ROUTER_BASE || '/dbgenvoc/',
+		baseURL: process.env.ROUTER_BASE || '/dbgenvoc/',
 		head: {
 			title: 'dbGENVOC | National Institute of Biomedical Genomics | BRIC-NIBMG',
 			meta: [],
