@@ -81,7 +81,7 @@ function scaleValue(value, min = 0, max = 300, newMin = 1, newMax = 100) {
 const calculatePiePosition = (categoryIndex, value, maxValue) => {
 	const xPercent = (categoryIndex * 2 + 1) * 7 + 0.45
 	const yPercent = Math.round(scaleValue(value), 2)
-	console.log('🚀 ~ :58 ~ calculatePiePosition ~ xPercent, yPercent:', xPercent, yPercent)
+	// console.log('🚀 ~ :58 ~ calculatePiePosition ~ xPercent, yPercent:', xPercent, yPercent)
 	return [xPercent + '%', 100 - yPercent + '%']
 }
 
