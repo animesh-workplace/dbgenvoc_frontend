@@ -13,9 +13,9 @@
 import { useGeneAPI } from '@/api/geneAPI'
 
 const searchVariantType = async () => {
-	const { getSearchAPI } = useGeneAPI()
+	const { SearchAPI } = useGeneAPI()
 	try {
-		const response = await getSearchAPI('exome_somatic', {
+		const response = await SearchAPI('exome_somatic', {
 			term: 'TP53',
 			exact_match: true,
 			search_columns: ['gene'],
@@ -26,7 +26,7 @@ const searchVariantType = async () => {
 	}
 }
 
-onMounted(() => {
+onBeforeMount(() => {
 	nextTick(async () => {
 		// Initialize the search variant type function
 		searchVariantType()
