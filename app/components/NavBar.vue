@@ -5,9 +5,10 @@
 			start: '!bg-sky-200',
 			rootList: '!bg-sky-200',
 			itemContent: 'group !rounded-2xl',
-			root: '!bg-sky-200 shadow !border-0 !justify-between !px-7 !py-4 !sticky top-0 z-50',
+			root: '!bg-sky-200 shadow !border-0 !justify-between !px-7 !py-4  top-0 z-50',
 		}"
 	>
+		<!-- Dont forget to add !sticky to root in menubar -->
 		<template #start>
 			<div class="flex items-center hover:scale-105 transition-transform duration-500 ease-in-out">
 				<div class="text-2xl font-extrabold cursor-pointer">
