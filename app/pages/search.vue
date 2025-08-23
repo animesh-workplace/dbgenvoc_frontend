@@ -1,9 +1,9 @@
 <template>
 	<div class="min-h-[calc(100vh-56px)]">
-		<div class="grid grid-cols-3 gap-12 p-8">
+		<div class="grid lg:grid-cols-3 gap-12 p-8 md:grid-cols-2 grid-cols-1">
 			<GraphBar :plotData="variantType" />
 			<GraphBar :plotData="variantClass" />
-			<GraphBar />
+			<GraphBar :plotData="snvClass" showAll />
 			<!-- <GraphLollipop class="col-span-3" /> -->
 		</div>
 	</div>
@@ -17,6 +17,7 @@ const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
 const variantType = ref({ data: [], categories: [] })
 const variantClass = ref({ data: [], categories: [] })
+const snvClass = ref({ data: [], categories: [] })
 
 const searchVariantType = async () => {
 	try {
@@ -67,12 +68,38 @@ const aggregateVariantClass = async () => {
 	}
 }
 
+const aggregateSNVClass = async () => {
+	let variant_categories = []
+	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
+	try {
+		const response = await ConcateAggregateAPI('exome_somatic', {
+			separator: '>',
+			group_by: ['gene'],
+			aggregation_type: 'count',
+			columns: ['ref_allele', 'tumor_seq_allele2'],
+			filters: { gene: gene_list, varinat_type: 'SNP' },
+		})
+		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
+
+		snvClass.value.categories = variant_categories
+		snvClass.value.data = useVariantMatrix(
+			response.result,
+			variant_categories,
+			gene_list,
+			'concatenated_value',
+		)
+	} catch (error) {
+		console.error('Error fetching search data:', error)
+	}
+}
+
 onBeforeMount(() => {
 	nextTick(async () => {
 		// Initialize the search variant type function
 		// searchVariantType()
 		aggregateVariantType()
 		aggregateVariantClass()
+		aggregateSNVClass()
 	})
 })
 </script>
