@@ -4,10 +4,12 @@
 			<div class="pb-2 text-sm font-semibold text-gray-700">Variant Classification Coding</div>
 			<GraphBar :plotData="variantClass" showAll horizontal />
 		</div>
+
 		<div class="text-center">
 			<div class="pb-2 text-sm font-semibold text-gray-700">Variant Type</div>
 			<GraphBar :plotData="variantType" />
 		</div>
+
 		<div class="text-center">
 			<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class</div>
 			<GraphBar :plotData="snvClass" showAll />
@@ -104,7 +106,7 @@ const aggregateSNVClass = async () => {
 			group_by: ['gene'],
 			aggregation_type: 'count',
 			columns: ['ref_allele', 'tumor_seq_allele2'],
-			filters: { gene: gene_list, varinat_type: 'SNP' },
+			filters: { gene: gene_list, variant_type: 'SNP' },
 		})
 		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
 
