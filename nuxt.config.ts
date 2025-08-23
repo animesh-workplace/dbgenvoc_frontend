@@ -24,7 +24,7 @@ export default defineNuxtConfig({
 		families: { Poppins: true, 'Lexend+Deca': { wght: '100..900' } },
 	},
 	icon: { clientBundle: { scan: true }, serverBundle: { collections: ['solar'] } },
-	modules: ['@nuxt/icon', '@primevue/nuxt-module', '@nuxtjs/google-fonts', '@nuxt/image', 'nuxt-echarts'],
+	modules: ['@nuxt/icon', '@nuxt/image', 'nuxt-echarts', '@nuxtjs/google-fonts', '@primevue/nuxt-module'],
 	primevue: {
 		options: {
 			ripple: true,
