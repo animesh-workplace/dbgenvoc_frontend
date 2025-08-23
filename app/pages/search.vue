@@ -1,15 +1,15 @@
 <template>
 	<div class="min-h-[calc(100vh-56px)]">
 		<section>
-			<ResultSection tableName="exome_somatic" />
+			<ResultSectionMain tableName="exome_somatic" />
 		</section>
 		<Divider />
 		<section>
-			<ResultSection tableName="es_tcga" />
+			<ResultSectionTCGA tableName="es_tcga" />
 		</section>
 		<Divider />
 		<section>
-			<ResultSection tableName="es_journal" />
+			<ResultSectionJournal tableName="es_journal" />
 		</section>
 		<Divider />
 	</div>
