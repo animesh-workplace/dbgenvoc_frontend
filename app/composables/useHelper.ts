@@ -1,5 +1,5 @@
 import { row } from '@primeuix/themes/aura/datatable'
-import { map, forEach, sum } from 'lodash-es'
+import { map, forEach, sum, zip } from 'lodash-es'
 
 type VariantMatrix = number[][]
 
@@ -17,6 +17,7 @@ export const useHelper = () => {
 		key_name: string,
 		sortByColSum: boolean = false,
 	) => {
+		let sort_row_names = row_names
 		let matrix: VariantMatrix = map(col_names, (d) => Array(row_names.length).fill(0))
 
 		// Index maps for quick lookup
@@ -31,19 +32,16 @@ export const useHelper = () => {
 				matrix[i][j] = item.aggregated_value
 			}
 		})
-		console.log(
-			matrix,
-			map(matrix, (_, j) => sum(map(matrix, (row) => row[j]))),
-		)
-		if (sortByColSum) {
-			const colSums = matrix.map((col) => sum(col))
-			const indices = colSums.map((val, idx) => ({ val, idx })).sort((a, b) => b.val - a.val) // descending
 
-			matrix = indices.map(({ idx }) => matrix[idx])
-			col_names = indices.map(({ idx }) => col_names[idx])
+		if (sortByColSum) {
+			const colSums = map(zip(...matrix), (col) => sum(col))
+			const indices = map(colSums, (val, idx) => ({ val, idx })).sort((a, b) => b.val - a.val) // descending
+
+			matrix = zip(...map(indices, ({ idx }) => zip(...matrix)[idx])) as number[][]
+			sort_row_names = map(indices, ({ idx }) => row_names[idx]) as string[]
 		}
 
-		return matrix
+		return { matrix, sort_row_names }
 	}
 
 	return { useVariantMatrix }
