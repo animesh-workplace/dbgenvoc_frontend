@@ -1,7 +1,7 @@
 <template>
 	<div class="min-h-[calc(100vh-56px)]">
 		<div class="grid grid-cols-3 gap-12 p-8">
-			<GraphBar />
+			<GraphBar :plotData="variantType" />
 			<GraphBar />
 			<GraphBar />
 			<!-- <GraphLollipop class="col-span-3" /> -->
@@ -10,6 +10,7 @@
 </template>
 
 <script setup>
+import { uniq, map } from 'lodash-es'
 import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
@@ -29,63 +30,35 @@ const searchVariantType = async () => {
 }
 
 const aggregateVariantType = async () => {
-	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
+	let variant_data = []
 	let variant_categories = []
+	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await AggregateAPI('exome_somatic', {
 			column: 'variant_type',
 			filters: { gene: gene_list },
 			group_by: ['variant_type', 'gene'],
 		})
-		// variantType.value.data.push(response.result.map((item) => item.aggregated_value))
-		variant_categories = variant_categories.concat(response.result.map((item) => item.variant_type))
+		variant_categories = uniq(map(response.result, (item) => item.variant_type))
+		variant_data = gene_list.map((d) => Array(variant_categories.length).fill(0))
+		// Index maps for quick lookup
+		const geneIndex = new Map(gene_list.map((g, i) => [g, i]))
+		const categoryIndex = new Map(variant_categories.map((c, j) => [c, j]))
+		// Populate the data array
+		response.result.forEach((item) => {
+			const i = geneIndex.get(item.gene)
+			const j = categoryIndex.get(item.variant_type)
+			if (i !== undefined && j !== undefined) {
+				variant_data[i][j] = item.aggregated_value
+			}
+		})
+		variantType.value.data = variant_data
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
-	console.log(useUniq(variant_categories))
-	// variantType.value.categories = [...new Set(variant_categories)]
+	// variantType.value.data.push(response.result.map((item) => item.aggregated_value))
+	variantType.value.categories = variant_categories
 }
-
-// const aggregateVariantType = async () => {
-// 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
-
-// 	// Collect per-gene maps and a global category set
-// 	const perGeneMaps = [] // [{ gene, countsByCat: Map<string, number> }]
-// 	const categorySet = new Set() // union of all categories
-
-// 	// Fetch sequentially (can be parallelized if API allows)
-// 	for (const gene of gene_list) {
-// 		try {
-// 			const response = await AggregateAPI('exome_somatic', {
-// 				filters: { gene },
-// 				column: 'variant_type',
-// 				group_by: ['variant_type'],
-// 			})
-
-// 			// Build a map category -> value for this gene
-// 			const countsByCat = new Map()
-// 			for (const item of response.result) {
-// 				// Assuming item.aggregated_value is the count (or metric) and item.variant_type is the category
-// 				countsByCat.set(item.variant_type, item.aggregated_value ?? 0)
-// 				categorySet.add(item.variant_type)
-// 			}
-
-// 			perGeneMaps.push({ gene, countsByCat })
-// 		} catch (error) {
-// 			console.error('Error fetching search data:', error)
-// 			// Still push an empty map to preserve gene order
-// 			perGeneMaps.push({ gene, countsByCat: new Map() })
-// 		}
-// 	}
-
-// 	// Create a deterministic category order:
-// 	const categories = Array.from(categorySet).sort((a, b) => a.localeCompare(b))
-
-// 	// Build aligned series per gene in the same category order, zero-filling missing cats
-// 	const alignedSeries = perGeneMaps.map(({ countsByCat }) => categories.map((cat) => countsByCat.get(cat) ?? 0))
-// 	variantType.value.categories = categories
-// 	variantType.value.data = alignedSeries
-// }
 
 onBeforeMount(() => {
 	nextTick(async () => {
