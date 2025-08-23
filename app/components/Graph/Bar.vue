@@ -51,7 +51,7 @@ const updateChart = () => {
 	chartOption.value.series = data.map((dataSet, index) => ({
 		type: 'bar',
 		stack: 'total',
-		realtimeSort: true,
+		// realtimeSort: true,
 		data: dataSet.map((value, i) => {
 			let topIdx = -1
 			for (let j = data.length - 1; j >= 0; j--) {
