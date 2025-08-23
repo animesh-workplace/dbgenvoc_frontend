@@ -19,6 +19,7 @@ const props = defineProps({
 			],
 		}),
 	},
+	showAll: { type: Boolean, default: false },
 })
 
 const chartOption = ref({
@@ -30,13 +31,13 @@ const chartOption = ref({
 		bottom: '0%',
 		outerBoundsMode: 'same',
 	},
-	xAxis: { axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 } },
+	xAxis: { axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500, interval: props.showAll ? 0 : 'auto' } },
 	yAxis: { axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 } },
 })
 
 const updateChart = () => {
 	const { categories, data } = props.plotData
-	const horizontal = categories.length > 4
+	const horizontal = categories.length > 15
 	const roundedRadii = horizontal ? [0, 5, 5, 0] : [5, 5, 0, 0]
 
 	if (horizontal) {
