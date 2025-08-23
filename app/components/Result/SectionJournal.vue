@@ -8,21 +8,24 @@
 			<div class="pb-2 text-sm font-semibold text-gray-700">
 				Variant Classification Coding ({{ disease }})
 			</div>
-			<GraphBar :plotData="variantClass" showAll horizontal />
+			<GraphBar :plotData="variantClass[disease]" showAll horizontal />
 		</div>
+
 		<div class="text-center">
 			<div class="pb-2 text-sm font-semibold text-gray-700">
 				Variant Classification Non-Coding ({{ disease }})
 			</div>
-			<GraphBar :plotData="variantClass" showAll horizontal />
+			<GraphBar :plotData="variantClass[disease]" showAll horizontal />
 		</div>
+
 		<div class="text-center">
 			<div class="pb-2 text-sm font-semibold text-gray-700">Variant Type ({{ disease }})</div>
-			<GraphBar :plotData="variantType" />
+			<GraphBar :plotData="variantType[disease]" />
 		</div>
+
 		<div class="text-center">
 			<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class ({{ disease }})</div>
-			<GraphBar :plotData="snvClass" showAll />
+			<GraphBar :plotData="snvClass[disease]" showAll />
 		</div>
 		<!-- <GraphLollipop class="col-span-3" /> -->
 	</div>
@@ -35,9 +38,18 @@ import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
 const diseaseList = ref([])
-const snvClass = ref({ data: [], categories: [] })
-const variantType = ref({ data: [], categories: [] })
-const variantClass = ref({ data: [], categories: [] })
+const snvClass = ref({
+	OSCC: { data: [], categories: [] },
+	OTSCC: { data: [], categories: [] },
+})
+const variantType = ref({
+	OSCC: { data: [], categories: [] },
+	OTSCC: { data: [], categories: [] },
+})
+const variantClass = ref({
+	OSCC: { data: [], categories: [] },
+	OTSCC: { data: [], categories: [] },
+})
 
 const props = defineProps({
 	tableName: { type: String, default: '' },
@@ -70,14 +82,14 @@ const aggregateDisease = async () => {
 	}
 }
 
-const aggregateVariantType = async () => {
+const aggregateVariantType = async (disease) => {
 	let variant_categories = []
 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_type',
-			filters: { gene: gene_list },
 			group_by: ['variant_type', 'gene'],
+			filters: { gene: gene_list, disease: disease },
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_type))
 
@@ -88,15 +100,14 @@ const aggregateVariantType = async () => {
 			'variant_type',
 			true,
 		)
-		variantType.value.data = matrix
-		variantType.value.categories = sort_row_names
+		variantType.value[disease].data = matrix
+		variantType.value[disease].categories = sort_row_names
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
 }
 
-const aggregateVariantClass = async () => {
-	let non_coding = ['IGR', 'Intron', "3'UTR", "5'Flank", "5'UTR", 'ncRNA']
+const aggregateVariantClass = async (disease) => {
 	let coding = [
 		'Silent',
 		'Splice_Site',
@@ -115,14 +126,15 @@ const aggregateVariantClass = async () => {
 		'De_novo_Start_InFrame',
 		'De_novo_Start_OutOfFrame',
 	]
+	let non_coding = ['IGR', 'Intron', "3'UTR", "5'Flank", "5'UTR", 'ncRNA']
 
 	let variant_categories = []
 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_class',
-			filters: { gene: gene_list },
 			group_by: ['variant_class', 'gene'],
+			filters: { gene: gene_list, disease: disease },
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_class))
 
@@ -133,8 +145,8 @@ const aggregateVariantClass = async () => {
 			'variant_class',
 			true,
 		)
-		variantClass.value.data = matrix
-		variantClass.value.categories = map(sort_row_names, (d) =>
+		variantClass.value[disease].data = matrix
+		variantClass.value[disease].categories = map(sort_row_names, (d) =>
 			d.replaceAll('_', ' ').replaceAll('Mutation', ''),
 		)
 	} catch (error) {
@@ -142,7 +154,7 @@ const aggregateVariantClass = async () => {
 	}
 }
 
-const aggregateSNVClass = async () => {
+const aggregateSNVClass = async (disease) => {
 	let variant_categories = []
 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
@@ -151,7 +163,7 @@ const aggregateSNVClass = async () => {
 			group_by: ['gene'],
 			aggregation_type: 'count',
 			columns: ['ref_allele', 'tumor_seq_allele2'],
-			filters: { gene: gene_list, varinat_type: 'SNP' },
+			filters: { gene: gene_list, variant_type: 'SNP', disease: disease },
 		})
 		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
 
@@ -161,8 +173,8 @@ const aggregateSNVClass = async () => {
 			gene_list,
 			'concatenated_value',
 		)
-		snvClass.value.data = matrix
-		snvClass.value.categories = sort_row_names
+		snvClass.value[disease].data = matrix
+		snvClass.value[disease].categories = sort_row_names
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -172,10 +184,12 @@ onBeforeMount(() => {
 	nextTick(async () => {
 		// Initialize the search variant type function
 		// searchVariantType()
-		aggregateDisease()
-		aggregateSNVClass()
-		aggregateVariantType()
-		aggregateVariantClass()
+		await aggregateDisease()
+		map(diseaseList.value, (disease) => {
+			aggregateSNVClass(disease)
+			aggregateVariantType(disease)
+			aggregateVariantClass(disease)
+		})
 	})
 })
 </script>
