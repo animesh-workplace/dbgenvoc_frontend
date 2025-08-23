@@ -20,27 +20,44 @@ const props = defineProps({
 		}),
 	},
 	showAll: { type: Boolean, default: false },
+	horizontal: { type: Boolean, default: false },
 })
 
 const chartOption = ref({
 	series: [],
 	grid: {
 		top: '0%',
-		left: '0%',
 		right: '0%',
 		bottom: '0%',
 		outerBoundsMode: 'same',
+		left: props.horizontal ? '5%' : '0%',
 	},
-	xAxis: { axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500, interval: props.showAll ? 0 : 'auto' } },
-	yAxis: { axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 } },
+	xAxis: {
+		axisTick: { show: true },
+		axisLine: { show: true },
+		minorTick: { show: true },
+		splitLine: { show: false },
+		axisLabel: {
+			fontWeight: 500,
+			fontFamily: 'Lexend Deca',
+			interval: props.showAll ? 0 : 'auto',
+		},
+	},
+	yAxis: {
+		axisTick: { show: true },
+		axisLine: { show: true },
+		minorTick: { show: true },
+		splitLine: { show: false },
+		inverse: props.horizontal ? true : false,
+		axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+	},
 })
 
 const updateChart = () => {
 	const { categories, data } = props.plotData
-	const horizontal = categories.length > 15
-	const roundedRadii = horizontal ? [0, 5, 5, 0] : [5, 5, 0, 0]
+	const roundedRadii = props.horizontal ? [0, 5, 5, 0] : [5, 5, 0, 0]
 
-	if (horizontal) {
+	if (props.horizontal) {
 		chartOption.value.yAxis.data = categories
 		chartOption.value.yAxis.type = 'category'
 		chartOption.value.xAxis.type = 'value'
@@ -52,7 +69,6 @@ const updateChart = () => {
 	chartOption.value.series = data.map((dataSet, index) => ({
 		type: 'bar',
 		stack: 'total',
-		// realtimeSort: true,
 		data: dataSet.map((value, i) => {
 			let topIdx = -1
 			for (let j = data.length - 1; j >= 0; j--) {
@@ -70,13 +86,6 @@ const updateChart = () => {
 		name: `B${index + 1}`,
 		showBackground: false,
 		backgroundStyle: { color: 'rgba(180, 180, 180, 0.2)' },
-		// itemStyle:
-		// 	index + 1 == data.length
-		// 		? categories.length > 4
-		// 			? { borderRadius: [0, 5, 5, 0] }
-		// 			: { borderRadius: [5, 5, 0, 0] }
-		// 		: 0,
-		// label: { show: true, fontFamily: 'Lexend Deca', fontWeight: 500 },
 	}))
 }
 
@@ -100,6 +109,6 @@ onMounted(() => {
 <style scoped>
 .chart {
 	width: 100%;
-	height: 24rem;
+	height: 14rem;
 }
 </style>
