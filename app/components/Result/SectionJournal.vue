@@ -96,6 +96,26 @@ const aggregateVariantType = async () => {
 }
 
 const aggregateVariantClass = async () => {
+	let non_coding = ['IGR', 'Intron', "3'UTR", "5'Flank", "5'UTR", 'ncRNA']
+	let coding = [
+		'Silent',
+		'Splice_Site',
+		'In_Frame_Ins',
+		'In_Frame_Del',
+		'Stop_Codon_Ins',
+		'Stop_Codon_Del',
+		'Frame_Shift_Del',
+		'Frame_Shift_Ins',
+		'Start_Codon_SNP',
+		'Start_Codon_Ins',
+		'Start_Codon_Del',
+		'Nonstop_Mutation',
+		'Missense_Mutation',
+		'Nonsense_Mutation',
+		'De_novo_Start_InFrame',
+		'De_novo_Start_OutOfFrame',
+	]
+
 	let variant_categories = []
 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
