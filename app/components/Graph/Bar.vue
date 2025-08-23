@@ -39,13 +39,14 @@ const updateChart = () => {
 	const horizontal = categories.length > 4
 	const roundedRadii = horizontal ? [0, 5, 5, 0] : [5, 5, 0, 0]
 
-	console.log()
-	if (categories.length > 4) {
+	if (horizontal) {
 		chartOption.value.yAxis.data = categories
 		chartOption.value.yAxis.type = 'category'
+		chartOption.value.xAxis.type = 'value'
 	} else {
 		chartOption.value.xAxis.data = categories
 		chartOption.value.xAxis.type = 'category'
+		chartOption.value.yAxis.type = 'value'
 	}
 	chartOption.value.series = data.map((dataSet, index) => ({
 		type: 'bar',
