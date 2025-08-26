@@ -129,13 +129,21 @@ const handleBlur = () => {
 	transition: all 1s ease-in-out;
 	min-width: calc(100% + 5rem + 4px);
 	animation: spin 10s linear infinite;
-	background-image: conic-gradient(
+	/* background-image: conic-gradient(
 		from var(--rotate),
 		#ffffff 0%,
 		#1c398e 86%,
 		#a5b4fc 90%,
 		#1c398e 94%,
 		#d70249 90%
+	); */
+	background-image: conic-gradient(
+		from var(--rotate),
+		#fbb1bd 0%,
+		#ffd6a5 25%,
+		#caffbf 50%,
+		#9bf6ff 75%,
+		#bdb2ff 100%
 	);
 }
 
