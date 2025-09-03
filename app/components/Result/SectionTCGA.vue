@@ -1,4 +1,17 @@
 <template>
+	<div class="p-8">
+		<DataTable
+			rowHover
+			stripedRows
+			size="small"
+			showGridlines
+			resizableColumns
+			:value="searchData"
+			columnResizeMode="expand"
+		>
+			<Column sortable :key="col.field" :field="col.field" :header="col.header" v-for="col of columns" />
+		</DataTable>
+	</div>
 	<div
 		:index="index"
 		v-for="(disease, index) in diseaseList"
@@ -46,19 +59,50 @@ const variantClass = ref({
 	'OC-TCGA': { data: [], categories: [] },
 	'OT-TCGA': { data: [], categories: [] },
 })
+const searchData = ref([])
+const columns = [
+	{ field: 'tcga_id', header: 'DB ID' },
+	{ field: 'gene', header: 'Gene' },
+	{ field: 'entrez_gene_id', header: 'Entrez Gene ID' },
+	{ field: 'ncbi_build', header: 'NCBI Build' },
+	{ field: 'chrom', header: 'Chromosome' },
+	{ field: 'start', header: 'Start' },
+	{ field: 'end', header: 'End' },
+	{ field: 'variant_class', header: 'Variant Class' },
+	{ field: 'variant_type', header: 'Variant Type' },
+	{ field: 'ref_allele', header: 'Ref Allele' },
+	{ field: 'tumor_seq_allele2', header: 'Tumor Seq Allele 2' },
+	{ field: 'dbsnp_rs', header: 'dbSNP RS' },
+	{ field: 'tumor_sample_barcode', header: 'Tumor Sample Barcode' },
+	{ field: 'sample_id', header: 'Sample ID' },
+	{ field: 'genome_change', header: 'Genome Change' },
+	{ field: 'annotation_transcript', header: 'Annotation Transcript' },
+	{ field: 'transcript_strand', header: 'Transcript Strand' },
+	{ field: 'transcript_exon', header: 'Transcript Exon' },
+	{ field: 'transcript_position', header: 'Transcript Position' },
+	{ field: 'cDNA_change', header: 'cDNA Change' },
+	{ field: 'codon_change', header: 'Codon Change' },
+	{ field: 'protein_change', header: 'Protein Change' },
+	{ field: 'disease', header: 'Disease' },
+	{ field: 'reference_url', header: 'Reference URL' },
+	{ field: 'reference', header: 'Reference' },
+	{ field: 'remarks', header: 'Remarks' },
+]
 
 const props = defineProps({
 	tableName: { type: String, default: '' },
 })
 
 const searchVariantType = async () => {
+	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await SearchAPI(props.tableName, {
-			term: 'TP53',
+			term: gene_list,
 			exact_match: true,
 			search_columns: ['gene'],
 		})
-		console.log(response)
+		// console.log(response)
+		searchData.value = response.results
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -159,7 +203,7 @@ const aggregateSNVClass = async (disease) => {
 onBeforeMount(() => {
 	nextTick(async () => {
 		// Initialize the search variant type function
-		// searchVariantType()
+		searchVariantType()
 		await aggregateDisease()
 		map(diseaseList.value, (disease) => {
 			aggregateSNVClass(disease)
