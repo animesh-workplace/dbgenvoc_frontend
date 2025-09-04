@@ -4,21 +4,22 @@
 			<DataTable
 				rowHover
 				paginator
-				:rows="50"
 				scrollable
 				class="p-1"
 				stripedRows
 				size="small"
 				showGridlines
 				removableSort
+				:rows="noOfRows"
 				resizableColumns
+				@sort="HandleSort"
+				@page="HandlePage"
 				scrollHeight="20rem"
-				@page="TestFunction"
 				columnResizeMode="expand"
 				:value="searchData.results"
 				:pageLinkSize="searchData.page_size"
 				:totalRecords="searchData.total_results"
-				:rowsPerPageOptions="[50, 100, 200, 500]"
+				:rowsPerPageOptions="[10, 50, 100, 200, 500]"
 			>
 				<Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" sortable />
 			</DataTable>
@@ -48,10 +49,11 @@ const { useVariantMatrix } = useHelper()
 import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
+const noOfRows = ref(10)
+const searchData = ref({})
 const snvClass = ref({ data: [], categories: [] })
 const variantType = ref({ data: [], categories: [] })
 const variantClass = ref({ data: [], categories: [] })
-const searchData = ref({})
 const columns = [
 	{ field: 'esm_id', header: 'DB ID' },
 	{ field: 'gene', header: 'Gene' },
@@ -80,17 +82,35 @@ const columns = [
 const props = defineProps({
 	tableName: { type: String, default: '' },
 })
-const TestFunction = (event) => {
-	console.log('Tessssstdatas', event)
+
+const HandleSort = async (event) => {
+	console.log('🚀 ~ :87 ~ HandleSort ~ event:', event)
+	let sortOrder = 'asc'
+	if (event.sortOrder === -1) {
+		sortOrder = 'desc'
+	}
+	await searchVariantType(event.sortField, sortOrder, event.page ?? 1)
 }
 
-const searchVariantType = async () => {
+const HandlePage = async (event) => {
+	console.log('🚀 ~ :95 ~ HandlePage ~ event:', event)
+	let sortOrder = 'asc'
+	if (event.sortOrder === -1) {
+		sortOrder = 'desc'
+	}
+	await searchVariantType(event.sortField, sortOrder, event.page ?? 1)
+}
+
+const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) => {
 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await SearchAPI(props.tableName, {
-			page_size: 100,
+			page,
+			sort_by,
+			sort_order,
 			term: gene_list,
 			exact_match: true,
+			page_size: noOfRows,
 			search_columns: ['gene'],
 		})
 		// console.log(response)
