@@ -2,12 +2,22 @@
 	<div class="p-8">
 		<DataTable
 			rowHover
+			paginator
+			:rows="50"
+			scrollable
+			class="p-1"
 			stripedRows
 			size="small"
 			showGridlines
+			removableSort
 			resizableColumns
-			:value="searchData"
+			scrollHeight="20rem"
+			@page="TestFunction"
 			columnResizeMode="expand"
+			:value="searchData.results"
+			:pageLinkSize="searchData.page_size"
+			:totalRecords="searchData.total_results"
+			:rowsPerPageOptions="[50, 100, 200, 500]"
 		>
 			<Column sortable :key="col.field" :field="col.field" :header="col.header" v-for="col of columns" />
 		</DataTable>
@@ -63,7 +73,7 @@ const variantClass = ref({
 	OSCC: { data: [], categories: [] },
 	OTSCC: { data: [], categories: [] },
 })
-const searchData = ref([])
+const searchData = ref({})
 const columns = [
 	{ field: 'esj_id', header: 'DB ID' },
 	{ field: 'gene', header: 'Gene' },
@@ -102,7 +112,7 @@ const searchVariantType = async () => {
 			search_columns: ['gene'],
 		})
 		// console.log(response)
-		searchData.value = response.results
+		searchData.value = response
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
