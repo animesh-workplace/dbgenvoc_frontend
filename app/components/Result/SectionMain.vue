@@ -3,12 +3,22 @@
 		<div class="col-span-3">
 			<DataTable
 				rowHover
+				paginator
+				:rows="50"
+				scrollable
+				class="p-1"
 				stripedRows
 				size="small"
 				showGridlines
+				removableSort
 				resizableColumns
-				:value="searchData"
+				scrollHeight="20rem"
+				@page="TestFunction"
 				columnResizeMode="expand"
+				:value="searchData.results"
+				:pageLinkSize="searchData.page_size"
+				:totalRecords="searchData.total_results"
+				:rowsPerPageOptions="[50, 100, 200, 500]"
 			>
 				<Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" sortable />
 			</DataTable>
@@ -41,7 +51,7 @@ const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 const snvClass = ref({ data: [], categories: [] })
 const variantType = ref({ data: [], categories: [] })
 const variantClass = ref({ data: [], categories: [] })
-const searchData = ref([])
+const searchData = ref({})
 const columns = [
 	{ field: 'esm_id', header: 'DB ID' },
 	{ field: 'gene', header: 'Gene' },
@@ -70,17 +80,21 @@ const columns = [
 const props = defineProps({
 	tableName: { type: String, default: '' },
 })
+const TestFunction = (event) => {
+	console.log('Tessssstdatas', event)
+}
 
 const searchVariantType = async () => {
 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await SearchAPI(props.tableName, {
+			page_size: 100,
 			term: gene_list,
 			exact_match: true,
 			search_columns: ['gene'],
 		})
 		// console.log(response)
-		searchData.value = response.results
+		searchData.value = response
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
