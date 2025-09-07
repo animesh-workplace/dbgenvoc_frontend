@@ -2,6 +2,7 @@
 	<div class="grid lg:grid-cols-3 gap-8 p-8 md:grid-cols-2 grid-cols-1">
 		<div class="col-span-3">
 			<DataTable
+				lazy
 				rowHover
 				paginator
 				scrollable
@@ -17,9 +18,8 @@
 				scrollHeight="20rem"
 				columnResizeMode="expand"
 				:value="searchData.results"
-				:pageLinkSize="searchData.page_size"
 				:totalRecords="searchData.total_results"
-				:rowsPerPageOptions="[10, 50, 100, 200, 500]"
+				:rowsPerPageOptions="[50, 100, 200, 500]"
 			>
 				<Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" sortable />
 			</DataTable>
@@ -49,7 +49,7 @@ const { useVariantMatrix } = useHelper()
 import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
-const noOfRows = ref(10)
+const noOfRows = ref(50)
 const searchData = ref({})
 const snvClass = ref({ data: [], categories: [] })
 const variantType = ref({ data: [], categories: [] })
@@ -89,16 +89,17 @@ const HandleSort = async (event) => {
 	if (event.sortOrder === -1) {
 		sortOrder = 'desc'
 	}
-	await searchVariantType(event.sortField, sortOrder, event.page ?? 1)
+	await searchVariantType(event.sortField, sortOrder, (event.page ?? 0) + 1)
 }
 
 const HandlePage = async (event) => {
-	console.log('🚀 ~ :95 ~ HandlePage ~ event:', event)
+	noOfRows.value = event.rows
 	let sortOrder = 'asc'
 	if (event.sortOrder === -1) {
 		sortOrder = 'desc'
 	}
-	await searchVariantType(event.sortField, sortOrder, event.page ?? 1)
+	console.log('🚀 ~ :95 ~ HandlePage ~ event:', event, event.sortField, sortOrder, (event.page ?? 0) + 1)
+	await searchVariantType(event.sortField, sortOrder, (event.page ?? 0) + 1)
 }
 
 const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) => {
