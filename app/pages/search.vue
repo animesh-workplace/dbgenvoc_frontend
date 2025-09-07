@@ -4,14 +4,15 @@
 			<ResultSectionMain tableName="exome_somatic" />
 		</section>
 		<Divider />
+
 		<section>
 			<ResultSectionTCGA tableName="es_tcga" />
 		</section>
 		<Divider />
-		<section>
+
+		<section class="mb-12">
 			<ResultSectionJournal tableName="es_journal" />
 		</section>
-		<Divider />
 	</div>
 </template>
 
