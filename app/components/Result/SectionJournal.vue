@@ -1,25 +1,26 @@
 <template>
 	<div class="p-8">
 		<DataTable
+			lazy
 			rowHover
 			paginator
-			:rows="50"
 			scrollable
 			class="p-1"
 			stripedRows
 			size="small"
 			showGridlines
 			removableSort
+			:rows="noOfRows"
 			resizableColumns
+			@sort="HandleSort"
+			@page="HandlePage"
 			scrollHeight="20rem"
-			@page="TestFunction"
 			columnResizeMode="expand"
 			:value="searchData.results"
-			:pageLinkSize="searchData.page_size"
 			:totalRecords="searchData.total_results"
 			:rowsPerPageOptions="[50, 100, 200, 500]"
 		>
-			<Column sortable :key="col.field" :field="col.field" :header="col.header" v-for="col of columns" />
+			<Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" sortable />
 		</DataTable>
 	</div>
 	<div
@@ -60,6 +61,8 @@ const { useVariantMatrix } = useHelper()
 import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
+const noOfRows = ref(50)
+const searchData = ref({})
 const diseaseList = ref([])
 const snvClass = ref({
 	OSCC: { data: [], categories: [] },
@@ -73,7 +76,6 @@ const variantClass = ref({
 	OSCC: { data: [], categories: [] },
 	OTSCC: { data: [], categories: [] },
 })
-const searchData = ref({})
 const columns = [
 	{ field: 'esj_id', header: 'DB ID' },
 	{ field: 'gene', header: 'Gene' },
@@ -103,12 +105,35 @@ const props = defineProps({
 	tableName: { type: String, default: '' },
 })
 
-const searchVariantType = async () => {
+const HandleSort = async (event) => {
+	console.log('🚀 ~ :87 ~ HandleSort ~ event:', event)
+	let sortOrder = 'asc'
+	if (event.sortOrder === -1) {
+		sortOrder = 'desc'
+	}
+	await searchVariantType(event.sortField, sortOrder, (event.page ?? 0) + 1)
+}
+
+const HandlePage = async (event) => {
+	noOfRows.value = event.rows
+	let sortOrder = 'asc'
+	if (event.sortOrder === -1) {
+		sortOrder = 'desc'
+	}
+	console.log('🚀 ~ :95 ~ HandlePage ~ event:', event, event.sortField, sortOrder, (event.page ?? 0) + 1)
+	await searchVariantType(event.sortField, sortOrder, (event.page ?? 0) + 1)
+}
+
+const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) => {
 	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await SearchAPI(props.tableName, {
+			page,
+			sort_by,
+			sort_order,
 			term: gene_list,
 			exact_match: true,
+			page_size: noOfRows,
 			search_columns: ['gene'],
 		})
 		// console.log(response)
