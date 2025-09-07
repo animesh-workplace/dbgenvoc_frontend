@@ -1,4 +1,10 @@
 <template>
+	<div class="px-8 pt-8">
+		<div class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-100" role="alert">
+			<span class="font-semibold">Variations from peer-reviewed papers</span>
+		</div>
+	</div>
+
 	<div class="p-8">
 		<DataTable
 			lazy
@@ -23,6 +29,13 @@
 			<Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" sortable />
 		</DataTable>
 	</div>
+
+	<div class="px-8 pt-8 col-span-3">
+		<div class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-50" role="alert">
+			<span class="font-semibold">Graphical Representation of peer-reviewed paper variations</span>
+		</div>
+	</div>
+
 	<div
 		:index="index"
 		v-for="(disease, index) in diseaseList"
@@ -106,7 +119,6 @@ const props = defineProps({
 })
 
 const HandleSort = async (event) => {
-	console.log('🚀 ~ :87 ~ HandleSort ~ event:', event)
 	let sortOrder = 'asc'
 	if (event.sortOrder === -1) {
 		sortOrder = 'desc'
@@ -120,7 +132,6 @@ const HandlePage = async (event) => {
 	if (event.sortOrder === -1) {
 		sortOrder = 'desc'
 	}
-	console.log('🚀 ~ :95 ~ HandlePage ~ event:', event, event.sortField, sortOrder, (event.page ?? 0) + 1)
 	await searchVariantType(event.sortField, sortOrder, (event.page ?? 0) + 1)
 }
 
@@ -136,7 +147,6 @@ const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) =
 			page_size: noOfRows,
 			search_columns: ['gene'],
 		})
-		// console.log(response)
 		searchData.value = response
 	} catch (error) {
 		console.error('Error fetching search data:', error)
