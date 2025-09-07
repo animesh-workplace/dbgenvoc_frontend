@@ -1,6 +1,9 @@
 <template>
 	<div class="px-8 pt-8">
-		<div class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-100" role="alert">
+		<div
+			class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-100 flex justify-center items-center gap-2"
+		>
+			<Icon name="tabler:table-filled" class="!w-5 !h-5" />
 			<span class="font-semibold">Variations from dbGENVOC</span>
 		</div>
 	</div>
@@ -32,7 +35,10 @@
 		</div>
 
 		<div class="pt-8 col-span-3">
-			<div class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-50" role="alert">
+			<div
+				class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-50 flex justify-center items-center gap-2"
+			>
+				<Icon name="tabler:graph-filled" class="!w-5 !h-5" />
 				<span class="font-semibold">Graphical Representation of dbGENVOC variations</span>
 			</div>
 		</div>
