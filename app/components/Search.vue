@@ -10,16 +10,97 @@
 				name="Search Input"
 				@focus="handleFocus"
 				aria-label="Search Input"
+				@complete="SearchGenePathway"
 				:suggestions="searchSuggestions"
 				:class="{ 'gradient-bg': !isFocused }"
 				class="min-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
 				placeholder="Enter gene name or multiple gene names or region or pathway"
+				optionLabel="value"
 				:pt="{
 					input: 'placeholder:text-sm caret-blue-800',
 					inputMultiple:
 						'!rounded-r-none !rounded-l-2xl !py-3 !px-5 !shadow-xl !border-gray-200 !border-r-0 caret-blue-800',
 				}"
-			/>
+			>
+				<!-- Custom option template -->
+				<template #option="slotProps">
+					<div class="flex items-center gap-2 py-2">
+						<Icon
+							v-if="slotProps.option.type === 'gene'"
+							name="solar:dna-bold-duotone"
+							class="w-5 h-5 text-blue-600"
+						/>
+						<Icon
+							v-else-if="slotProps.option.type === 'pathway'"
+							name="solar:map-bold-duotone"
+							class="w-5 h-5 text-green-600"
+						/>
+						<Icon v-else name="solar:question-circle-bold-duotone" class="w-5 h-5 text-gray-400" />
+
+						<div class="flex items-center gap-2 justify-between w-full">
+							<span class="font-medium text-gray-900">{{ slotProps.option.value }}</span>
+							<span
+								:class="`text-xs px-2 py-0.5 rounded-full ${
+									slotProps.option.type === 'gene'
+										? 'bg-blue-100 text-blue-700'
+										: 'bg-green-100 text-green-700'
+								}`"
+							>
+								{{ slotProps.option.type }}
+							</span>
+						</div>
+					</div>
+				</template>
+
+				<!-- Custom chip template for selected items -->
+				<template #chip="slotProps">
+					<div
+						:class="`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${
+							slotProps.value.type === 'gene'
+								? 'bg-blue-200 text-black shadow-sm'
+								: 'bg-green-200 text-black shadow-sm'
+						}`"
+					>
+						<Icon
+							v-if="slotProps.value.type === 'gene'"
+							name="solar:dna-bold-duotone"
+							class="!w-4 !h-4"
+						/>
+						<Icon
+							v-else-if="slotProps.value.type === 'pathway'"
+							name="solar:map-bold-duotone"
+							class="!w-4 !h-4"
+						/>
+						<span>{{ slotProps.value.value }}</span>
+						<!-- Optional: remove button -->
+						<div @click="slotProps.removeCallback()" class="ml-1 rounded-full hover:bg-gray-600 p-0.5">
+							<Icon name="solar:close-circle-bold-duotone" class="!w-5 !h-5" />
+						</div>
+					</div>
+				</template>
+
+				<!-- Header with instructions -->
+				<template #header>
+					<div class="px-3 py-2 bg-gray-50 border-b border-gray-200">
+						<p class="text-sm font-medium text-gray-700">Search Suggestions</p>
+						<p class="text-xs text-gray-500">Select genes or pathways</p>
+					</div>
+				</template>
+
+				<!-- Footer with pathway info -->
+				<template #footer>
+					<div class="px-3 py-2 bg-blue-50 border-t border-blue-100">
+						<p class="text-xs text-blue-700">
+							<Icon
+								name="solar:info-circle-bold-duotone"
+								class="w-4 h-4 inline mr-1 text-blue-600"
+							/>
+							Pathways include multiple genes for comprehensive search
+						</p>
+					</div>
+				</template>
+			</AutoComplete>
+
 			<Button
 				id="Search Button"
 				aria-label="Search Button"
@@ -88,9 +169,12 @@
 </template>
 
 <script setup>
+import { useGeneAPI } from '@/api/geneAPI'
+
 const search = ref('')
 const isFocused = ref(false)
 const searchSuggestions = ref(['FAT1'])
+const { AutocompleteAPI } = useGeneAPI()
 
 const handleFocus = () => {
 	// Logic to fetch suggestions or handle focus event
@@ -102,6 +186,20 @@ const handleBlur = () => {
 	// Logic to fetch suggestions or handle focus event
 	console.log('Search input blurred')
 	isFocused.value = false
+}
+
+const SearchGenePathway = async (event) => {
+	try {
+		const response = await AutocompleteAPI({ term: event.query })
+		if (response && response.suggestions) {
+			searchSuggestions.value = response.suggestions
+		} else {
+			searchSuggestions.value = []
+		}
+	} catch (error) {
+		console.error('Error fetching search suggestions:', error)
+		searchSuggestions.value = []
+	}
 }
 </script>
 
