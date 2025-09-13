@@ -23,17 +23,58 @@
 		</div>
 
 		<section>
-			<ResultSectionMain tableName="exome_somatic" />
+			<ResultSectionMain :tableName="somaticVariationType == 'Exome' ? 'exome_somatic' : 'wg_somatic'" />
 		</section>
 		<Divider />
 
 		<section>
-			<ResultSectionTCGA tableName="es_tcga" />
+			<ResultSectionTCGA
+				tableName="es_tcga"
+				:noData="somaticVariationType === 'Whole Genome' ? true : false"
+			/>
+
+			<div
+				v-if="somaticVariationType === 'Whole Genome'"
+				class="bg-blue-50 border-l-4 border-blue-400 p-4 my-8 mx-8 rounded-2xl"
+			>
+				<div class="flex">
+					<div class="flex-shrink-0">
+						<Icon name="solar:info-circle-bold-duotone" class="!w-5 !h-5 text-blue-400" />
+					</div>
+					<div class="ml-3">
+						<p class="text-sm text-blue-800">
+							Our database contains public data from TCGA Exome somatic variation resources. Whole
+							Genome Sequence dataset from TCGA project will be available later once the project data
+							is publicly accessible.
+						</p>
+					</div>
+				</div>
+			</div>
 		</section>
 		<Divider />
 
 		<section class="mb-12">
-			<ResultSectionJournal tableName="es_journal" />
+			<ResultSectionJournal
+				tableName="es_journal"
+				:noData="somaticVariationType === 'Whole Genome' ? true : false"
+			/>
+
+			<div
+				v-if="somaticVariationType === 'Whole Genome'"
+				class="bg-blue-50 border-l-4 border-blue-400 p-4 my-8 mx-8 rounded-2xl"
+			>
+				<div class="flex">
+					<div class="flex-shrink-0">
+						<Icon name="solar:info-circle-bold-duotone" class="!w-5 !h-5 text-blue-400" />
+					</div>
+					<div class="ml-3">
+						<p class="text-sm text-blue-800">
+							No Whole Genome Sequence dataset is available from peer-reviewed paper resources as of
+							now.
+						</p>
+					</div>
+				</div>
+			</div>
 		</section>
 	</div>
 </template>
