@@ -13,7 +13,7 @@
 				@complete="SearchGenePathway"
 				:suggestions="searchSuggestions"
 				:class="{ 'gradient-bg': !isFocused }"
-				class="min-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
+				class="min-w-[calc(100%-2rem-5rem)] max-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
 				placeholder="Enter gene name or multiple gene names or region or pathway"
 				optionLabel="value"
 				:pt="{
