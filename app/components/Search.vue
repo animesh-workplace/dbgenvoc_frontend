@@ -12,9 +12,13 @@
 				aria-label="Search Input"
 				@complete="SearchGenePathway"
 				:suggestions="searchSuggestions"
+				optionGroupLabel="label"
+				optionGroupChildren="items"
 				:class="{ 'gradient-bg': !isFocused }"
 				class="min-w-[calc(100%-2rem-5rem)] max-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
-				placeholder="Enter gene name or multiple gene names or region or pathway"
+				:placeholder="
+					searchSuggestions.length ? '' : 'Enter gene name or multiple gene names or region or pathway'
+				"
 				optionLabel="value"
 				:pt="{
 					input: 'placeholder:text-sm caret-blue-800',
@@ -22,18 +26,24 @@
 						'!rounded-r-none !rounded-l-2xl !py-3 !px-5 !shadow-xl !border-gray-200 !border-r-0 caret-blue-800',
 				}"
 			>
+				<template #optiongroup="slotProps">
+					<div class="flex items-center gap-2 py-1 w-full">
+						<p class="font-semibold text-sm text-blue-900">{{ slotProps.option.label }}</p>
+					</div>
+				</template>
+
 				<!-- Custom option template -->
 				<template #option="slotProps">
-					<div class="flex items-center gap-2 py-2">
+					<div class="flex items-center gap-2 py-0.5 px-2 w-full">
 						<Icon
-							v-if="slotProps.option.type === 'gene'"
 							name="solar:dna-bold-duotone"
 							class="w-5 h-5 text-blue-600"
+							v-if="slotProps.option.type === 'gene'"
 						/>
 						<Icon
-							v-else-if="slotProps.option.type === 'pathway'"
-							name="solar:map-bold-duotone"
+							name="solar:black-hole-bold"
 							class="w-5 h-5 text-green-600"
+							v-else-if="slotProps.option.type === 'pathway'"
 						/>
 						<Icon v-else name="solar:question-circle-bold-duotone" class="w-5 h-5 text-gray-400" />
 
@@ -81,24 +91,24 @@
 
 				<!-- Header with instructions -->
 				<template #header>
-					<div class="px-3 py-2 bg-gray-50 border-b border-gray-200">
-						<p class="text-sm font-medium text-gray-700">Search Suggestions</p>
-						<p class="text-xs text-gray-500">Select genes or pathways</p>
+					<div class="px-3 py-2 bg-gray-50 border-b border-gray-200 flex flex-col gap-1">
+						<div class="text-xs text-gray-500">Select genes or pathways</div>
+						<div class="text-xs text-gray-500 flex items-center gap-1">
+							<Icon name="solar:info-circle-bold" class="!w-4 !h-4 mr-1 text-gray-400" />
+							Pathways include multiple genes for comprehensive search
+						</div>
 					</div>
 				</template>
 
 				<!-- Footer with pathway info -->
-				<template #footer>
+				<!-- <template #footer>
 					<div class="px-3 py-2 bg-blue-50 border-t border-blue-100">
-						<p class="text-xs text-blue-700">
-							<Icon
-								name="solar:info-circle-bold-duotone"
-								class="w-4 h-4 inline mr-1 text-blue-600"
-							/>
+						<div class="text-xs text-blue-700 flex items-center gap-2">
+							<Icon name="solar:info-circle-bold-duotone" class="!w-4 !h-4 mr-1 text-blue-600" />
 							Pathways include multiple genes for comprehensive search
-						</p>
+						</div>
 					</div>
-				</template>
+				</template> -->
 			</AutoComplete>
 
 			<Button
@@ -178,13 +188,13 @@ const { AutocompleteAPI } = useGeneAPI()
 
 const handleFocus = () => {
 	// Logic to fetch suggestions or handle focus event
-	console.log('Search input focused')
+	// console.log('Search input focused')
 	isFocused.value = true
 }
 
 const handleBlur = () => {
 	// Logic to fetch suggestions or handle focus event
-	console.log('Search input blurred')
+	// console.log('Search input blurred')
 	isFocused.value = false
 }
 
@@ -192,7 +202,12 @@ const SearchGenePathway = async (event) => {
 	try {
 		const response = await AutocompleteAPI({ term: event.query })
 		if (response && response.suggestions) {
-			searchSuggestions.value = response.suggestions
+			const genes = response.suggestions.filter((item) => item.type === 'gene')
+			const pathways = response.suggestions.filter((item) => item.type === 'pathway')
+			searchSuggestions.value = [
+				{ label: 'Genes', items: genes },
+				{ label: 'Pathways', items: pathways },
+			]
 		} else {
 			searchSuggestions.value = []
 		}
