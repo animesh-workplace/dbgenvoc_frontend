@@ -114,7 +114,9 @@ import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
 const noOfRows = ref(50)
+const route = useRoute()
 const searchData = ref({})
+const genesList = ref([])
 const snvClass = ref({ data: [], categories: [] })
 const variantType = ref({ data: [], categories: [] })
 const variantClass = ref({ data: [], categories: [] })
@@ -220,13 +222,12 @@ const HandlePage = async (event) => {
 }
 
 const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) => {
-	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await SearchAPI(props.tableName, {
 			page,
 			sort_by,
 			sort_order,
-			term: gene_list,
+			term: genesList.value,
 			exact_match: true,
 			page_size: noOfRows,
 			search_columns: ['gene'],
@@ -239,11 +240,10 @@ const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) =
 
 const aggregateVariantType = async () => {
 	let variant_categories = []
-	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_type',
-			filters: { gene: gene_list },
+			filters: { gene: genesList.value },
 			group_by: ['variant_type', 'gene'],
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_type))
@@ -251,7 +251,7 @@ const aggregateVariantType = async () => {
 		const { matrix, sort_row_names } = useVariantMatrix(
 			response.result,
 			variant_categories,
-			gene_list,
+			genesList.value,
 			'variant_type',
 			true,
 		)
@@ -264,11 +264,10 @@ const aggregateVariantType = async () => {
 
 const aggregateVariantClass = async () => {
 	let variant_categories = []
-	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_class',
-			filters: { gene: gene_list },
+			filters: { gene: genesList.value },
 			group_by: ['variant_class', 'gene'],
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_class))
@@ -276,7 +275,7 @@ const aggregateVariantClass = async () => {
 		const { matrix, sort_row_names } = useVariantMatrix(
 			response.result,
 			variant_categories,
-			gene_list,
+			genesList.value,
 			'variant_class',
 			true,
 		)
@@ -291,21 +290,20 @@ const aggregateVariantClass = async () => {
 
 const aggregateSNVClass = async () => {
 	let variant_categories = []
-	const gene_list = ['TP53', 'NOTCH1', 'BRCA2']
 	try {
 		const response = await ConcateAggregateAPI(props.tableName, {
 			separator: '>',
 			group_by: ['gene'],
 			aggregation_type: 'count',
 			columns: ['ref_allele', 'tumor_seq_allele2'],
-			filters: { gene: gene_list, variant_type: 'SNP' },
+			filters: { gene: genesList.value, variant_type: 'SNP' },
 		})
 		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
 
 		const { matrix, sort_row_names } = useVariantMatrix(
 			response.result,
 			variant_categories,
-			gene_list,
+			genesList.value,
 			'concatenated_value',
 		)
 		snvClass.value.data = matrix
@@ -330,6 +328,7 @@ watch(
 
 onBeforeMount(() => {
 	nextTick(async () => {
+		genesList.value = route.query.genes_list
 		// Initialize the search variant type function
 		searchVariantType()
 		aggregateSNVClass()
