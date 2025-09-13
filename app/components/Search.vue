@@ -5,20 +5,20 @@
 				fluid
 				multiple
 				size="large"
+				forceSelection
 				v-model="search"
 				@blur="handleBlur"
 				name="Search Input"
 				@focus="handleFocus"
-				aria-label="Search Input"
-				@complete="SearchGenePathway"
-				:suggestions="searchSuggestions"
 				optionGroupLabel="label"
+				aria-label="Search Input"
 				optionGroupChildren="items"
+				@complete="SearchGenePathway"
+				@item-select="ItemSelect"
+				:suggestions="searchSuggestions"
 				:class="{ 'gradient-bg': !isFocused }"
 				class="min-w-[calc(100%-2rem-5rem)] max-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
-				:placeholder="
-					searchSuggestions.length ? '' : 'Enter gene name or multiple gene names or region or pathway'
-				"
+				:placeholder="search.length ? '' : 'Enter gene name or multiple gene names or region or pathway'"
 				optionLabel="value"
 				:pt="{
 					input: 'placeholder:text-sm caret-blue-800',
@@ -27,14 +27,14 @@
 				}"
 			>
 				<template #optiongroup="slotProps">
-					<div class="flex items-center gap-2 py-1 w-full">
+					<div class="flex items-center gap-2 py-0 w-full">
 						<p class="font-semibold text-sm text-blue-900">{{ slotProps.option.label }}</p>
 					</div>
 				</template>
 
 				<!-- Custom option template -->
 				<template #option="slotProps">
-					<div class="flex items-center gap-2 py-0.5 px-2 w-full">
+					<div class="flex items-center gap-2 py-0 px-2 w-full">
 						<Icon
 							name="solar:dna-bold-duotone"
 							class="w-5 h-5 text-blue-600"
@@ -65,26 +65,26 @@
 				<!-- Custom chip template for selected items -->
 				<template #chip="slotProps">
 					<div
-						:class="`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${
+						:class="`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer ${
 							slotProps.value.type === 'gene'
 								? 'bg-blue-200 text-black shadow-sm'
 								: 'bg-green-200 text-black shadow-sm'
 						}`"
 					>
 						<Icon
-							v-if="slotProps.value.type === 'gene'"
-							name="solar:dna-bold-duotone"
-							class="!w-4 !h-4"
+							class="w-4 h-4"
+							:name="
+								slotProps.value.type === 'gene'
+									? 'solar:dna-bold-duotone'
+									: 'solar:black-hole-bold'
+							"
 						/>
-						<Icon
-							v-else-if="slotProps.value.type === 'pathway'"
-							name="solar:map-bold-duotone"
-							class="!w-4 !h-4"
-						/>
-						<span>{{ slotProps.value.value }}</span>
-						<!-- Optional: remove button -->
-						<div @click="slotProps.removeCallback()" class="ml-1 rounded-full hover:bg-gray-600 p-0.5">
-							<Icon name="solar:close-circle-bold-duotone" class="!w-5 !h-5" />
+						<span class="leading-none">{{ slotProps.value.value }}</span>
+						<div
+							@click="slotProps.removeCallback()"
+							class="flex items-center justify-center rounded-full p-0.5 hover:bg-gray-300 cursor-pointer transition-colors"
+						>
+							<Icon name="solar:close-circle-bold-duotone" class="!w-4 !h-4 text-gray-500" />
 						</div>
 					</div>
 				</template>
@@ -99,22 +99,12 @@
 						</div>
 					</div>
 				</template>
-
-				<!-- Footer with pathway info -->
-				<!-- <template #footer>
-					<div class="px-3 py-2 bg-blue-50 border-t border-blue-100">
-						<div class="text-xs text-blue-700 flex items-center gap-2">
-							<Icon name="solar:info-circle-bold-duotone" class="!w-4 !h-4 mr-1 text-blue-600" />
-							Pathways include multiple genes for comprehensive search
-						</div>
-					</div>
-				</template> -->
 			</AutoComplete>
 
 			<Button
 				id="Search Button"
+				@click="StartSearch"
 				aria-label="Search Button"
-				@click="() => console.log('Search clicked')"
 				:pt="{
 					root: '!rounded-l-none !rounded-r-2xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-0 z-10',
 				}"
@@ -181,9 +171,13 @@
 <script setup>
 import { useGeneAPI } from '@/api/geneAPI'
 
-const search = ref('')
+const search = ref([])
+const actualSearch = ref([])
 const isFocused = ref(false)
-const searchSuggestions = ref(['FAT1'])
+const searchSuggestions = ref([
+	{ label: 'Genes', items: [] },
+	{ label: 'Pathways', items: [] },
+])
 const { AutocompleteAPI } = useGeneAPI()
 
 const handleFocus = () => {
@@ -196,6 +190,36 @@ const handleBlur = () => {
 	// Logic to fetch suggestions or handle focus event
 	// console.log('Search input blurred')
 	isFocused.value = false
+}
+
+const StartSearch = () => {
+	if (actualSearch.value.length === 0) {
+		return
+	}
+
+	// Navigate to search page with genes_list as query parameter
+	const router = useRouter()
+	router.push({
+		path: '/search',
+		query: {
+			genes_list: actualSearch.value,
+		},
+	})
+}
+
+const ItemSelect = (event) => {
+	if (event.value.type === 'pathway') {
+		const pathwayGenes = event.value.pathway_genes.split(',')
+		// Remove duplicates and merge with existing
+		const uniqueGenes = [...new Set([...actualSearch.value, ...pathwayGenes])]
+		actualSearch.value = uniqueGenes
+	} else if (event.value.type === 'gene') {
+		// Check if gene already exists
+		if (!actualSearch.value.includes(event.value.value)) {
+			actualSearch.value.push(event.value.value)
+		}
+	}
+	console.log('Selected item:', event.value)
 }
 
 const SearchGenePathway = async (event) => {
