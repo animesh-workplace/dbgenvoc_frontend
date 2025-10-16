@@ -142,7 +142,7 @@ const variantClass = ref({
 	'OT-TCGA': { data: [], categories: [] },
 })
 const columns = [
-	{ field: 'tcga_id', header: 'DB ID' },
+	{ field: 'variant_id', header: 'DB ID' },
 	{ field: 'gene', header: 'Gene' },
 	{ field: 'entrez_gene_id', header: 'Entrez ID' },
 	{ field: 'disease', header: 'Disease' },
