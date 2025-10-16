@@ -121,7 +121,7 @@ const snvClass = ref({ data: [], categories: [] })
 const variantType = ref({ data: [], categories: [] })
 const variantClass = ref({ data: [], categories: [] })
 const columns = [
-	{ field: 'esm_id', header: 'DB ID' },
+	{ field: 'variant_id', header: 'DB ID' },
 	{ field: 'gene', header: 'Gene' },
 	{ field: 'entrez_gene_id', header: 'Entrez ID' },
 	{ field: 'disease', header: 'Disease' },
