@@ -58,7 +58,7 @@ const { colorMode, toggle } = useTheme()
 
 const items = ref([
 	{ label: 'Home', icon: 'solar:home-2-bold-duotone', href: '/', type: 'button' },
-	{ label: 'Search', icon: 'solar:magnifer-bold-duotone', href: '/', type: 'button' },
+	{ label: 'AI Search', icon: 'solar:magnifer-bold-duotone', href: '/vocal', type: 'button' },
 	{ label: 'Help', icon: 'solar:question-square-bold-duotone', href: '/help', type: 'button' },
 	{ label: 'Contact us', icon: 'solar:user-speak-bold-duotone', href: '/contact', type: 'button' },
 	{
