@@ -13,6 +13,27 @@
 					v-for="(message, index) in chatHistory"
 					:class="message.sender === 'user' ? 'justify-end' : 'flex-col justify-start'"
 				>
+					<Accordion v-if="message.plan" class="max-w-md mb-2">
+						<AccordionPanel
+							class="mb-2"
+							:key="index"
+							:value="index"
+							v-for="(plan, index) in message.plan"
+						>
+							<AccordionHeader class="text-xs font-medium text-gray-700">
+								{{ plan.tool_name }}
+							</AccordionHeader>
+							<AccordionContent>
+								<div>{{ plan.query_context }}</div>
+								<div>
+									<pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
+ {{ plan.params }} </pre
+									>
+								</div>
+							</AccordionContent>
+						</AccordionPanel>
+					</Accordion>
+
 					<div
 						class="rounded-lg px-4 py-2 max-w-md"
 						:class="message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'"
@@ -63,9 +84,10 @@ const { AskAIAPI } = useGeneAPI()
 const userInput = ref('')
 const chatHistory = ref([
 	{
+		plan: null,
+		tables: [],
 		sender: 'ai',
 		content: 'Hello! I am VOCAL. How can I help you query the dbGENVOC database today?',
-		tables: [],
 	},
 ])
 const isLoading = ref(false)
@@ -92,7 +114,9 @@ const sendMessage = async () => {
 
 	// 2. Call the backend API
 	// await streamMockResponse(query)
+	streamStatus.value = '🧠 Thinking and creating an execution plan...'
 	await ChatWithAI(query)
+	streamStatus.value = ''
 }
 
 const ChatWithAI = async (query) => {
@@ -100,9 +124,13 @@ const ChatWithAI = async (query) => {
 		const response = await AskAIAPI({
 			query: query,
 		})
-		console.log('AI Response:', response)
 		const ai_output = {
 			sender: 'ai',
+			plan: response.results.map((item) => ({
+				tool_name: item.tool_name,
+				query_context: item.context,
+				params: JSON.stringify(item.params, null, 2),
+			})),
 			content: response.answer,
 			tables: map(response.results, (item) =>
 				item.tool_name == 'generic_search' ? { data: item.result, params: item.params } : null,
@@ -112,7 +140,23 @@ const ChatWithAI = async (query) => {
 		isLoading.value = false
 		scrollToBottom()
 	} catch (error) {
-		console.error('Error fetching search data:', error)
+		isLoading.value = false
+		let errorMessage = 'Sorry, an unexpected error occurred. Please check the console for details.'
+
+		if (error.response && error.response.data && error.response.data.detail) {
+			errorMessage = `I encountered an issue: ${error.response.data.detail}`
+		} else if (error.message) {
+			errorMessage = error.message
+		}
+
+		chatHistory.value.push({
+			plan: null,
+			tables: [],
+			sender: 'ai',
+			content: errorMessage,
+		})
+		console.error('Error fetching data:', error.response ? error.response.data : error)
+		scrollToBottom()
 	}
 }
 
