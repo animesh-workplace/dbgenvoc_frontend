@@ -54,7 +54,7 @@ export default defineNuxtConfig({
 	echarts: {
 		renderer: ['canvas'],
 		features: ['UniversalTransition'],
-		charts: ['BarChart', 'PieChart', 'CustomChart', 'ScatterChart'],
+		charts: ['BarChart', 'PieChart', 'CustomChart', 'ScatterChart', 'HeatmapChart'],
 		components: [
 			'GridComponent',
 			'TitleComponent',
@@ -62,6 +62,7 @@ export default defineNuxtConfig({
 			'DatasetComponent',
 			'TooltipComponent',
 			'ToolboxComponent',
+			'VisualMapComponent',
 		],
 	},
 })
