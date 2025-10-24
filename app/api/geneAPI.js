@@ -5,7 +5,7 @@ export function useGeneAPI() {
 
 	const AutocompleteAPI = async (payload) => {
 		try {
-			const { data, error } = await useFetch(`${BASEURL}/autocomplete/`, {
+			const { data, error } = await useFetch(`${BASEURL}/autocomplete`, {
 				method: 'POST',
 				body: payload,
 			})
@@ -23,7 +23,7 @@ export function useGeneAPI() {
 
 	const SearchAPI = async (table_name, payload) => {
 		try {
-			const { data, error } = await useFetch(`${BASEURL}/${table_name}/search/`, {
+			const { data, error } = await useFetch(`${BASEURL}/${table_name}/search`, {
 				method: 'POST',
 				body: payload,
 			})
@@ -41,7 +41,7 @@ export function useGeneAPI() {
 
 	const AggregateAPI = async (table_name, payload) => {
 		try {
-			const { data, error } = await useFetch(`${BASEURL}/${table_name}/aggregate/`, {
+			const { data, error } = await useFetch(`${BASEURL}/${table_name}/aggregate`, {
 				method: 'POST',
 				body: payload,
 			})
@@ -59,7 +59,7 @@ export function useGeneAPI() {
 
 	const ConcateAggregateAPI = async (table_name, payload) => {
 		try {
-			const { data, error } = await useFetch(`${BASEURL}/${table_name}/aggregate-concatenated/`, {
+			const { data, error } = await useFetch(`${BASEURL}/${table_name}/aggregate-concatenated`, {
 				method: 'POST',
 				body: payload,
 			})
@@ -77,7 +77,7 @@ export function useGeneAPI() {
 
 	const OncoplotAPI = async (table_name, payload) => {
 		try {
-			const { data, error } = await useFetch(`${BASEURL}/${table_name}/oncoplot/`, {
+			const { data, error } = await useFetch(`${BASEURL}/${table_name}/oncoplot`, {
 				method: 'POST',
 				body: payload,
 			})
@@ -95,7 +95,7 @@ export function useGeneAPI() {
 
 	const AskAIAPI = async (payload) => {
 		try {
-			const { data, error } = await useFetch(`${BASEURL}/ask/`, {
+			const { data, error } = await useFetch(`${BASEURL}/ask`, {
 				method: 'GET',
 				query: payload,
 			})
