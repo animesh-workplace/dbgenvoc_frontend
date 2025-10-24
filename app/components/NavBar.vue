@@ -68,6 +68,6 @@ const items = ref([
 		action: toggle,
 		type: 'action',
 	},
-	{ label: 'Test', icon: 'solar:user-speak-bold-duotone', href: '/test', type: 'button' },
+	{ label: 'Test', icon: 'solar:code-scan-bold-duotone', href: '/test', type: 'button' },
 ])
 </script>
