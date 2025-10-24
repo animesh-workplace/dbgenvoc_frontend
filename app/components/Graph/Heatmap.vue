@@ -6,6 +6,7 @@
 </template>
 
 <script setup>
+import { map } from 'lodash-es'
 import { useGeneAPI } from '@/api/geneAPI'
 const { OncoplotAPI } = useGeneAPI()
 
@@ -26,30 +27,7 @@ const chartOption = ref({
 			fontSize: 16,
 		},
 	},
-	visualMap: {
-		min: 0,
-		max: 10,
-		show: false,
-		left: 'right',
-		top: 'center',
-		calculable: true,
-		orient: 'vertical',
-		inRange: {
-			// color: ['#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#fee090', '#fdae61', '#f46d43', '#d73027'],
-			color: [
-				'#ffffffFF',
-				'#33A02CFF',
-				'#6A3D9AFF',
-				'#FFFF99FF',
-				'#1F78B4FF',
-				'#E31A1CFF',
-				'#FF7F00FF',
-				'#A6CEE3FF',
-				'#D53E4FFF',
-				'#000000FF',
-			],
-		},
-	},
+	visualMap: { show: false },
 	series: [
 		{
 			type: 'heatmap',
@@ -84,6 +62,19 @@ const chartOption = ref({
 })
 
 const getOncoplot = async () => {
+	const colorMapping = {
+		0: '#ffffff', // 0 - No mutation / Wild type
+		1: '#33A02C', // 1 - Missense_Mutation
+		2: '#6A3D9A', // 2 - Frame_Shift_Ins
+		3: '#FFFF99', // 3 - In_Frame_Del
+		4: '#1F78B4', // 4 - Frame_Shift_Del
+		5: '#E31A1C', // 5 - Nonsense_Mutation
+		6: '#FF7F00', // 6 - Splice_Site
+		7: '#A6CEE3', // 7 - Nonstop_Mutation
+		8: '#D53E4F', // 8 - In_Frame_Ins
+		9: '#000000', // 9 - Multi_Hit
+	}
+
 	try {
 		const response = await OncoplotAPI('es_tcga_oncoplot', {
 			genes: [
@@ -110,7 +101,10 @@ const getOncoplot = async () => {
 				'COL1A1',
 			],
 		})
-		chartOption.value.series[0].data = response.heatmap
+		chartOption.value.series[0].data = map(response.heatmap, (item) => ({
+			value: item,
+			itemStyle: { color: colorMapping[item[2]] },
+		}))
 		chartOption.value.xAxis.data = response.xAxis
 		chartOption.value.yAxis.data = response.yAxis
 	} catch (error) {
