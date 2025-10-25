@@ -93,6 +93,24 @@ export function useGeneAPI() {
 		}
 	}
 
+	const InteractionsAPI = async (table_name, payload) => {
+		try {
+			const { data, error } = await useFetch(`${BASEURL}/${table_name}/interactions`, {
+				method: 'POST',
+				body: payload,
+			})
+
+			if (error.value) {
+				throw new Error(error.value || 'An error occurred')
+			}
+
+			return data.value
+		} catch (err) {
+			console.error(err)
+			throw err
+		}
+	}
+
 	const AskAIAPI = async (payload) => {
 		try {
 			const { data, error } = await useFetch(`${BASEURL}/ask`, {
@@ -116,6 +134,7 @@ export function useGeneAPI() {
 		SearchAPI,
 		OncoplotAPI,
 		AggregateAPI,
+		InteractionsAPI,
 		AutocompleteAPI,
 		ConcateAggregateAPI,
 	}
