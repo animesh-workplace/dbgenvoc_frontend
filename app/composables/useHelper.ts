@@ -1,4 +1,3 @@
-import { row } from '@primeuix/themes/aura/datatable'
 import { map, forEach, sum, zip } from 'lodash-es'
 
 type VariantMatrix = number[][]
@@ -14,8 +13,9 @@ export const useHelper = () => {
 		result: VariantRecord[],
 		row_names: string[],
 		col_names: string[],
-		key_name: string,
+		col_key_name: string,
 		sortByColSum: boolean = false,
+		row_key_name: string = 'gene',
 	) => {
 		let sort_row_names = row_names
 		let matrix: VariantMatrix = map(col_names, (d) => Array(row_names.length).fill(0))
@@ -26,8 +26,8 @@ export const useHelper = () => {
 
 		// Populate the data array
 		forEach(result, (item) => {
-			const i = geneIndex.get(item.gene)
-			const j = categoryIndex.get(item[key_name] as string)
+			const i = geneIndex.get(item[row_key_name] as string)
+			const j = categoryIndex.get(item[col_key_name] as string)
 			if (i !== undefined && j !== undefined && matrix[i]) {
 				matrix[i][j] = item.aggregated_value
 			}
