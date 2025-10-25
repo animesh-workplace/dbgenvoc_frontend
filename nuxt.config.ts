@@ -59,6 +59,7 @@ export default defineNuxtConfig({
 			'GridComponent',
 			'TitleComponent',
 			'LegendComponent',
+			'MatrixComponent',
 			'DatasetComponent',
 			'TooltipComponent',
 			'ToolboxComponent',
