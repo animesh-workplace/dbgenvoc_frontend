@@ -18,16 +18,6 @@ const props = defineProps({
 })
 
 const chartOption = ref({
-	// title: {
-	// 	top: '0%',
-	// 	left: 'center',
-	// 	text: props.name,
-	// 	textStyle: {
-	// 		fontFamily: 'Lexend Deca',
-	// 		fontWeight: 600,
-	// 		fontSize: 16,
-	// 	},
-	// },
 	visualMap: { show: false },
 	grid: [
 		{
@@ -43,7 +33,7 @@ const chartOption = ref({
 		},
 		{
 			// Oncoplot grid
-			show: true,
+			// show: true,
 			top: '20%',
 			right: '20%',
 			left: '0%',
@@ -54,7 +44,7 @@ const chartOption = ref({
 		},
 		{
 			// TMB grid
-			show: true,
+			// show: true,
 			top: '0%',
 			bottom: '82%',
 			right: '20%',
@@ -100,7 +90,7 @@ const chartOption = ref({
 		{
 			// Sample Y axis
 			data: [],
-			show: true,
+			show: false,
 			gridIndex: 0,
 			type: 'category',
 			axisTick: { show: true },
@@ -176,6 +166,17 @@ const getOncoplot = async () => {
 		8: '#D53E4F', // 8 - In_Frame_Ins
 		9: '#000000', // 9 - Multi_Hit
 	}
+	const sampleColorMapping = {
+		Multi_Hit: '#000000',
+		Splice_Site: '#FF7F00',
+		In_Frame_Del: '#FFFF99',
+		In_Frame_Ins: '#D53E4F',
+		Frame_Shift_Ins: '#6A3D9A',
+		Frame_Shift_Del: '#1F78B4',
+		Nonstop_Mutation: '#A6CEE3',
+		Missense_Mutation: '#33A02C',
+		Nonsense_Mutation: '#E31A1C',
+	}
 
 	try {
 		const response = await OncoplotAPI('es_tcga_oncoplot', {
@@ -203,15 +204,55 @@ const getOncoplot = async () => {
 				'COL1A1',
 			],
 		})
+		chartOption.value.yAxis[0].data = response.yAxis
 		chartOption.value.xAxis[1].data = response.xAxis
 		chartOption.value.yAxis[1].data = response.yAxis
-		chartOption.value.series[1].data = map(response.heatmap, (item) => ({
-			value: item,
-			itemStyle: { color: colorMapping[item[2]] },
-		}))
+		chartOption.value.xAxis[2].data = response.xAxis
 
-		chartOption.value.xAxis[2].data = response.yAxis
-		chartOption.value.series[2].data = map(response.yAxis, (item) => random(10, 200))
+		chartOption.value.series = [
+			// Chart info for Sample bar plot
+			...map(response.sample_bar_plot, (dataSet) => ({
+				...dataSet,
+				data: dataSet.data.map((value, i) => {
+					return {
+						value,
+						itemStyle: { borderRadius: 0, color: sampleColorMapping[dataSet.name] },
+					}
+				}),
+				xAxisIndex: 0,
+				yAxisIndex: 0,
+			})),
+			// Chart info for the oncoplot
+			{
+				xAxisIndex: 1,
+				yAxisIndex: 1,
+				type: 'heatmap',
+				data: map(response.heatmap, (item) => ({
+					value: item,
+					itemStyle: { color: colorMapping[item[2]] },
+				})),
+				emphasis: {
+					itemStyle: {
+						shadowBlur: 10,
+						shadowColor: 'rgba(0, 0, 0, 0.5)',
+					},
+				},
+			},
+			//  Chart info for the TMB data
+			...map(response.tmb_bar_plot, (dataSet) => ({
+				...dataSet,
+				data: dataSet.data.map((value, i) => {
+					return {
+						value,
+						itemStyle: { borderRadius: 0, color: sampleColorMapping[dataSet.name] },
+					}
+				}),
+				xAxisIndex: 2,
+				yAxisIndex: 2,
+			})),
+		]
+
+		// chartOption.value.series[2].data = map(response.yAxis, (item) => random(10, 200))
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -315,7 +356,7 @@ const aggregateVariantClass = async () => {
 
 onMounted(async () => {
 	await getOncoplot()
-	await aggregateVariantClass()
+	// await aggregateVariantClass()
 	isLoading.value = false
 })
 </script>
