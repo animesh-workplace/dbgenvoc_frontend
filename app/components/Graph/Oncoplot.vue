@@ -18,6 +18,13 @@ const props = defineProps({
 })
 
 const chartOption = ref({
+	tooltip: {
+		show: true,
+		// formatter: (params) => {
+		// 	console.log(params)
+		// 	// return ''
+		// },
+	},
 	visualMap: { show: false },
 	grid: [
 		{
@@ -67,6 +74,7 @@ const chartOption = ref({
 			splitLine: { show: false },
 			axisLine: { show: true, onZero: false },
 			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+			nameTextStyle: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 		},
 		{
 			// Oncoplot X axis
@@ -118,6 +126,7 @@ const chartOption = ref({
 			axisLine: { show: true },
 			splitLine: { show: false },
 			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+			nameTextStyle: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 		},
 	],
 	series: [
@@ -251,104 +260,6 @@ const getOncoplot = async () => {
 				yAxisIndex: 2,
 			})),
 		]
-
-		// chartOption.value.series[2].data = map(response.yAxis, (item) => random(10, 200))
-	} catch (error) {
-		console.error('Error fetching search data:', error)
-	}
-}
-
-const aggregateVariantClass = async () => {
-	let variant_categories = []
-	const colorMapping = {
-		0: '#33A02C',
-		1: '#6A3D9A',
-		2: '#FFFF99',
-		3: '#1F78B4',
-		4: '#E31A1C',
-		5: '#FF7F00',
-		6: '#A6CEE3',
-		7: '#D53E4F',
-	}
-	try {
-		const response = await AggregateAPI('es_tcga', {
-			column: 'variant_class',
-			group_by: ['variant_class', 'gene'],
-			filters: {
-				gene: [
-					'FLG',
-					'TTN',
-					'NEB',
-					'TP53',
-					'FAT1',
-					'NOTCH1',
-					'CDKN2A',
-					'MUC16',
-					'PIK3CA',
-					'CASP8',
-					'HRAS',
-					'AJUBA',
-					'PCLO',
-					'CSMD3',
-					'DNAH5',
-					'SYNE1',
-					'LRP1B',
-					'HUWE1',
-					'KMT2D',
-					'PLEC',
-					'COL1A1',
-				],
-				variant_class: [
-					'Missense_Mutation',
-					'Frame_Shift_Ins',
-					'In_Frame_Del',
-					'Frame_Shift_Del',
-					'Nonsense_Mutation',
-					'Splice_Site',
-					'Nonstop_Mutation',
-					'In_Frame_Ins',
-				],
-			},
-		})
-		variant_categories = [
-			'Missense_Mutation',
-			'Frame_Shift_Ins',
-			'In_Frame_Del',
-			'Frame_Shift_Del',
-			'Nonsense_Mutation',
-			'Splice_Site',
-			'Nonstop_Mutation',
-			'In_Frame_Ins',
-		]
-
-		const { matrix, sort_row_names } = useVariantMatrix(
-			response.result,
-			chartOption.value.yAxis[1].data,
-			variant_categories,
-			'gene',
-			false,
-			'variant_class',
-		)
-
-		const number_of_sample_chartoption = matrix.map((dataSet, index) => ({
-			type: 'bar',
-			stack: 'total',
-			data: dataSet.map((value, i) => {
-				return {
-					value,
-					itemStyle: { borderRadius: 0, color: colorMapping[index] },
-				}
-			}),
-			name: `B${index + 1}`,
-			xAxisIndex: 0,
-			yAxisIndex: 0,
-		}))
-		chartOption.value.yAxis[0].data = chartOption.value.yAxis[1].data
-		chartOption.value.series = [
-			...number_of_sample_chartoption,
-			chartOption.value.series[1],
-			chartOption.value.series[2],
-		]
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -356,7 +267,6 @@ const aggregateVariantClass = async () => {
 
 onMounted(async () => {
 	await getOncoplot()
-	// await aggregateVariantClass()
 	isLoading.value = false
 })
 </script>
