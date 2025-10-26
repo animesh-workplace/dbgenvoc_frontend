@@ -7,6 +7,9 @@
 				<GraphOncoplot name="NIBMG exome somatic oncoplot" />
 			</div>
 			<!-- <div class="grid grid-cols-2 gap-6 my-8">
+				<GraphMatrix />
+			</div>
+			<div class="grid grid-cols-2 gap-6 my-8">
 				<GraphSomaticInteraction name="TCGA exome oncoplot" />
 				<GraphSomaticInteraction name="NIBMG exome somatic oncoplot" />
 			</div> -->
