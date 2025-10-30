@@ -8,18 +8,47 @@
 <script setup>
 import { map, min, max } from 'lodash-es'
 import { useGeneAPI } from '@/api/geneAPI'
-const { OncoplotAPI, InteractionsAPI } = useGeneAPI()
+const { InteractionsAPI } = useGeneAPI()
 const isLoading = ref(true)
 const selectedGenes = ref([])
 
 const chartOption = ref({
 	matrix: {
-		x: { data: [], show: true, label: { show: true, rotate: 90 } },
-		y: { data: [], show: true },
+		x: {
+			data: [],
+			show: true,
+			levelSize: '15%',
+			itemStyle: { borderWidth: 0 },
+			dividerLineStyle: { width: 0 },
+			label: {
+				show: true,
+				rotate: 90,
+				align: 'left',
+				fontWeight: 500,
+				fontFamily: 'Lexend Deca',
+				position: 'insideBottomRight',
+			},
+		},
+		y: {
+			data: [],
+			show: true,
+			levelSize: '15%',
+			itemStyle: { borderWidth: 0 },
+			dividerLineStyle: { width: 0 },
+			label: {
+				show: true,
+				align: 'right',
+				fontWeight: 500,
+				position: 'right',
+				fontFamily: 'Lexend Deca',
+			},
+		},
 		width: 500,
 		height: 500,
 		top: '0%',
 		left: '0%',
+		right: '0%',
+		bottom: '0%',
 		backgroundStyle: { borderColor: 'none' },
 		body: { itemStyle: { borderColor: 'none' } },
 	},
@@ -34,9 +63,9 @@ const chartOption = ref({
 		},
 	},
 	series: {
+		data: [],
 		type: 'heatmap',
 		coordinateSystem: 'matrix',
-		data: [],
 	},
 	tooltip: {
 		show: true,
@@ -81,13 +110,14 @@ const getOncoplot = async () => {
 				'NEB',
 				'PLEC',
 				'COL1A1',
+				'COL1A2',
 			],
 		})
-		chartOption.value.series.data = response.heatmap.map((item) => [item[1], item[0], item[2]])
-		chartOption.value.matrix.x.data = response.xAxis
-		chartOption.value.matrix.y.data = response.yAxis
+		chartOption.value.series.data = response.heatmap
+		chartOption.value.matrix.x.data = [...response.xAxis]
+		chartOption.value.matrix.y.data = [...response.yAxis].reverse()
 		chartOption.value.tooltip.formatter = (params) => {
-			return `${response.xAxis[params.data[1]]} and ${response.xAxis[params.data[0]]}`
+			return `${params.data[1]} and ${params.data[0]}`
 		}
 	} catch (error) {
 		console.error('Error fetching search data:', error)
@@ -106,6 +136,6 @@ onMounted(() => {
 <style scoped>
 .chart {
 	width: 100%;
-	height: 50rem;
+	height: 30rem;
 }
 </style>
