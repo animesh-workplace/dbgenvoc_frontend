@@ -87,7 +87,7 @@ const getOncoplot = async () => {
 	}
 
 	try {
-		const response = await InteractionsAPI('es_tcga_somatic_variation', {
+		const response = await InteractionsAPI('tcga_exome_somatic_gene_interaction', {
 			genes: [
 				'TP53',
 				'TTN',
