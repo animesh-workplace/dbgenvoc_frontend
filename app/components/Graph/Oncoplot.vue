@@ -188,7 +188,7 @@ const getOncoplot = async () => {
 	}
 
 	try {
-		const response = await OncoplotAPI('es_tcga_oncoplot', {
+		const response = await OncoplotAPI('tcga_exome_somatic_variant_oncoplot', {
 			genes: [
 				'FLG',
 				'TTN',
