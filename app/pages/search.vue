@@ -23,13 +23,17 @@
 		</div>
 
 		<section>
-			<ResultSectionMain :tableName="somaticVariationType == 'Exome' ? 'exome_somatic' : 'wg_somatic'" />
+			<ResultSectionMain
+				:tableName="
+					somaticVariationType == 'Exome' ? 'nibmg_exome_somatic_variants' : 'nibmg_wg_somatic_variants'
+				"
+			/>
 		</section>
 		<Divider />
 
 		<section>
 			<ResultSectionTCGA
-				tableName="es_tcga"
+				tableName="tcga_exome_somatic_variants"
 				:noData="somaticVariationType === 'Whole Genome' ? true : false"
 			/>
 
@@ -55,7 +59,7 @@
 
 		<section class="mb-12">
 			<ResultSectionJournal
-				tableName="es_journal"
+				tableName="journal_exome_somatic_variants"
 				:noData="somaticVariationType === 'Whole Genome' ? true : false"
 			/>
 
