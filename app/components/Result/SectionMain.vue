@@ -103,7 +103,7 @@
 			<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class</div>
 			<GraphBar :plotData="snvClass" showAll />
 		</div>
-		<!-- <GraphLollipop class="col-span-3" /> -->
+		<GraphLollipop class="col-span-3" />
 	</div>
 </template>
 
