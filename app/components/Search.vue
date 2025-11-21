@@ -209,7 +209,7 @@ const StartSearch = () => {
 
 const ItemSelect = (event) => {
 	if (event.value.type === 'pathway') {
-		const pathwayGenes = event.value.pathway_genes.split(',')
+		const pathwayGenes = event.value.pathway_genes
 		// Remove duplicates and merge with existing
 		const uniqueGenes = [...new Set([...actualSearch.value, ...pathwayGenes])]
 		actualSearch.value = uniqueGenes
@@ -225,13 +225,14 @@ const ItemSelect = (event) => {
 const SearchGenePathway = async (event) => {
 	try {
 		const response = await AutocompleteAPI({ term: event.query })
-		if (response && response.suggestions) {
-			const genes = response.suggestions.filter((item) => item.type === 'gene')
-			const pathways = response.suggestions.filter((item) => item.type === 'pathway')
-			searchSuggestions.value = [
-				{ label: 'Genes', items: genes },
-				{ label: 'Pathways', items: pathways },
-			]
+		if (response) {
+			// const genes = response.suggestions.filter((item) => item.type === 'gene')
+			// const pathways = response.suggestions.filter((item) => item.type === 'pathway')
+			searchSuggestions.value = response
+			// = [
+			// 	{ label: 'Genes', items: genes },
+			// 	{ label: 'Pathways', items: pathways },
+			// ]
 		} else {
 			searchSuggestions.value = []
 		}
