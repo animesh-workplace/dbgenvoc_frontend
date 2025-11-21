@@ -15,9 +15,20 @@ const calculateDimensions = () => {
 }
 
 // Sample data
-const categories = [1, 2, 3, 4, 5, 6, 7] // L1 to L7
-const data1 = [120, 200, 150, 80, 70, 110, 130]
-const data2 = [300]
+const categories = [1, 2, 3, 4, 5, 6, 7] // Count of each position
+const data1 = [
+	[0, 0],
+	[120, 1],
+	[200, 2],
+	[150, 3],
+	[80, 3],
+	[70, 5],
+	[110, 2],
+	[130, 7],
+	[300, 9],
+]
+
+// const data2 = [300]
 const data = [
 	{
 		name: 'Type 1',
@@ -35,8 +46,9 @@ const data = [
 		itemStyle: { color: '#75d874' },
 	},
 ]
-// Sample pie data for each scatter point (2-3 segments each)
+// // Sample pie data for each scatter point (2-3 segments each)
 const pieDataArray = [
+	[{ value: 70, name: 'A' }],
 	[
 		{ value: 70, name: 'A' },
 		{ value: 30, name: 'B' },
@@ -68,6 +80,7 @@ const pieDataArray = [
 		{ value: 55, name: 'A' },
 		{ value: 45, name: 'B' },
 	], // L7
+	[{ value: 70, name: 'A' }],
 ]
 
 function scaleValue(value, min = 0, max = 300, newMin = 1, newMax = 100) {
@@ -77,25 +90,29 @@ function scaleValue(value, min = 0, max = 300, newMin = 1, newMax = 100) {
 	return ((value - min) / (max - min)) * (newMax - newMin) + newMin
 }
 
-// Calculate positions for pie charts based on data values and categories
+const maxValue = 200
+const maxCategories = 7
+
+// // Calculate positions for pie charts based on data values and categories
 const calculatePiePosition = (categoryIndex, value, maxValue) => {
-	const xPercent = (categoryIndex * 2 + 1) * 7 + 0.45
-	const yPercent = Math.round(scaleValue(value), 2)
-	// console.log('🚀 ~ :58 ~ calculatePiePosition ~ xPercent, yPercent:', xPercent, yPercent)
+	const baseXPercent = (value[0] / (maxValue + 100)) * 100
+	const shiftXPercent = 0.4 - 1.2 * (baseXPercent / 100)
+	const xPercent = baseXPercent + shiftXPercent // 0 -> 0.67 100-> -0.67
+	const baseYPercent = (value[1] / (maxCategories + 2)) * 100
+	const shiftYPercent = 15.5 - 0.155 * baseYPercent
+	const yPercent = baseYPercent + shiftYPercent
 	return [xPercent + '%', 100 - yPercent + '%']
 }
 
-const truncateText = (text, maxWidth, fontSize = 10) => {
-	// Approximate text width (ECharts doesn't give exact here, so use char * fontSize * factor)
-	const avgCharWidth = fontSize * 0.6
-	const maxChars = Math.floor(maxWidth / avgCharWidth)
-	if (text.length > maxChars) {
-		return text.substring(0, maxChars - 2) + '…'
-	}
-	return text
-}
-
-const maxValue = Math.max(...data1)
+// const truncateText = (text, maxWidth, fontSize = 10) => {
+// 	// Approximate text width (ECharts doesn't give exact here, so use char * fontSize * factor)
+// 	const avgCharWidth = fontSize * 0.6
+// 	const maxChars = Math.floor(maxWidth / avgCharWidth)
+// 	if (text.length > maxChars) {
+// 		return text.substring(0, maxChars - 2) + '…'
+// 	}
+// 	return text
+// }
 
 const chartOption = ref({
 	animation: false,
@@ -105,19 +122,18 @@ const chartOption = ref({
 			type: 'category',
 			id: 'normalYAxis',
 			position: 'left',
+			axisTick: { show: true },
 			data: [1, 2, 3, 4, 5, 6, 7], // L1 to L7
 			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 		},
 		{
-			min: -32,
+			min: -1,
 			show: false,
 			type: 'value',
 			position: 'left',
 			id: 'lollipopYAxis',
-			max: maxValue + 100, // Add some padding
-			axisTick: { show: true },
-			axisLine: { show: true },
-			splitLine: { show: true },
+			max: maxCategories + 2,
+			splitLine: { show: false },
 			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 		},
 	],
@@ -134,20 +150,12 @@ const chartOption = ref({
 			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 		},
 		{
-			show: false,
-			type: 'category',
-			position: 'bottom',
-			id: 'lollipopXAxis',
-			data: [1, 2, 3, 4, 5, 6, 7], // L1 to L7
-			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-		},
-		{
 			show: true,
 			type: 'value',
-			id: 'normalXAxis2',
 			position: 'bottom',
+			id: 'lollipopXAxis',
 			max: maxValue + 100, // Add some padding
-			axisTick: { show: true },
+			axisTick: { show: true, alignWithLabel: true },
 			axisLine: { show: true },
 			splitLine: { show: false },
 			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
@@ -164,10 +172,10 @@ const chartOption = ref({
 		{
 			z: 1,
 			type: 'bar',
-			barWidth: 30,
+			barWidth: 15,
 			xAxisId: 'normalXAxis',
 			yAxisId: 'normalYAxis',
-			data: [maxValue + 1000],
+			data: [maxValue + 100],
 			itemStyle: { borderRadius: 30, color: '#4b5563', opacity: 0.2 },
 		},
 		{
@@ -181,7 +189,7 @@ const chartOption = ref({
 				const categoryIndex = api.value(0)
 				const start = api.coord([api.value(1), categoryIndex])
 				const end = api.coord([api.value(2), categoryIndex])
-				const height = api.size([0, 1])[1] * 0.6
+				const height = api.size([0, 1])[1] * 0.5
 				const rectWidth = end[0] - start[0]
 
 				return {
@@ -195,7 +203,7 @@ const chartOption = ref({
 								y: start[1] - height / 2,
 								width: rectWidth,
 								height,
-								r: 20, // rounded corners
+								r: 8, // rounded corners
 							},
 							style: api.style(),
 						},
@@ -229,7 +237,6 @@ const chartOption = ref({
 			name: 'Stems',
 			itemStyle: {
 				color: '#666666',
-				borderRadius: [0, 2, 2, 0],
 			},
 		},
 		// Dot series
@@ -242,23 +249,14 @@ const chartOption = ref({
 			type: 'scatter',
 			itemStyle: { color: 'red' },
 		},
-		{
-			show: false,
-			name: 'NonShownGraph',
-			symbolSize: 0,
-			type: 'scatter',
-			xAxisId: 'normalXAxis2',
-			yAxisId: 'lollipopYAxis',
-			data: [0, 0, 0, 0, 0, 0, 0],
-			itemStyle: { color: 'red' },
-		},
+
 		// Create multiple pie series - one for each data point
 		...pieDataArray.map((pieData, index) => ({
 			z: 10,
 			type: 'pie',
 			data: pieData,
 			showInLegend: false, // Don't show each pie in legend individually
-			radius: ['6%', '3%'], // Small donut charts
+			radius: ['12%', '7%'], // Small donut charts
 			xAxisId: 'lollipopXAxis',
 			yAxisId: 'lollipopYAxis',
 			name: `Distribution ${categories[index]}`,
@@ -294,6 +292,6 @@ onMounted(() => {
 <style scoped>
 .chart {
 	width: 100%;
-	height: 34rem;
+	height: 20rem;
 }
 </style>
