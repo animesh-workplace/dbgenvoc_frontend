@@ -34,6 +34,7 @@
 					sortable
 					:key="col.field"
 					:field="col.field"
+					:frozen="col.frozen"
 					:header="col.header"
 					v-for="col of columns.filter((c) => c.field !== 'reference_url')"
 				>
@@ -103,7 +104,7 @@
 			<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class</div>
 			<GraphBar :plotData="snvClass" showAll />
 		</div>
-		<GraphLollipop class="col-span-3" />
+		<!-- <GraphLollipop class="col-span-3" /> -->
 	</div>
 </template>
 
@@ -121,31 +122,30 @@ const snvClass = ref({ data: [], categories: [] })
 const variantType = ref({ data: [], categories: [] })
 const variantClass = ref({ data: [], categories: [] })
 const columns = [
-	{ field: 'variant_id', header: 'DB ID' },
-	{ field: 'gene', header: 'Gene' },
-	{ field: 'entrez_gene_id', header: 'Entrez ID' },
-	{ field: 'disease', header: 'Disease' },
-	{ field: 'chrom', header: 'Chromosome' },
-	{ field: 'start', header: 'Start' },
-	{ field: 'end', header: 'End' },
-	{ field: 'genome_change', header: 'Genome Change' },
-	{ field: 'genome_change_link', header: 'UCSC Browser' },
-	{ field: 'cDNA_change', header: 'cDNA Change' },
-	{ field: 'codon_change', header: 'Codon Change' },
-	{ field: 'protein_change', header: 'Protein Change' },
-	{ field: 'variant_class', header: 'Variant Class' },
-	{ field: 'variant_type', header: 'Variant Type' },
-	{ field: 'ref_allele', header: 'Ref Allele' },
-	{ field: 'tumor_seq_allele2', header: 'Tumor Allele' },
-	{ field: 'dbsnp_rs', header: 'dbSNP ID' },
-	{ field: 'sample_id', header: 'Sample ID' },
-	{ field: 'annotation_transcript', header: 'Annotation Transcript' },
-	{ field: 'transcript_strand', header: 'Transcript Strand' },
-	{ field: 'transcript_exon', header: 'Transcript Exon' },
-	{ field: 'reference', header: 'Reference' },
-	{ field: 'reference_url', header: 'Reference URL' },
+	{ field: 'variant_id', header: 'DB ID', frozen: false },
+	{ field: 'gene', header: 'Gene', frozen: true },
+	{ field: 'entrez_gene_id', header: 'Entrez ID', frozen: false },
+	{ field: 'disease', header: 'Disease', frozen: false },
+	{ field: 'chrom', header: 'Chromosome', frozen: false },
+	{ field: 'start', header: 'Start', frozen: false },
+	{ field: 'end', header: 'End', frozen: false },
+	{ field: 'genome_change', header: 'Genome Change', frozen: false },
+	{ field: 'genome_change_link', header: 'UCSC Browser', frozen: false },
+	{ field: 'cDNA_change', header: 'cDNA Change', frozen: false },
+	{ field: 'codon_change', header: 'Codon Change', frozen: false },
+	{ field: 'protein_change', header: 'Protein Change', frozen: false },
+	{ field: 'variant_class', header: 'Variant Class', frozen: false },
+	{ field: 'variant_type', header: 'Variant Type', frozen: false },
+	{ field: 'ref_allele', header: 'Ref Allele', frozen: false },
+	{ field: 'tumor_seq_allele2', header: 'Tumor Allele', frozen: false },
+	{ field: 'dbsnp_rs', header: 'dbSNP ID', frozen: false },
+	{ field: 'tumor_sample_barcode', header: 'Patient ID', frozen: false },
+	{ field: 'annotation_transcript', header: 'Annotation Transcript', frozen: false },
+	{ field: 'transcript_strand', header: 'Transcript Strand', frozen: false },
+	{ field: 'transcript_exon', header: 'Transcript Exon', frozen: false },
+	{ field: 'reference', header: 'Reference', frozen: false },
+	{ field: 'reference_url', header: 'Reference URL', frozen: false },
 ]
-
 const props = defineProps({
 	tableName: { type: String, default: '' },
 })
@@ -227,9 +227,9 @@ const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) =
 			page,
 			sort_by,
 			sort_order,
-			term: genesList.value,
 			exact_match: true,
 			page_size: noOfRows,
+			term: genesList.value,
 			search_columns: ['gene'],
 		})
 		searchData.value = response
@@ -243,9 +243,11 @@ const aggregateVariantType = async () => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_type',
-			filters: { gene: genesList.value },
+			aggregation_type: 'count',
 			group_by: ['variant_type', 'gene'],
+			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
 		})
+
 		variant_categories = uniq(map(response.result, (item) => item.variant_type))
 
 		const { matrix, sort_row_names } = useVariantMatrix(
@@ -267,8 +269,9 @@ const aggregateVariantClass = async () => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_class',
-			filters: { gene: genesList.value },
+			aggregation_type: 'percentage',
 			group_by: ['variant_class', 'gene'],
+			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_class))
 
