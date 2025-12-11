@@ -104,15 +104,15 @@ const calculatePiePosition = (categoryIndex, value, maxValue) => {
 	return [xPercent + '%', 100 - yPercent + '%']
 }
 
-// const truncateText = (text, maxWidth, fontSize = 10) => {
-// 	// Approximate text width (ECharts doesn't give exact here, so use char * fontSize * factor)
-// 	const avgCharWidth = fontSize * 0.6
-// 	const maxChars = Math.floor(maxWidth / avgCharWidth)
-// 	if (text.length > maxChars) {
-// 		return text.substring(0, maxChars - 2) + '…'
-// 	}
-// 	return text
-// }
+const truncateText = (text, maxWidth, fontSize = 10) => {
+	// Approximate text width (ECharts doesn't give exact here, so use char * fontSize * factor)
+	const avgCharWidth = fontSize * 0.6
+	const maxChars = Math.floor(maxWidth / avgCharWidth)
+	if (text.length > maxChars) {
+		return text.substring(0, maxChars - 2) + '…'
+	}
+	return text
+}
 
 const chartOption = ref({
 	animation: false,
@@ -208,20 +208,20 @@ const chartOption = ref({
 							style: api.style(),
 						},
 						// Label text centered in the rectangle
-						// {
-						// 	type: 'text',
-						// 	style: {
-						// 		text: truncateText('params.name', rectWidth, 10), // use rect's name
-						// 		x: start[0] + rectWidth / 2,
-						// 		y: start[1],
-						// 		textAlign: 'center',
-						// 		textVerticalAlign: 'middle',
-						// 		fontFamily: 'Lexend Deca',
-						// 		fontWeight: 400,
-						// 		fontSize: 10,
-						// 	},
-						// 	z: 10,
-						// },
+						{
+							type: 'text',
+							style: {
+								text: truncateText(data[params.dataIndex].name, rectWidth, 10), // use rect's name
+								x: start[0] + rectWidth / 2,
+								y: start[1],
+								textAlign: 'center',
+								textVerticalAlign: 'middle',
+								fontFamily: 'Lexend Deca',
+								fontWeight: 400,
+								fontSize: 10,
+							},
+							z: 10,
+						},
 					],
 				}
 			},
