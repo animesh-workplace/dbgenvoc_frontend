@@ -24,8 +24,9 @@
 				sortable
 				:key="col.field"
 				:field="col.field"
+				:frozen="col.frozen"
 				:header="col.header"
-				v-for="col of columns.filter((c) => c.field !== 'reference_url')"
+				v-for="col of main_columns.filter((c) => c.field !== 'reference_url')"
 			>
 				<template #body="slotProps">
 					<!-- Handling reference URL -->
@@ -83,82 +84,30 @@ const props = defineProps({
 const noOfRows = ref(10)
 const searchData = ref({})
 
-const es_journal_columns = [
-	{ field: 'variant_id', header: 'DB ID' },
-	{ field: 'gene', header: 'Gene' },
-	{ field: 'entrez_gene_id', header: 'Entrez ID' },
-	{ field: 'disease', header: 'Disease' },
-	{ field: 'chrom', header: 'Chromosome' },
-	{ field: 'start', header: 'Start' },
-	{ field: 'end', header: 'End' },
-	{ field: 'genome_change', header: 'Genome Change' },
-	{ field: 'genome_change_link', header: 'UCSC Browser' },
-	{ field: 'cDNA_change', header: 'cDNA Change' },
-	{ field: 'codon_change', header: 'Codon Change' },
-	{ field: 'protein_change', header: 'Protein Change' },
-	{ field: 'variant_class', header: 'Variant Class' },
-	{ field: 'variant_type', header: 'Variant Type' },
-	{ field: 'ref_allele', header: 'Ref Allele' },
-	{ field: 'tumor_seq_allele2', header: 'Tumor Allele' },
-	{ field: 'dbsnp_rs', header: 'dbSNP ID' },
-	{ field: 'sample_id', header: 'Sample ID' },
-	{ field: 'annotation_transcript', header: 'Annotation Transcript' },
-	{ field: 'transcript_strand', header: 'Transcript Strand' },
-	{ field: 'transcript_exon', header: 'Transcript Exon' },
-	{ field: 'reference', header: 'Reference' },
-	{ field: 'reference_url', header: 'Reference URL' },
-]
-
 const main_columns = [
-	{ field: 'variant_id', header: 'DB ID' },
-	{ field: 'gene', header: 'Gene' },
-	{ field: 'entrez_gene_id', header: 'Entrez ID' },
-	{ field: 'disease', header: 'Disease' },
-	{ field: 'chrom', header: 'Chromosome' },
-	{ field: 'start', header: 'Start' },
-	{ field: 'end', header: 'End' },
-	{ field: 'genome_change', header: 'Genome Change' },
-	{ field: 'genome_change_link', header: 'UCSC Browser' },
-	{ field: 'cDNA_change', header: 'cDNA Change' },
-	{ field: 'codon_change', header: 'Codon Change' },
-	{ field: 'protein_change', header: 'Protein Change' },
-	{ field: 'variant_class', header: 'Variant Class' },
-	{ field: 'variant_type', header: 'Variant Type' },
-	{ field: 'ref_allele', header: 'Ref Allele' },
-	{ field: 'tumor_seq_allele2', header: 'Tumor Allele' },
-	{ field: 'dbsnp_rs', header: 'dbSNP ID' },
-	{ field: 'sample_id', header: 'Sample ID' },
-	{ field: 'annotation_transcript', header: 'Annotation Transcript' },
-	{ field: 'transcript_strand', header: 'Transcript Strand' },
-	{ field: 'transcript_exon', header: 'Transcript Exon' },
-	{ field: 'reference', header: 'Reference' },
-	{ field: 'reference_url', header: 'Reference URL' },
-]
-
-const es_tcga_columns = [
-	{ field: 'variant_id', header: 'DB ID' },
-	{ field: 'gene', header: 'Gene' },
-	{ field: 'entrez_gene_id', header: 'Entrez ID' },
-	{ field: 'disease', header: 'Disease' },
-	{ field: 'chrom', header: 'Chromosome' },
-	{ field: 'start', header: 'Start' },
-	{ field: 'end', header: 'End' },
-	{ field: 'genome_change', header: 'Genome Change' },
-	{ field: 'genome_change_link', header: 'UCSC Browser' },
-	{ field: 'cDNA_change', header: 'cDNA Change' },
-	{ field: 'codon_change', header: 'Codon Change' },
-	{ field: 'protein_change', header: 'Protein Change' },
-	{ field: 'variant_class', header: 'Variant Class' },
-	{ field: 'variant_type', header: 'Variant Type' },
-	{ field: 'ref_allele', header: 'Ref Allele' },
-	{ field: 'tumor_seq_allele2', header: 'Tumor Allele' },
-	{ field: 'dbsnp_rs', header: 'dbSNP ID' },
-	{ field: 'sample_id', header: 'Sample ID' },
-	{ field: 'annotation_transcript', header: 'Annotation Transcript' },
-	{ field: 'transcript_strand', header: 'Transcript Strand' },
-	{ field: 'transcript_exon', header: 'Transcript Exon' },
-	{ field: 'reference', header: 'Reference' },
-	{ field: 'reference_url', header: 'Reference URL' },
+	{ field: 'variant_id', header: 'DB ID', frozen: false },
+	{ field: 'gene', header: 'Gene', frozen: true },
+	{ field: 'entrez_gene_id', header: 'Entrez ID', frozen: false },
+	{ field: 'disease', header: 'Disease', frozen: false },
+	{ field: 'chrom', header: 'Chromosome', frozen: false },
+	{ field: 'start', header: 'Start', frozen: false },
+	{ field: 'end', header: 'End', frozen: false },
+	{ field: 'genome_change', header: 'Genome Change', frozen: false },
+	{ field: 'genome_change_link', header: 'UCSC Browser', frozen: false },
+	{ field: 'cDNA_change', header: 'cDNA Change', frozen: false },
+	{ field: 'codon_change', header: 'Codon Change', frozen: false },
+	{ field: 'protein_change', header: 'Protein Change', frozen: false },
+	{ field: 'variant_class', header: 'Variant Class', frozen: false },
+	{ field: 'variant_type', header: 'Variant Type', frozen: false },
+	{ field: 'ref_allele', header: 'Ref Allele', frozen: false },
+	{ field: 'tumor_seq_allele2', header: 'Tumor Allele', frozen: false },
+	{ field: 'dbsnp_rs', header: 'dbSNP ID', frozen: false },
+	{ field: 'tumor_sample_barcode', header: 'Patient ID', frozen: false },
+	{ field: 'annotation_transcript', header: 'Annotation Transcript', frozen: false },
+	{ field: 'transcript_strand', header: 'Transcript Strand', frozen: false },
+	{ field: 'transcript_exon', header: 'Transcript Exon', frozen: false },
+	{ field: 'reference', header: 'Reference', frozen: false },
+	{ field: 'reference_url', header: 'Reference URL', frozen: false },
 ]
 
 const parseGenomicCoordinates = (genomeChange) => {
@@ -248,19 +197,6 @@ const searchByAPI = async (sort_by = null, sort_order = 'asc', page = 1) => {
 		console.error('Error fetching search data:', error)
 	}
 }
-
-const columns = computed(() => {
-	if (props.tableParams?.table_name === 'es_journal') {
-		return es_journal_columns
-	} else if (props.tableParams?.table_name === 'es_tcga') {
-		return es_tcga_columns
-	} else if (
-		props.tableParams?.table_name === 'exome_somatic' ||
-		props.tableParams?.table_name === 'wg_somatic'
-	) {
-		return main_columns
-	}
-})
 
 onBeforeMount(() => {
 	nextTick(async () => {
