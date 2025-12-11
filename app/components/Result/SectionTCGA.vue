@@ -265,9 +265,10 @@ const aggregateDisease = async () => {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'disease',
 			group_by: ['disease'],
-			filters: { gene: genesList.value },
+			aggregation_type: 'distinct_count',
+			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
 		})
-		diseaseList.value = uniq(map(response.result, (d) => d.disease))
+		diseaseList.value = map(response.result, (d) => d.disease)
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -278,8 +279,15 @@ const aggregateVariantType = async (disease) => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_type',
+			aggregation_type: 'count',
 			group_by: ['variant_type', 'gene'],
-			filters: { gene: genesList.value, disease: disease },
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'gene', operator: 'in', value: genesList.value },
+					{ column: 'disease', operator: 'eq', value: disease },
+				],
+			},
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_type))
 
@@ -302,8 +310,15 @@ const aggregateVariantClass = async (disease) => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_class',
+			aggregation_type: 'count',
 			group_by: ['variant_class', 'gene'],
-			filters: { gene: genesList.value, disease: disease },
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'gene', operator: 'in', value: genesList.value },
+					{ column: 'disease', operator: 'eq', value: disease },
+				],
+			},
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_class))
 
