@@ -98,14 +98,14 @@
 				<div class="pb-2 text-sm font-semibold text-gray-700">
 					Variant Classification Coding ({{ disease }})
 				</div>
-				<GraphBar :plotData="variantClass[disease]" showAll horizontal />
+				<GraphBar :plotData="variantClassCoding[disease]" showAll horizontal />
 			</div>
 
 			<div class="text-center">
 				<div class="pb-2 text-sm font-semibold text-gray-700">
 					Variant Classification Non-Coding ({{ disease }})
 				</div>
-				<GraphBar :plotData="variantClass[disease]" showAll horizontal />
+				<GraphBar :plotData="variantClassNoncoding[disease]" showAll />
 			</div>
 
 			<div class="text-center">
@@ -141,7 +141,11 @@ const variantType = ref({
 	OSCC: { data: [], categories: [] },
 	OTSCC: { data: [], categories: [] },
 })
-const variantClass = ref({
+const variantClassCoding = ref({
+	OSCC: { data: [], categories: [] },
+	OTSCC: { data: [], categories: [] },
+})
+const variantClassNoncoding = ref({
 	OSCC: { data: [], categories: [] },
 	OTSCC: { data: [], categories: [] },
 })
@@ -269,9 +273,10 @@ const aggregateDisease = async () => {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'disease',
 			group_by: ['disease'],
-			filters: { gene: genesList.value },
+			aggregation_type: 'distinct_count',
+			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
 		})
-		diseaseList.value = uniq(map(response.result, (d) => d.disease))
+		diseaseList.value = map(response.result, (d) => d.disease)
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -283,8 +288,15 @@ const aggregateVariantType = async (disease) => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_type',
+			aggregation_type: 'count',
 			group_by: ['variant_type', 'gene'],
-			filters: { gene: genesList.value, disease: disease },
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'gene', operator: 'in', value: genesList.value },
+					{ column: 'disease', operator: 'eq', value: disease },
+				],
+			},
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_type))
 
@@ -328,20 +340,43 @@ const aggregateVariantClass = async (disease) => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_class',
+			aggregation_type: 'count',
 			group_by: ['variant_class', 'gene'],
-			filters: { gene: genesList.value, disease: disease },
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'disease', operator: 'eq', value: disease },
+					{ column: 'gene', operator: 'in', value: genesList.value },
+				],
+			},
 		})
 		variant_categories = uniq(map(response.result, (item) => item.variant_class))
+		const coding_categories = coding.filter((d) => variant_categories.includes(d))
+		const noncoding_categories = non_coding.filter((d) => variant_categories.includes(d))
 
-		const { matrix, sort_row_names } = useVariantMatrix(
+		const { matrix: coding_matrix, sort_row_names: coding_sort_row_names } = useVariantMatrix(
 			response.result,
-			variant_categories,
+			coding_categories,
 			genesList.value,
 			'variant_class',
 			true,
 		)
-		variantClass.value[disease].data = matrix
-		variantClass.value[disease].categories = map(sort_row_names, (d) =>
+
+		variantClassCoding.value[disease].data = coding_matrix
+		variantClassCoding.value[disease].categories = map(coding_sort_row_names, (d) =>
+			d.replaceAll('_', ' ').replaceAll('Mutation', ''),
+		)
+
+		const { matrix: non_coding_matrix, sort_row_names: non_coding_sort_row_names } = useVariantMatrix(
+			response.result,
+			noncoding_categories,
+			genesList.value,
+			'variant_class',
+			true,
+		)
+
+		variantClassNoncoding.value[disease].data = non_coding_matrix
+		variantClassNoncoding.value[disease].categories = map(non_coding_sort_row_names, (d) =>
 			d.replaceAll('_', ' ').replaceAll('Mutation', ''),
 		)
 	} catch (error) {
