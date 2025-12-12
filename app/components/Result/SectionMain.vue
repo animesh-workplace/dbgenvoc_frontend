@@ -90,6 +90,10 @@
 			</div>
 		</div>
 
+		<div class="text-right col-span-3">
+			<ToggleButton v-model="checked" onLabel="On" offLabel="Off" />
+		</div>
+
 		<div class="text-center">
 			<div class="pb-2 text-sm font-semibold text-gray-700">Variant Classification Coding</div>
 			<GraphBar :plotData="variantClass" showAll horizontal />
@@ -123,6 +127,7 @@ const variantType = ref({ data: [], categories: [] })
 const variantClass = ref({ data: [], categories: [] })
 const columns = [
 	{ field: 'variant_id', header: 'DB ID', frozen: false },
+	{ field: 'tumor_sample_barcode', header: 'Patient ID', frozen: true },
 	{ field: 'gene', header: 'Gene', frozen: true },
 	{ field: 'entrez_gene_id', header: 'Entrez ID', frozen: false },
 	{ field: 'disease', header: 'Disease', frozen: false },
@@ -139,7 +144,6 @@ const columns = [
 	{ field: 'ref_allele', header: 'Ref Allele', frozen: false },
 	{ field: 'tumor_seq_allele2', header: 'Tumor Allele', frozen: false },
 	{ field: 'dbsnp_rs', header: 'dbSNP ID', frozen: false },
-	{ field: 'tumor_sample_barcode', header: 'Patient ID', frozen: false },
 	{ field: 'annotation_transcript', header: 'Annotation Transcript', frozen: false },
 	{ field: 'transcript_strand', header: 'Transcript Strand', frozen: false },
 	{ field: 'transcript_exon', header: 'Transcript Exon', frozen: false },
@@ -227,10 +231,8 @@ const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) =
 			page,
 			sort_by,
 			sort_order,
-			exact_match: true,
 			page_size: noOfRows,
-			term: genesList.value,
-			search_columns: ['gene'],
+			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
 		})
 		searchData.value = response
 	} catch (error) {
@@ -299,7 +301,13 @@ const aggregateSNVClass = async () => {
 			group_by: ['gene'],
 			aggregation_type: 'count',
 			columns: ['ref_allele', 'tumor_seq_allele2'],
-			filters: { gene: genesList.value, variant_type: 'SNP' },
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'gene', operator: 'in', value: genesList.value },
+					{ column: 'variant_type', operator: 'eq', value: 'SNP' },
+				],
+			},
 		})
 		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
 
@@ -329,7 +337,7 @@ watch(
 	{ immediate: true }, // This will run the watcher callback immediately
 )
 
-onBeforeMount(() => {
+onMounted(() => {
 	nextTick(async () => {
 		genesList.value = route.query.genes_list
 		// Initialize the search variant type function
