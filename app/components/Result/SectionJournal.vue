@@ -257,10 +257,8 @@ const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) =
 			page,
 			sort_by,
 			sort_order,
-			term: genesList.value,
-			exact_match: true,
 			page_size: noOfRows,
-			search_columns: ['gene'],
+			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
 		})
 		searchData.value = response
 	} catch (error) {
@@ -393,7 +391,13 @@ const aggregateSNVClass = async (disease) => {
 			group_by: ['gene'],
 			aggregation_type: 'count',
 			columns: ['ref_allele', 'tumor_seq_allele2'],
-			filters: { gene: genesList.value, variant_type: 'SNP', disease: disease },
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'gene', operator: 'in', value: genesList.value },
+					{ column: 'variant_type', operator: 'eq', value: 'SNP' },
+				],
+			},
 		})
 		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
 
