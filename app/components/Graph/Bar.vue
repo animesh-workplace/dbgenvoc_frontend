@@ -1,288 +1,16 @@
 <template>
 	<div class="w-full flex justify-center">
 		<Skeleton height="24rem" v-if="isLoading" />
-		<VChart :option="chartOption" class="chart" autoresize v-else />
+		<VChart ref="chartRef" :option="chartOption" class="chart" autoresize v-else />
 	</div>
 </template>
 
 <script setup>
+import { round } from 'lodash-es'
 const route = useRoute()
+const chartRef = ref(null)
 const isLoading = ref(true)
-
-const color_scheme = [
-	'#CD212A',
-	'#0F4C81',
-	'#FFA500',
-	'#4A5335',
-	'#798EA4',
-	'#FA7A35',
-	'#00758F',
-	'#EDD59E',
-	'#E8A798',
-	'#9B4722',
-	'#6B5876',
-	'#B89B72',
-	'#282D3C',
-	'#9B9700',
-	'#A09998',
-	'#8dd3c7',
-	'#ffffb3',
-	'#bebada',
-	'#fb8072',
-	'#80b1d3',
-	'#fdb462',
-	'#b3de69',
-	'#fccde5',
-	'#922329',
-	'#bc80bd',
-	'#ccebc5',
-	'#ffed6f',
-	'#1CE6FF',
-	'#FF4A46',
-	'#FFFF00',
-	'#A30059',
-	'#0000A6',
-	'#B79762',
-	'#4FC601',
-	'#FF2F80',
-	'#00C2A0',
-	'#300018',
-	'#7900D7',
-	'#A4E804',
-	'#e6194B',
-	'#3cb44b',
-	'#ffe119',
-	'#4363d8',
-	'#f58231',
-	'#911eb4',
-	'#42d4f4',
-	'#f032e6',
-	'#bfef45',
-	'#fabed4',
-	'#469990',
-	'#dcbeff',
-	'#9A6324',
-	'#fffac8',
-	'#800000',
-	'#aaffc3',
-	'#808000',
-	'#ffd8b1',
-	'#000075',
-	'#a9a9a9',
-	'#fafafa',
-	'#000000',
-	'#55C6A9',
-	'#996666',
-	'#663333',
-	'#CC9999',
-	'#993333',
-	'#CC6666',
-	'#CC3333',
-	'#330000',
-	'#660000',
-	'#990000',
-	'#CC0000',
-	'#FF0000',
-	'#FF3333',
-	'#FF6666',
-	'#FF9999',
-	'#FFCCCC',
-	'#FF3300',
-	'#CC3300',
-	'#FF6633',
-	'#CC6633',
-	'#993300',
-	'#FF9966',
-	'#FF6600',
-	'#996633',
-	'#CC9966',
-	'#663300',
-	'#CC6600',
-	'#FF9933',
-	'#FFCC99',
-	'#FF9900',
-	'#CC9933',
-	'#996600',
-	'#FFCC66',
-	'#CC9900',
-	'#FFCC33',
-	'#FFCC00',
-	'#999966',
-	'#666633',
-	'#CCCC99',
-	'#999933',
-	'#CCCC66',
-	'#CCCC33',
-	'#333300',
-	'#666600',
-	'#999900',
-	'#CCCC00',
-	'#FFFF00',
-	'#FFFF33',
-	'#FFFF66',
-	'#FFFF99',
-	'#FFFFCC',
-	'#CCFF00',
-	'#99CC00',
-	'#CCFF33',
-	'#99CC33',
-	'#669900',
-	'#CCFF66',
-	'#99FF00',
-	'#669933',
-	'#99CC66',
-	'#336600',
-	'#66CC00',
-	'#99FF33',
-	'#CCFF99',
-	'#66FF00',
-	'#66CC33',
-	'#339900',
-	'#99FF66',
-	'#33CC00',
-	'#66FF33',
-	'#33FF00',
-	'#669966',
-	'#336633',
-	'#99CC99',
-	'#339933',
-	'#66CC66',
-	'#33CC33',
-	'#003300',
-	'#006600',
-	'#009900',
-	'#00CC00',
-	'#00FF00',
-	'#33FF33',
-	'#66FF66',
-	'#99FF99',
-	'#CCFFCC',
-	'#00FF33',
-	'#00CC33',
-	'#33FF66',
-	'#33CC66',
-	'#009933',
-	'#66FF99',
-	'#00FF66',
-	'#339966',
-	'#66CC99',
-	'#006633',
-	'#00CC66',
-	'#33FF99',
-	'#99FFCC',
-	'#00FF99',
-	'#33CC99',
-	'#009966',
-	'#66FFCC',
-	'#00CC99',
-	'#33FFCC',
-	'#00FFCC',
-	'#669999',
-	'#336666',
-	'#99CCCC',
-	'#339999',
-	'#66CCCC',
-	'#33CCCC',
-	'#003333',
-	'#006666',
-	'#009999',
-	'#00CCCC',
-	'#00FFFF',
-	'#33FFFF',
-	'#66FFFF',
-	'#99FFFF',
-	'#CCFFFF',
-	'#00CCFF',
-	'#0099CC',
-	'#33CCFF',
-	'#3399CC',
-	'#006699',
-	'#66CCFF',
-	'#0099FF',
-	'#336699',
-	'#6699CC',
-	'#003366',
-	'#0066CC',
-	'#3399FF',
-	'#99CCFF',
-	'#0066FF',
-	'#3366CC',
-	'#003399',
-	'#6699FF',
-	'#0033CC',
-	'#3366FF',
-	'#0033FF',
-	'#666699',
-	'#333366',
-	'#9999CC',
-	'#333399',
-	'#6666CC',
-	'#3333CC',
-	'#000033',
-	'#000066',
-	'#000099',
-	'#0000CC',
-	'#0000FF',
-	'#3333FF',
-	'#6666FF',
-	'#9999FF',
-	'#CCCCFF',
-	'#3300FF',
-	'#3300CC',
-	'#6633FF',
-	'#6633CC',
-	'#330099',
-	'#9966FF',
-	'#6600FF',
-	'#663399',
-	'#9966CC',
-	'#330066',
-	'#6600CC',
-	'#9933FF',
-	'#CC99FF',
-	'#9900FF',
-	'#9933CC',
-	'#660099',
-	'#CC66FF',
-	'#9900CC',
-	'#CC33FF',
-	'#CC00FF',
-	'#996699',
-	'#663366',
-	'#CC99CC',
-	'#993399',
-	'#CC66CC',
-	'#CC33CC',
-	'#330033',
-	'#660066',
-	'#990099',
-	'#CC00CC',
-	'#FF00FF',
-	'#FF33FF',
-	'#FF66FF',
-	'#FF99FF',
-	'#FFCCFF',
-	'#FF00CC',
-	'#CC0099',
-	'#FF33CC',
-	'#CC3399',
-	'#990066',
-	'#FF66CC',
-	'#FF0099',
-	'#993366',
-	'#CC6699',
-	'#660033',
-	'#CC0066',
-	'#FF3399',
-	'#FF99CC',
-	'#FF0066',
-	'#CC3366',
-	'#990033',
-	'#FF6699',
-	'#CC0033',
-	'#FF3366',
-	'#FF0033',
-]
+const { color_scheme } = useHelper()
 
 const props = defineProps({
 	plotData: {
@@ -293,9 +21,11 @@ const props = defineProps({
 				[120, 200, 150, 80, 70, 110, 130],
 				[10, 20, 15, 8, 7, 11, 13],
 			],
+			total: 500,
 		}),
 	},
 	showAll: { type: Boolean, default: false },
+	isPercent: { type: Boolean, default: false },
 	horizontal: { type: Boolean, default: false },
 })
 
@@ -305,15 +35,18 @@ const chartOption = ref({
 		trigger: 'axis',
 		axisPointer: { type: 'shadow' },
 		textStyle: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		valueFormatter: (value) =>
+			props.isPercent ? `${value}% [${round((props.plotData.total * value) / 100)}]` : `${value}`,
 	},
 	grid: {
 		top: '0%',
+		left: '0%',
 		right: '0%',
 		bottom: '0%',
 		outerBoundsMode: 'same',
-		left: props.horizontal ? '5%' : '0%',
 	},
 	xAxis: {
+		nameLocation: 'center',
 		axisTick: { show: true },
 		axisLine: { show: true },
 		minorTick: { show: true },
@@ -323,34 +56,50 @@ const chartOption = ref({
 			fontFamily: 'Lexend Deca',
 			interval: props.showAll ? 0 : 'auto',
 		},
+		nameTextStyle: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 	},
 	yAxis: {
+		nameLocation: 'center',
 		axisTick: { show: true },
 		axisLine: { show: true },
 		minorTick: { show: true },
 		splitLine: { show: false },
 		inverse: props.horizontal ? true : false,
 		axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		nameTextStyle: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 	},
 })
 
 const updateChart = () => {
-	const genes_list = route.query.genes_list
 	const { categories, data } = props.plotData
+	const genes_list = [].concat(route.query.genes_list || [])
 	const roundedRadii = props.horizontal ? [0, 5, 5, 0] : [5, 5, 0, 0]
+
+	chartOption.value.legend = {
+		show: false,
+		data: genes_list.map((genes_list, index) => ({
+			icon: 'circle',
+			name: genes_list,
+			itemStyle: { color: color_scheme[index] },
+			textStyle: { fontFamily: 'Lexend Deca', fontWeight: 500, fontSize: 12 },
+		})),
+	}
 
 	if (props.horizontal) {
 		chartOption.value.yAxis.data = categories
 		chartOption.value.yAxis.type = 'category'
 		chartOption.value.xAxis.type = 'value'
+		chartOption.value.xAxis.name = props.isPercent ? '%' : 'Count'
 	} else {
 		chartOption.value.xAxis.data = categories
 		chartOption.value.xAxis.type = 'category'
 		chartOption.value.yAxis.type = 'value'
+		chartOption.value.yAxis.name = props.isPercent ? '%' : 'Count'
 	}
 	chartOption.value.series = data.map((dataSet, index) => ({
 		type: 'bar',
 		stack: 'total',
+		barMaxWidth: 80,
 		data: dataSet.map((value, i) => {
 			let topIdx = -1
 			for (let j = data.length - 1; j >= 0; j--) {
@@ -362,14 +111,29 @@ const updateChart = () => {
 			const isTop = index === topIdx && value !== 0
 			return {
 				value,
-				itemStyle: isTop ? { borderRadius: roundedRadii } : { borderRadius: 0 },
+				itemStyle: isTop
+					? { borderRadius: roundedRadii, color: color_scheme[index] }
+					: { borderRadius: 0, color: color_scheme[index] },
 			}
 		}),
 		showBackground: false,
 		name: genes_list[index],
-		// backgroundStyle: { color: 'rgba(180, 180, 180, 0.2)' },
 	}))
 }
+
+const toggleSeries = (seriesName) => {
+	if (chartRef.value) {
+		// dispatchAction is the native ECharts method to toggle legends
+		chartRef.value.dispatchAction({
+			type: 'legendToggleSelect',
+			name: seriesName,
+		})
+	}
+}
+
+defineExpose({
+	toggleSeries,
+})
 
 watch(
 	() => props.plotData,
@@ -391,6 +155,6 @@ onMounted(() => {
 <style scoped>
 .chart {
 	width: 100%;
-	height: 20rem;
+	height: 15rem;
 }
 </style>
