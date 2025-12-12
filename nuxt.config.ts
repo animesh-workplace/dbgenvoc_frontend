@@ -21,6 +21,7 @@ const dbgenvocTheme = definePreset(Aura, {
 })
 
 export default defineNuxtConfig({
+	imports: { dirs: ['api'] },
 	devServer: { port: 3011 },
 	devtools: { enabled: true },
 	compatibilityDate: '2025-07-15',
@@ -43,7 +44,14 @@ export default defineNuxtConfig({
 		families: { Poppins: true, 'Lexend+Deca': { wght: '100..900' } },
 	},
 	icon: { clientBundle: { scan: true }, serverBundle: { collections: ['solar'] } },
-	modules: ['@nuxt/icon', '@nuxt/image', 'nuxt-echarts', '@nuxtjs/google-fonts', '@primevue/nuxt-module'],
+	modules: [
+		'@nuxt/icon',
+		'@nuxt/image',
+		'nuxt-echarts',
+		'@vueuse/nuxt',
+		'@nuxtjs/google-fonts',
+		'@primevue/nuxt-module',
+	],
 	primevue: {
 		options: {
 			ripple: true,
