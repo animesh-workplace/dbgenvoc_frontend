@@ -34,6 +34,7 @@
 					sortable
 					:key="col.field"
 					:field="col.field"
+					:frozen="col.frozen"
 					:header="col.header"
 					v-for="col of columns.filter((c) => c.field !== 'reference_url')"
 				>
@@ -142,29 +143,29 @@ const variantClass = ref({
 	'OT-TCGA': { data: [], categories: [] },
 })
 const columns = [
-	{ field: 'variant_id', header: 'DB ID' },
-	{ field: 'gene', header: 'Gene' },
-	{ field: 'entrez_gene_id', header: 'Entrez ID' },
-	{ field: 'disease', header: 'Disease' },
-	{ field: 'chrom', header: 'Chromosome' },
-	{ field: 'start', header: 'Start' },
-	{ field: 'end', header: 'End' },
-	{ field: 'genome_change', header: 'Genome Change' },
-	{ field: 'genome_change_link', header: 'UCSC Browser' },
-	{ field: 'cDNA_change', header: 'cDNA Change' },
-	{ field: 'codon_change', header: 'Codon Change' },
-	{ field: 'protein_change', header: 'Protein Change' },
-	{ field: 'variant_class', header: 'Variant Class' },
-	{ field: 'variant_type', header: 'Variant Type' },
-	{ field: 'ref_allele', header: 'Ref Allele' },
-	{ field: 'tumor_seq_allele2', header: 'Tumor Allele' },
-	{ field: 'dbsnp_rs', header: 'dbSNP ID' },
-	{ field: 'sample_id', header: 'Sample ID' },
-	{ field: 'annotation_transcript', header: 'Annotation Transcript' },
-	{ field: 'transcript_strand', header: 'Transcript Strand' },
-	{ field: 'transcript_exon', header: 'Transcript Exon' },
-	{ field: 'reference', header: 'Reference' },
-	{ field: 'reference_url', header: 'Reference URL' },
+	{ field: 'variant_id', header: 'DB ID', frozen: false },
+	{ field: 'tumor_sample_barcode', header: 'Patient ID', frozen: true },
+	{ field: 'gene', header: 'Gene', frozen: true },
+	{ field: 'entrez_gene_id', header: 'Entrez ID', frozen: false },
+	{ field: 'disease', header: 'Disease', frozen: false },
+	{ field: 'chrom', header: 'Chromosome', frozen: false },
+	{ field: 'start', header: 'Start', frozen: false },
+	{ field: 'end', header: 'End', frozen: false },
+	{ field: 'genome_change', header: 'Genome Change', frozen: false },
+	{ field: 'genome_change_link', header: 'UCSC Browser', frozen: false },
+	{ field: 'cDNA_change', header: 'cDNA Change', frozen: false },
+	{ field: 'codon_change', header: 'Codon Change', frozen: false },
+	{ field: 'protein_change', header: 'Protein Change', frozen: false },
+	{ field: 'variant_class', header: 'Variant Class', frozen: false },
+	{ field: 'variant_type', header: 'Variant Type', frozen: false },
+	{ field: 'ref_allele', header: 'Ref Allele', frozen: false },
+	{ field: 'tumor_seq_allele2', header: 'Tumor Allele', frozen: false },
+	{ field: 'dbsnp_rs', header: 'dbSNP ID', frozen: false },
+	{ field: 'annotation_transcript', header: 'Annotation Transcript', frozen: false },
+	{ field: 'transcript_strand', header: 'Transcript Strand', frozen: false },
+	{ field: 'transcript_exon', header: 'Transcript Exon', frozen: false },
+	{ field: 'reference', header: 'Reference', frozen: false },
+	{ field: 'reference_url', header: 'Reference URL', frozen: false },
 ]
 
 const props = defineProps({
@@ -249,10 +250,8 @@ const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) =
 			page,
 			sort_by,
 			sort_order,
-			term: genesList.value,
-			exact_match: true,
 			page_size: noOfRows,
-			search_columns: ['gene'],
+			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
 		})
 		searchData.value = response
 	} catch (error) {
@@ -346,7 +345,13 @@ const aggregateSNVClass = async (disease) => {
 			group_by: ['gene'],
 			aggregation_type: 'count',
 			columns: ['ref_allele', 'tumor_seq_allele2'],
-			filters: { gene: genesList.value, variant_type: 'SNP', disease: disease },
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'gene', operator: 'in', value: genesList.value },
+					{ column: 'variant_type', operator: 'eq', value: 'SNP' },
+				],
+			},
 		})
 		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
 
