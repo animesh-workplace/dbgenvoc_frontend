@@ -31,8 +31,8 @@
 		</section>
 		<Divider />
 
-		<section>
-			<ResultSectionTCGA
+		<!-- <section>
+			<LazyResultSectionTCGA
 				tableName="tcga_exome_somatic_variants"
 				:noData="somaticVariationType === 'Whole Genome' ? true : false"
 			/>
@@ -55,10 +55,10 @@
 				</div>
 			</div>
 		</section>
-		<Divider />
+		<Divider /> -->
 
-		<section class="mb-12">
-			<ResultSectionJournal
+		<!-- <section class="mb-12">
+			<LazyResultSectionJournal
 				tableName="journal_exome_somatic_variants"
 				:noData="somaticVariationType === 'Whole Genome' ? true : false"
 			/>
@@ -79,7 +79,7 @@
 					</div>
 				</div>
 			</div>
-		</section>
+		</section> -->
 	</div>
 </template>
 
