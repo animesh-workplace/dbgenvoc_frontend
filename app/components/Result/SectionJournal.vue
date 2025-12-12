@@ -89,42 +89,106 @@
 			</div>
 		</div>
 
+		<div class="px-8 pt-8">
+			<div class="flex flex-wrap justify-center gap-4">
+				<button
+					:key="gene"
+					@click="handleLegendClick(gene)"
+					v-for="(gene, index) in genesList"
+					:style="{ backgroundColor: color_scheme[index] + '33' }"
+					class="flex items-center space-x-2 px-3 py-1 rounded-full text-sm transition-all border"
+					:class="
+						!hiddenSeries.includes(gene)
+							? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
+							: 'border-gray-200 opacity-70 inset-shadow-sm hover:inset-shadow-md cursor-pointer'
+					"
+				>
+					<span class="w-3 h-3 rounded-full" :style="{ backgroundColor: color_scheme[index] }"></span>
+					<span class="font-medium text-gray-700">{{ gene }}</span>
+				</button>
+			</div>
+
+			<div class="text-right">
+				<div class="inline-flex items-center">
+					<span class="mr-2 text-sm font-medium text-gray-700">Show in %</span>
+					<ToggleSwitch v-model="percentageSwitcher" />
+				</div>
+			</div>
+		</div>
+
 		<div
 			:index="index"
 			v-for="(disease, index) in diseaseList"
-			class="grid lg:grid-cols-4 gap-8 p-8 md:grid-cols-2 grid-cols-1"
+			class="grid gap-8 p-8 md:grid-cols-2 grid-cols-1"
+			:class="hasAnyNonCoding ? 'lg:grid-cols-4' : 'lg:grid-cols-3'"
 		>
 			<div class="text-center">
 				<div class="pb-2 text-sm font-semibold text-gray-700">
 					Variant Classification Coding ({{ disease }})
 				</div>
-				<GraphBar :plotData="variantClassCoding[disease]" showAll horizontal />
+				<GraphBar
+					showAll
+					horizontal
+					:isPercent="percentageSwitcher"
+					:plotData="variantClassCoding[disease]"
+					:ref="
+						(el) => {
+							if (el) variantClassCoding[disease].graph = el
+						}
+					"
+				/>
 			</div>
 
 			<div class="text-center">
 				<div class="pb-2 text-sm font-semibold text-gray-700">
 					Variant Classification Non-Coding ({{ disease }})
 				</div>
-				<GraphBar :plotData="variantClassNoncoding[disease]" showAll />
+				<GraphBar
+					:plotData="variantClassNoncoding[disease]"
+					showAll
+					:isPercent="percentageSwitcher"
+					:ref="
+						(el) => {
+							if (el) variantClassNoncoding[disease].graph = el
+						}
+					"
+				/>
 			</div>
 
 			<div class="text-center">
 				<div class="pb-2 text-sm font-semibold text-gray-700">Variant Type ({{ disease }})</div>
-				<GraphBar :plotData="variantType[disease]" />
+				<GraphBar
+					:plotData="variantType[disease]"
+					:isPercent="percentageSwitcher"
+					:ref="
+						(el) => {
+							if (el) variantType[disease].graph = el
+						}
+					"
+				/>
 			</div>
 
 			<div class="text-center">
 				<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class ({{ disease }})</div>
-				<GraphBar :plotData="snvClass[disease]" showAll />
+				<GraphBar
+					:plotData="snvClass[disease]"
+					showAll
+					:isPercent="percentageSwitcher"
+					:ref="
+						(el) => {
+							if (el) snvClass[disease].graph = el
+						}
+					"
+				/>
 			</div>
-			<!-- <GraphLollipop class="col-span-3" /> -->
+			<!-- <GraphLollipop class="col-span-4" /> -->
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { uniq, map } from 'lodash-es'
-const { useVariantMatrix } = useHelper()
+import { uniq, map, some } from 'lodash-es'
+const { useVariantMatrix, color_scheme } = useHelper()
 import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
@@ -133,21 +197,23 @@ const route = useRoute()
 const genesList = ref([])
 const searchData = ref({})
 const diseaseList = ref([])
+const hiddenSeries = ref([])
+const percentageSwitcher = ref(false)
 const snvClass = ref({
-	OSCC: { data: [], categories: [] },
-	OTSCC: { data: [], categories: [] },
+	OSCC: { data: [], categories: [], total: 0, graph: null },
+	OTSCC: { data: [], categories: [], total: 0, graph: null },
 })
 const variantType = ref({
-	OSCC: { data: [], categories: [] },
-	OTSCC: { data: [], categories: [] },
+	OSCC: { data: [], categories: [], total: 0, graph: null },
+	OTSCC: { data: [], categories: [], total: 0, graph: null },
 })
 const variantClassCoding = ref({
-	OSCC: { data: [], categories: [] },
-	OTSCC: { data: [], categories: [] },
+	OSCC: { data: [], categories: [], total: 0, graph: null },
+	OTSCC: { data: [], categories: [], total: 0, graph: null },
 })
 const variantClassNoncoding = ref({
-	OSCC: { data: [], categories: [] },
-	OTSCC: { data: [], categories: [] },
+	OSCC: { data: [], categories: [], total: 0, graph: null },
+	OTSCC: { data: [], categories: [], total: 0, graph: null },
 })
 const columns = [
 	{ field: 'variant_id', header: 'DB ID' },
@@ -179,6 +245,24 @@ const props = defineProps({
 	tableName: { type: String, default: '' },
 	noData: { type: Boolean, default: false },
 })
+
+const handleLegendClick = (seriesName) => {
+	// 1. Toggle UI state (for greying out the button)
+	if (hiddenSeries.value.includes(seriesName)) {
+		hiddenSeries.value = hiddenSeries.value.filter((n) => n !== seriesName)
+	} else {
+		hiddenSeries.value.push(seriesName)
+	}
+
+	// 2. Trigger the toggle in all child charts
+	// We use optional chaining (?.) just in case a chart isn't mounted yet
+	map(diseaseList.value, (disease) => {
+		snvClass.value[disease].graph?.toggleSeries(seriesName)
+		variantType.value[disease].graph?.toggleSeries(seriesName)
+		variantClassCoding.value[disease].graph?.toggleSeries(seriesName)
+		variantClassNoncoding.value[disease].graph?.toggleSeries(seriesName)
+	})
+}
 
 const parseGenomicCoordinates = (genomeChange) => {
 	// Patterns for different variant types:
@@ -286,8 +370,8 @@ const aggregateVariantType = async (disease) => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_type',
-			aggregation_type: 'count',
 			group_by: ['variant_type', 'gene'],
+			aggregation_type: percentageSwitcher.value ? 'percentage' : 'count',
 			filters: {
 				logic: 'AND',
 				conditions: [
@@ -307,6 +391,7 @@ const aggregateVariantType = async (disease) => {
 		)
 		variantType.value[disease].data = matrix
 		variantType.value[disease].categories = sort_row_names
+		variantType.value[disease].total = response.total_records
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -338,8 +423,8 @@ const aggregateVariantClass = async (disease) => {
 	try {
 		const response = await AggregateAPI(props.tableName, {
 			column: 'variant_class',
-			aggregation_type: 'count',
 			group_by: ['variant_class', 'gene'],
+			aggregation_type: percentageSwitcher.value ? 'percentage' : 'count',
 			filters: {
 				logic: 'AND',
 				conditions: [
@@ -361,6 +446,7 @@ const aggregateVariantClass = async (disease) => {
 		)
 
 		variantClassCoding.value[disease].data = coding_matrix
+		variantClassCoding.value[disease].total = response.total_records
 		variantClassCoding.value[disease].categories = map(coding_sort_row_names, (d) =>
 			d.replaceAll('_', ' ').replaceAll('Mutation', ''),
 		)
@@ -374,6 +460,7 @@ const aggregateVariantClass = async (disease) => {
 		)
 
 		variantClassNoncoding.value[disease].data = non_coding_matrix
+		variantClassNoncoding.value[disease].total = response.total_records
 		variantClassNoncoding.value[disease].categories = map(non_coding_sort_row_names, (d) =>
 			d.replaceAll('_', ' ').replaceAll('Mutation', ''),
 		)
@@ -389,13 +476,14 @@ const aggregateSNVClass = async (disease) => {
 		const response = await ConcateAggregateAPI(props.tableName, {
 			separator: '>',
 			group_by: ['gene'],
-			aggregation_type: 'count',
 			columns: ['ref_allele', 'tumor_seq_allele2'],
+			aggregation_type: percentageSwitcher.value ? 'percentage' : 'count',
 			filters: {
 				logic: 'AND',
 				conditions: [
-					{ column: 'gene', operator: 'in', value: genesList.value },
+					{ column: 'disease', operator: 'eq', value: disease },
 					{ column: 'variant_type', operator: 'eq', value: 'SNP' },
+					{ column: 'gene', operator: 'in', value: genesList.value },
 				],
 			},
 		})
@@ -409,6 +497,7 @@ const aggregateSNVClass = async (disease) => {
 		)
 		snvClass.value[disease].data = matrix
 		snvClass.value[disease].categories = sort_row_names
+		snvClass.value[disease].total = response.total_records
 	} catch (error) {
 		console.error('Error fetching search data:', error)
 	}
@@ -419,17 +508,40 @@ watch(
 	() => {
 		nextTick(async () => {
 			searchVariantType()
-			aggregateSNVClass()
-			aggregateVariantType()
-			aggregateVariantClass()
+			await aggregateDisease()
+			map(diseaseList.value, (disease) => {
+				aggregateSNVClass(disease)
+				aggregateVariantType(disease)
+				aggregateVariantClass(disease)
+			})
 		})
 	},
 	{ immediate: true }, // This will run the watcher callback immediately
 )
 
+watch(
+	() => percentageSwitcher.value,
+	() => {
+		nextTick(async () => {
+			searchVariantType()
+			await aggregateDisease()
+			map(diseaseList.value, (disease) => {
+				aggregateSNVClass(disease)
+				aggregateVariantType(disease)
+				aggregateVariantClass(disease)
+			})
+		})
+	},
+	{ immediate: true }, // This will run the watcher callback immediately
+)
+
+const hasAnyNonCoding = computed(() => {
+	return some(map(diseaseList.value, (disease) => variantClassNoncoding.value[disease]?.categories?.length > 0))
+})
+
 onBeforeMount(() => {
 	nextTick(async () => {
-		genesList.value = route.query.genes_list
+		genesList.value = [].concat(route.query.genes_list || [])
 		// Initialize the search variant type function
 		searchVariantType()
 		await aggregateDisease()
