@@ -23,7 +23,8 @@
 		</div>
 
 		<section>
-			<ResultSectionMain
+			<ResultSection
+				sectionName="dbGENVOC"
 				:tableName="
 					somaticVariationType == 'Exome' ? 'nibmg_exome_somatic_variants' : 'nibmg_wg_somatic_variants'
 				"
@@ -31,9 +32,10 @@
 		</section>
 		<Divider />
 
-		<!-- <section>
-			<LazyResultSectionTCGA
+		<section>
+			<ResultSection
 				tableName="tcga_exome_somatic_variants"
+				sectionName="TCGA (Exome somatic specific)"
 				:noData="somaticVariationType === 'Whole Genome' ? true : false"
 			/>
 
@@ -55,10 +57,11 @@
 				</div>
 			</div>
 		</section>
-		<Divider /> -->
+		<Divider />
 
-		<!-- <section class="mb-12">
-			<LazyResultSectionJournal
+		<section class="mb-12">
+			<ResultSection
+				sectionName="peer-reviewed paper's"
 				tableName="journal_exome_somatic_variants"
 				:noData="somaticVariationType === 'Whole Genome' ? true : false"
 			/>
@@ -79,7 +82,7 @@
 					</div>
 				</div>
 			</div>
-		</section> -->
+		</section>
 	</div>
 </template>
 
