@@ -126,6 +126,7 @@
 <script setup>
 import { useGeneAPI } from '@/api/geneAPI'
 import { useHelper } from '@/composables/useHelper'
+import { group } from '@primeuix/themes/aura/avatar'
 import { uniq, map, sumBy, forEach, filter } from 'lodash-es'
 
 // --- Constants ---
@@ -195,13 +196,14 @@ const handleLegendClick = (gene) => {
 
 // --- Data Processors ---
 
-const processVariantType = (result) => {
+const processVariantType = (result, group_total) => {
 	const diseases = uniq(map(result, 'disease'))
 
 	forEach(diseases, (disease) => {
 		const diseaseData = filter(result, (r) => r.disease === disease)
 		// Calculate local total for this disease (crucial for per-disease percentage)
-		const localTotal = sumBy(diseaseData, 'aggregated_value')
+		const localTotal =
+			group_total && group_total[disease] ? group_total[disease] : sumBy(diseaseData, 'aggregated_value')
 
 		const categories = uniq(map(diseaseData, (item) => item.variant_type))
 		const { matrix, sort_row_names } = useVariantMatrix(
@@ -220,12 +222,13 @@ const processVariantType = (result) => {
 	})
 }
 
-const processVariantClass = (result) => {
+const processVariantClass = (result, group_total) => {
 	const diseases = uniq(map(result, 'disease'))
 
 	forEach(diseases, (disease) => {
 		const diseaseData = filter(result, (r) => r.disease === disease)
-		const localTotal = sumBy(diseaseData, 'aggregated_value')
+		const localTotal =
+			group_total && group_total[disease] ? group_total[disease] : sumBy(diseaseData, 'aggregated_value')
 		const all_categories = uniq(map(diseaseData, 'variant_class'))
 
 		// --- Coding ---
@@ -266,12 +269,13 @@ const processVariantClass = (result) => {
 	})
 }
 
-const processSNVClass = (result) => {
+const processSNVClass = (result, group_total) => {
 	const diseases = uniq(map(result, 'disease'))
 
 	forEach(diseases, (disease) => {
 		const diseaseData = filter(result, (r) => r.disease === disease)
-		const localTotal = sumBy(diseaseData, 'aggregated_value')
+		const localTotal =
+			group_total && group_total[disease] ? group_total[disease] : sumBy(diseaseData, 'aggregated_value')
 
 		const { matrix, sort_row_names } = useVariantMatrix(
 			diseaseData,
@@ -311,6 +315,7 @@ const fetchData = async () => {
 				filters,
 				column: 'variant_type',
 				aggregation_type: aggType,
+				percentage_by: ['disease'],
 				group_by: ['disease', 'variant_type', 'gene'],
 			}),
 			// 2. Variant Class (Grouped by Disease)
@@ -318,12 +323,14 @@ const fetchData = async () => {
 				filters,
 				column: 'variant_class',
 				aggregation_type: aggType,
+				percentage_by: ['disease'],
 				group_by: ['disease', 'variant_class', 'gene'],
 			}),
 			// 3. SNV Class (Concatenated & Grouped by Disease)
 			ConcateAggregateAPI(props.tableName, {
 				separator: '>',
 				aggregation_type: aggType,
+				percentage_by: ['disease'],
 				group_by: ['disease', 'gene'],
 				columns: ['ref_allele', 'tumor_seq_allele2'],
 				filters: {
@@ -338,9 +345,9 @@ const fetchData = async () => {
 		diseaseList.value = uniq(map(allData, 'disease')).sort()
 
 		// Run Processors
-		processSNVClass(snvRes.result || [])
-		processVariantType(typeRes.result || [])
-		processVariantClass(classRes.result || [])
+		processSNVClass(snvRes.result || [], snvRes.group_totals)
+		processVariantType(typeRes.result || [], typeRes.group_totals)
+		processVariantClass(classRes.result || [], classRes.group_totals)
 	} catch (error) {
 		console.error('Failed to fetch variant data:', error)
 	} finally {
