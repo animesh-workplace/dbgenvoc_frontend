@@ -8,77 +8,15 @@
 		</div>
 	</div>
 
-	<div v-if="!noData">
+	<div v-if="!props.noData">
 		<div class="p-8">
-			<DataTable
-				lazy
-				rowHover
-				paginator
-				scrollable
-				class="p-1"
-				stripedRows
-				size="small"
-				showGridlines
-				removableSort
-				:rows="noOfRows"
-				resizableColumns
-				@sort="HandleSort"
-				@page="HandlePage"
-				scrollHeight="20rem"
-				columnResizeMode="expand"
-				:value="searchData.results"
-				:totalRecords="searchData.total_results"
-				:rowsPerPageOptions="[50, 100, 200, 500]"
-			>
-				<Column
-					sortable
-					:key="col.field"
-					:field="col.field"
-					:frozen="col.frozen"
-					:header="col.header"
-					v-for="col of columns.filter((c) => c.field !== 'reference_url')"
-				>
-					<template #body="slotProps">
-						<!-- Handling reference URL -->
-						<template v-if="col.field === 'reference'">
-							<NuxtLink
-								target="_blank"
-								:to="slotProps.data.reference_url"
-								class="text-blue-600 hover:underline"
-							>
-								{{ slotProps.data.reference }}
-							</NuxtLink>
-						</template>
-
-						<!-- Handling Entrez Gene ID -->
-						<template v-else-if="col.field === 'entrez_gene_id'">
-							<NuxtLink
-								target="_blank"
-								:to="`https://www.ncbi.nlm.nih.gov/gene/${slotProps.data.entrez_gene_id}`"
-								class="text-blue-600 hover:underline"
-							>
-								{{ slotProps.data.entrez_gene_id }}
-							</NuxtLink>
-						</template>
-
-						<!-- Handling UCSC Browser -->
-						<template v-else-if="col.field === 'genome_change_link'">
-							<NuxtLink
-								target="_blank"
-								:to="generateUCSCUrl(slotProps.data.genome_change)"
-								class="text-blue-600 hover:underline"
-							>
-								View in UCSC
-							</NuxtLink>
-						</template>
-
-						<!-- Default case for other columns -->
-						<template v-else>
-							{{ slotProps.data[col.field] }}
-						</template>
-					</template>
-				</Column>
-			</DataTable>
+			<TableVariants
+				:tableName="props.tableName"
+				:filters="{
+					logic: 'AND',
+					conditions: [{ column: 'gene', operator: 'in', value: genesList }],
+				}"
+			/>
 		</div>
 
 		<div class="px-8 pt-8">
@@ -109,7 +47,7 @@
 				</button>
 			</div>
 
-			<div class="text-right">
+			<div class="text-right mt-4">
 				<div class="inline-flex items-center">
 					<span class="mr-2 text-sm font-medium text-gray-700">Show in %</span>
 					<ToggleSwitch v-model="percentageSwitcher" />
@@ -117,440 +55,294 @@
 			</div>
 		</div>
 
-		<div
-			:index="index"
-			v-for="(disease, index) in diseaseList"
-			class="grid gap-8 p-8 md:grid-cols-2 grid-cols-1"
-			:class="variantClassNoncoding[disease]?.categories?.length > 0 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'"
-		>
-			<div class="text-center">
-				<div class="pb-2 text-sm font-semibold text-gray-700">
-					Variant Classification Coding ({{ disease }})
+		<ClientOnly>
+			<div v-if="isLoading" class="p-8 text-center">
+				<Skeleton height="20rem" width="100%" />
+			</div>
+
+			<div v-else>
+				<div
+					v-for="disease in diseaseList"
+					:key="disease"
+					class="grid gap-8 p-8 grid-cols-1 md:grid-cols-2 border-b last:border-0"
+					:class="
+						variantClassNoncoding[disease]?.categories?.length > 0
+							? 'lg:grid-cols-4'
+							: 'lg:grid-cols-3'
+					"
+				>
+					<GraphBar
+						horizontal
+						showAll
+						title="Variant Class (Coding)"
+						:ref="(el) => setGraphRef(el, disease, 'coding')"
+						:isPercent="percentageSwitcher"
+						:plotData="variantClassCoding[disease]"
+					/>
+
+					<GraphBar
+						v-if="variantClassNoncoding[disease]?.categories?.length"
+						horizontal
+						showAll
+						title="Variant Class (Non-Coding)"
+						:ref="(el) => setGraphRef(el, disease, 'noncoding')"
+						:isPercent="percentageSwitcher"
+						:plotData="variantClassNoncoding[disease]"
+					/>
+
+					<GraphBar
+						title="Variant Type"
+						:ref="(el) => setGraphRef(el, disease, 'type')"
+						:isPercent="percentageSwitcher"
+						:plotData="variantType[disease]"
+					/>
+
+					<GraphBar
+						showAll
+						title="SNV Class"
+						:ref="(el) => setGraphRef(el, disease, 'snv')"
+						:isPercent="percentageSwitcher"
+						:plotData="snvClass[disease]"
+					/>
 				</div>
-				<GraphBar
-					showAll
-					horizontal
-					:isPercent="percentageSwitcher"
-					:plotData="variantClassCoding[disease]"
-					:ref="
-						(el) => {
-							if (el) variantClassCoding[disease].graph = el
-						}
-					"
-				/>
 			</div>
-
-			<div class="text-center" v-if="variantClassNoncoding[disease].categories.length > 0">
-				<div class="pb-2 text-sm font-semibold text-gray-700">
-					Variant Classification Non-Coding ({{ disease }})
-				</div>
-				<GraphBar
-					showAll
-					horizontal
-					:isPercent="percentageSwitcher"
-					:plotData="variantClassNoncoding[disease]"
-					:ref="
-						(el) => {
-							if (el) variantClassNoncoding[disease].graph = el
-						}
-					"
-				/>
-			</div>
-
-			<div class="text-center">
-				<div class="pb-2 text-sm font-semibold text-gray-700">Variant Type ({{ disease }})</div>
-				<GraphBar
-					:isPercent="percentageSwitcher"
-					:plotData="variantType[disease]"
-					:ref="
-						(el) => {
-							if (el) variantType[disease].graph = el
-						}
-					"
-				/>
-			</div>
-
-			<div class="text-center">
-				<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class ({{ disease }})</div>
-				<GraphBar
-					showAll
-					:plotData="snvClass[disease]"
-					:isPercent="percentageSwitcher"
-					:ref="
-						(el) => {
-							if (el) snvClass[disease].graph = el
-						}
-					"
-				/>
-			</div>
-			<!-- <GraphLollipop class="col-span-4" /> -->
-		</div>
+		</ClientOnly>
 	</div>
 </template>
 
 <script setup>
-import { uniq, map } from 'lodash-es'
-const { useVariantMatrix, color_scheme } = useHelper()
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { uniq, map, sumBy } from 'lodash-es'
 import { useGeneAPI } from '@/api/geneAPI'
-const { SearchAPI, AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
+import { useHelper } from '@/composables/useHelper'
 
-const route = useRoute()
-const noOfRows = ref(50)
-const genesList = ref([])
-const searchData = ref({})
-const diseaseList = ref([])
-const hiddenSeries = ref([])
-const percentageSwitcher = ref(false)
-const snvClass = ref({
-	'BM-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OC-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OT-TCGA': { data: [], categories: [], total: 0, graph: null },
-})
-const variantType = ref({
-	'BM-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OC-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OT-TCGA': { data: [], categories: [], total: 0, graph: null },
-})
-const variantClassCoding = ref({
-	'BM-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OC-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OT-TCGA': { data: [], categories: [], total: 0, graph: null },
-})
-const variantClassNoncoding = ref({
-	'BM-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OC-TCGA': { data: [], categories: [], total: 0, graph: null },
-	'OT-TCGA': { data: [], categories: [], total: 0, graph: null },
-})
-const columns = [
-	{ field: 'variant_id', header: 'DB ID', frozen: false },
-	{ field: 'tumor_sample_barcode', header: 'Patient ID', frozen: true },
-	{ field: 'gene', header: 'Gene', frozen: true },
-	{ field: 'entrez_gene_id', header: 'Entrez ID', frozen: false },
-	{ field: 'disease', header: 'Disease', frozen: false },
-	{ field: 'chrom', header: 'Chromosome', frozen: false },
-	{ field: 'start', header: 'Start', frozen: false },
-	{ field: 'end', header: 'End', frozen: false },
-	{ field: 'genome_change', header: 'Genome Change', frozen: false },
-	{ field: 'genome_change_link', header: 'UCSC Browser', frozen: false },
-	{ field: 'cDNA_change', header: 'cDNA Change', frozen: false },
-	{ field: 'codon_change', header: 'Codon Change', frozen: false },
-	{ field: 'protein_change', header: 'Protein Change', frozen: false },
-	{ field: 'variant_class', header: 'Variant Class', frozen: false },
-	{ field: 'variant_type', header: 'Variant Type', frozen: false },
-	{ field: 'ref_allele', header: 'Ref Allele', frozen: false },
-	{ field: 'tumor_seq_allele2', header: 'Tumor Allele', frozen: false },
-	{ field: 'dbsnp_rs', header: 'dbSNP ID', frozen: false },
-	{ field: 'annotation_transcript', header: 'Annotation Transcript', frozen: false },
-	{ field: 'transcript_strand', header: 'Transcript Strand', frozen: false },
-	{ field: 'transcript_exon', header: 'Transcript Exon', frozen: false },
-	{ field: 'reference', header: 'Reference', frozen: false },
-	{ field: 'reference_url', header: 'Reference URL', frozen: false },
+// --- Constants ---
+const CODING_VARIANTS = [
+	'Silent',
+	'Splice_Site',
+	'In_Frame_Ins',
+	'In_Frame_Del',
+	'Stop_Codon_Ins',
+	'Stop_Codon_Del',
+	'Frame_Shift_Del',
+	'Frame_Shift_Ins',
+	'Start_Codon_SNP',
+	'Start_Codon_Ins',
+	'Start_Codon_Del',
+	'Nonstop_Mutation',
+	'Missense_Mutation',
+	'Nonsense_Mutation',
+	'De_novo_Start_InFrame',
+	'De_novo_Start_OutOfFrame',
 ]
+const NON_CODING_VARIANTS = ['IGR', 'Intron', "3'UTR", "5'Flank", "5'UTR", 'ncRNA']
+const SNV_CATEGORIES = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
+
+// --- Setup & Refs ---
+const route = useRoute()
+const { useVariantMatrix, color_scheme } = useHelper()
+const { AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
 
 const props = defineProps({
-	tableName: { type: String, default: '' },
-	noData: { type: Boolean, default: false },
+	tableName: String,
+	noData: Boolean,
 })
 
-const handleLegendClick = (seriesName) => {
-	// 1. Toggle UI state (for greying out the button)
-	if (hiddenSeries.value.includes(seriesName)) {
-		hiddenSeries.value = hiddenSeries.value.filter((n) => n !== seriesName)
-	} else {
-		hiddenSeries.value.push(seriesName)
-	}
+const isLoading = ref(true)
+const percentageSwitcher = ref(false)
+const genesList = computed(() => [].concat(route.query.genes_list || []))
 
-	// 2. Trigger the toggle in all child charts
-	// We use optional chaining (?.) just in case a chart isn't mounted yet
-	map(diseaseList.value, (disease) => {
-		variantClass.value[disease].graph?.toggleSeries(seriesName)
-		variantType.value[disease].graph?.toggleSeries(seriesName)
-		snvClass.value[disease].graph?.toggleSeries(seriesName)
+// Data State
+const snvClass = ref({})
+const graphRefs = ref({})
+const diseaseList = ref([])
+const variantType = ref({})
+const hiddenSeries = ref([])
+const variantClassCoding = ref({})
+const variantClassNoncoding = ref({})
+
+// --- Graph Ref Helper ---
+const setGraphRef = (el, d, t) => {
+	if (!graphRefs.value[d]) graphRefs.value[d] = {}
+	if (el) graphRefs.value[d][t] = el
+}
+
+const handleLegendClick = (gene) => {
+	if (hiddenSeries.value.includes(gene)) {
+		hiddenSeries.value = hiddenSeries.value.filter((n) => n !== gene)
+	} else {
+		hiddenSeries.value.push(gene)
+	}
+	diseaseList.value.forEach((d) => {
+		if (graphRefs.value[d]) {
+			Object.values(graphRefs.value[d]).forEach((g) => g?.toggleSeries(gene))
+		}
 	})
 }
 
-const parseGenomicCoordinates = (genomeChange) => {
-	// Patterns for different variant types:
-	// 1. SNVs: g.chr13:32910626C>T, chr13:32910626C>T
-	// 2. Deletions: g.chr17:7577092delC, chr17:7577092delC
-	// 3. Insertions: g.chr1:12345insA, chr1:12345insA
-	// 4. Simple coordinates: g.chr13:32910626, chr13:32910626
+// --- Data Processors ---
 
-	const patterns = [
-		// SNVs with g. prefix
-		/g\.(chr[XY\d]+):(\d+)([ACGT]>[ACGT])/i,
-		// Deletions with g. prefix
-		/g\.(chr[XY\d]+):(\d+)del([ACGT]+)/i,
-		// Insertions with g. prefix
-		/g\.(chr[XY\d]+):(\d+)ins([ACGT]+)/i,
-		// Simple coordinates with g. prefix
-		/g\.(chr[XY\d]+):(\d+)/i,
+const processVariantType = (result) => {
+	const diseases = uniq(map(result, 'disease'))
 
-		// Same patterns without g. prefix
-		/(chr[XY\d]+):(\d+)([ACGT]>[ACGT])/i,
-		/(chr[XY\d]+):(\d+)del([ACGT]+)/i,
-		/(chr[XY\d]+):(\d+)ins([ACGT]+)/i,
-		/(chr[XY\d]+):(\d+)/i,
-	]
+	diseases.forEach((disease) => {
+		const diseaseData = result.filter((r) => r.disease === disease)
+		// Calculate local total for this disease (crucial for per-disease percentage)
+		const localTotal = sumBy(diseaseData, 'aggregated_value')
 
-	for (const pattern of patterns) {
-		const match = genomeChange.match(pattern)
-		if (match) {
-			const chromosome = match[1]
-			const position = parseInt(match[2])
-
-			// For UCSC Genome Browser, we typically show a small region around the variant
-			const start = Math.max(1, position - 50) // 50bp upstream
-			const end = position + 50 // 50bp downstream
-
-			return {
-				chromosome,
-				position,
-				start,
-				end,
-				formattedPosition: `${chromosome}:${start}-${end}`,
-			}
-		}
-	}
-	return null
-}
-
-// Function to generate UCSC Genome Browser URL
-const generateUCSCUrl = (genomeChange) => {
-	const coords = parseGenomicCoordinates(genomeChange)
-	if (!coords) return '#'
-
-	return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=${coords.formattedPosition}&hgsid=783385835_z0061mD0u0xo6HFQCdLHaeOZp9UA`
-}
-
-const HandleSort = async (event) => {
-	let sortOrder = 'asc'
-	if (event.sortOrder === -1) {
-		sortOrder = 'desc'
-	}
-	await searchVariantType(event.sortField, sortOrder, (event.page ?? 0) + 1)
-}
-
-const HandlePage = async (event) => {
-	noOfRows.value = event.rows
-	let sortOrder = 'asc'
-	if (event.sortOrder === -1) {
-		sortOrder = 'desc'
-	}
-	await searchVariantType(event.sortField, sortOrder, (event.page ?? 0) + 1)
-}
-
-const searchVariantType = async (sort_by = null, sort_order = 'asc', page = 1) => {
-	try {
-		const response = await SearchAPI(props.tableName, {
-			page,
-			sort_by,
-			sort_order,
-			page_size: noOfRows,
-			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
-		})
-		searchData.value = response
-	} catch (error) {
-		console.error('Error fetching search data:', error)
-	}
-}
-
-const aggregateDisease = async () => {
-	try {
-		const response = await AggregateAPI(props.tableName, {
-			column: 'disease',
-			group_by: ['disease'],
-			aggregation_type: 'distinct_count',
-			filters: { logic: 'AND', conditions: [{ column: 'gene', operator: 'in', value: genesList.value }] },
-		})
-		diseaseList.value = map(response.result, (d) => d.disease)
-	} catch (error) {
-		console.error('Error fetching search data:', error)
-	}
-}
-
-const aggregateVariantType = async (disease) => {
-	let variant_categories = []
-	try {
-		const response = await AggregateAPI(props.tableName, {
-			column: 'variant_type',
-			group_by: ['variant_type', 'gene'],
-			aggregation_type: percentageSwitcher.value ? 'percentage' : 'count',
-			filters: {
-				logic: 'AND',
-				conditions: [
-					{ column: 'gene', operator: 'in', value: genesList.value },
-					{ column: 'disease', operator: 'eq', value: disease },
-				],
-			},
-		})
-		variant_categories = uniq(map(response.result, (item) => item.variant_type))
-
+		const categories = uniq(map(diseaseData, (item) => item.variant_type))
 		const { matrix, sort_row_names } = useVariantMatrix(
-			response.result,
-			variant_categories,
+			diseaseData,
+			categories,
 			genesList.value,
 			'variant_type',
 			true,
 		)
-		variantType.value[disease].data = matrix
-		variantType.value[disease].categories = sort_row_names
-		variantType.value[disease].total = response.total_records
-	} catch (error) {
-		console.error('Error fetching search data:', error)
-	}
+
+		variantType.value[disease] = {
+			data: matrix,
+			total: localTotal,
+			categories: sort_row_names,
+		}
+	})
 }
 
-const aggregateVariantClass = async (disease) => {
-	let coding = [
-		'Silent',
-		'Splice_Site',
-		'In_Frame_Ins',
-		'In_Frame_Del',
-		'Stop_Codon_Ins',
-		'Stop_Codon_Del',
-		'Frame_Shift_Del',
-		'Frame_Shift_Ins',
-		'Start_Codon_SNP',
-		'Start_Codon_Ins',
-		'Start_Codon_Del',
-		'Nonstop_Mutation',
-		'Missense_Mutation',
-		'Nonsense_Mutation',
-		'De_novo_Start_InFrame',
-		'De_novo_Start_OutOfFrame',
-	]
-	let non_coding = ['IGR', 'Intron', "3'UTR", "5'Flank", "5'UTR", 'ncRNA']
+const processVariantClass = (result) => {
+	const diseases = uniq(map(result, 'disease'))
 
-	let variant_categories = []
+	diseases.forEach((disease) => {
+		const diseaseData = result.filter((r) => r.disease === disease)
+		const localTotal = sumBy(diseaseData, 'aggregated_value')
+		const all_categories = uniq(map(diseaseData, 'variant_class'))
 
-	try {
-		const response = await AggregateAPI(props.tableName, {
-			column: 'variant_class',
-			group_by: ['variant_class', 'gene'],
-			aggregation_type: percentageSwitcher.value ? 'percentage' : 'count',
-			filters: {
-				logic: 'AND',
-				conditions: [
-					{ column: 'disease', operator: 'eq', value: disease },
-					{ column: 'gene', operator: 'in', value: genesList.value },
-				],
-			},
-		})
-		variant_categories = uniq(map(response.result, (item) => item.variant_class))
-		const coding_categories = coding.filter((d) => variant_categories.includes(d))
-		const noncoding_categories = non_coding.filter((d) => variant_categories.includes(d))
+		// --- Coding ---
+		const coding_categories = CODING_VARIANTS.filter((d) => all_categories.includes(d))
+		const codingData = diseaseData.filter((r) => CODING_VARIANTS.includes(r.variant_class))
 
-		const { matrix: coding_matrix, sort_row_names: coding_sort_row_names } = useVariantMatrix(
-			response.result,
+		const { matrix: c_mat, sort_row_names: c_sort } = useVariantMatrix(
+			codingData,
 			coding_categories,
 			genesList.value,
 			'variant_class',
 			true,
 		)
 
-		variantClassCoding.value[disease].data = coding_matrix
-		variantClassCoding.value[disease].total = response.total_records
-		variantClassCoding.value[disease].categories = map(coding_sort_row_names, (d) =>
-			d.replaceAll('_', ' ').replaceAll('Mutation', ''),
-		)
+		variantClassCoding.value[disease] = {
+			data: c_mat,
+			total: localTotal,
+			categories: map(c_sort, (d) => d.replaceAll('_', ' ').replaceAll('Mutation', '')),
+		}
 
-		const { matrix: non_coding_matrix, sort_row_names: non_coding_sort_row_names } = useVariantMatrix(
-			response.result,
+		// --- Non-Coding ---
+		const noncoding_categories = NON_CODING_VARIANTS.filter((d) => all_categories.includes(d))
+		const nonCodingData = diseaseData.filter((r) => NON_CODING_VARIANTS.includes(r.variant_class))
+
+		const { matrix: nc_mat, sort_row_names: nc_sort } = useVariantMatrix(
+			nonCodingData,
 			noncoding_categories,
 			genesList.value,
 			'variant_class',
 			true,
 		)
 
-		variantClassNoncoding.value[disease].data = non_coding_matrix
-		variantClassNoncoding.value[disease].total = response.total_records
-		variantClassNoncoding.value[disease].categories = map(non_coding_sort_row_names, (d) =>
-			d.replaceAll('_', ' ').replaceAll('Mutation', ''),
-		)
-	} catch (error) {
-		console.error('Error fetching search data:', error)
-	}
+		variantClassNoncoding.value[disease] = {
+			data: nc_mat,
+			total: localTotal,
+			categories: map(nc_sort, (d) => d.replaceAll('_', ' ').replaceAll('Mutation', '')),
+		}
+	})
 }
 
-const aggregateSNVClass = async (disease) => {
-	let variant_categories = []
-	try {
-		const response = await ConcateAggregateAPI(props.tableName, {
-			separator: '>',
-			group_by: ['gene'],
-			columns: ['ref_allele', 'tumor_seq_allele2'],
-			aggregation_type: percentageSwitcher.value ? 'percentage' : 'count',
-			filters: {
-				logic: 'AND',
-				conditions: [
-					{ column: 'disease', operator: 'eq', value: disease },
-					{ column: 'variant_type', operator: 'eq', value: 'SNP' },
-					{ column: 'gene', operator: 'in', value: genesList.value },
-				],
-			},
-		})
-		variant_categories = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
+const processSNVClass = (result) => {
+	const diseases = uniq(map(result, 'disease'))
+
+	diseases.forEach((disease) => {
+		const diseaseData = result.filter((r) => r.disease === disease)
+		const localTotal = sumBy(diseaseData, 'aggregated_value')
 
 		const { matrix, sort_row_names } = useVariantMatrix(
-			response.result,
-			variant_categories,
+			diseaseData,
+			SNV_CATEGORIES,
 			genesList.value,
 			'concatenated_value',
 		)
-		snvClass.value[disease].data = matrix
-		snvClass.value[disease].categories = sort_row_names
-		snvClass.value[disease].total = response.total_records
+
+		snvClass.value[disease] = {
+			data: matrix,
+			total: localTotal,
+			categories: sort_row_names,
+		}
+	})
+}
+
+// --- Main Fetcher ---
+
+const fetchData = async () => {
+	if (!genesList.value.length || props.noData) return
+	isLoading.value = true
+
+	// Clear previous refs to avoid stale tooltip issues
+	graphRefs.value = {}
+
+	const filters = {
+		logic: 'AND',
+		conditions: [{ column: 'gene', operator: 'in', value: genesList.value }],
+	}
+
+	const aggType = percentageSwitcher.value ? 'percentage' : 'count'
+
+	try {
+		const [typeRes, classRes, snvRes] = await Promise.all([
+			// 1. Variant Type (Grouped by Disease)
+			AggregateAPI(props.tableName, {
+				column: 'variant_type',
+				group_by: ['disease', 'variant_type', 'gene'],
+				aggregation_type: aggType,
+				filters,
+			}),
+			// 2. Variant Class (Grouped by Disease)
+			AggregateAPI(props.tableName, {
+				column: 'variant_class',
+				group_by: ['disease', 'variant_class', 'gene'],
+				aggregation_type: aggType,
+				filters,
+			}),
+			// 3. SNV Class (Concatenated & Grouped by Disease)
+			ConcateAggregateAPI(props.tableName, {
+				separator: '>',
+				group_by: ['disease', 'gene'],
+				columns: ['ref_allele', 'tumor_seq_allele2'],
+				aggregation_type: aggType,
+				filters: {
+					logic: 'AND',
+					conditions: [...filters.conditions, { column: 'variant_type', operator: 'eq', value: 'SNP' }],
+				},
+			}),
+		])
+
+		// Combine results to find ALL diseases present across datasets
+		const allData = [...(typeRes.result || []), ...(classRes.result || []), ...(snvRes.result || [])]
+		diseaseList.value = uniq(map(allData, 'disease')).sort()
+
+		// Run Processors
+		processVariantType(typeRes.result || [])
+		processVariantClass(classRes.result || [])
+		processSNVClass(snvRes.result || [])
 	} catch (error) {
-		console.error('Error fetching search data:', error)
+		console.error('Failed to fetch variant data:', error)
+	} finally {
+		isLoading.value = false
 	}
 }
 
-watch(
-	() => props.tableName,
-	() => {
-		nextTick(async () => {
-			searchVariantType()
-			await aggregateDisease()
-			map(diseaseList.value, (disease) => {
-				aggregateSNVClass(disease)
-				aggregateVariantType(disease)
-				aggregateVariantClass(disease)
-			})
-		})
-	},
-	{ immediate: true }, // This will run the watcher callback immediately
-)
-
-watch(
-	() => percentageSwitcher.value,
-	() => {
-		nextTick(async () => {
-			searchVariantType()
-			await aggregateDisease()
-			map(diseaseList.value, (disease) => {
-				aggregateSNVClass(disease)
-				aggregateVariantType(disease)
-				aggregateVariantClass(disease)
-			})
-		})
-	},
-	{ immediate: true }, // This will run the watcher callback immediately
-)
-
-onBeforeMount(() => {
+// --- Lifecycle ---
+onMounted(() => {
 	nextTick(async () => {
-		genesList.value = [].concat(route.query.genes_list || [])
-		// Initialize the search variant type function
-		searchVariantType()
-		await aggregateDisease()
-		map(diseaseList.value, (disease) => {
-			aggregateSNVClass(disease)
-			aggregateVariantType(disease)
-			aggregateVariantClass(disease)
-		})
+		fetchData()
 	})
 })
+watch(percentageSwitcher, fetchData)
+watch(() => props.tableName, fetchData)
+watch(genesList, fetchData)
 </script>
-
-<style scoped></style>
