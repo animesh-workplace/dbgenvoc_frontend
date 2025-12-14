@@ -21,7 +21,6 @@ const dbgenvocTheme = definePreset(Aura, {
 })
 
 export default defineNuxtConfig({
-	imports: { dirs: ['api'] },
 	devServer: { port: 3011 },
 	devtools: { enabled: true },
 	compatibilityDate: '2025-07-15',
