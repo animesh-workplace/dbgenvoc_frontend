@@ -72,7 +72,9 @@
 					"
 				>
 					<div class="text-center">
-						<div class="pb-2 text-sm font-semibold text-gray-700">Variant Class (Coding)</div>
+						<div class="pb-2 text-sm font-semibold text-gray-700">
+							Variant Class (Coding) ({{ disease }})
+						</div>
 						<GraphBar
 							showAll
 							horizontal
@@ -83,7 +85,9 @@
 					</div>
 
 					<div class="text-center" v-if="variantClassNoncoding[disease]?.categories?.length">
-						<div class="pb-2 text-sm font-semibold text-gray-700">Variant Class (Non-Coding)</div>
+						<div class="pb-2 text-sm font-semibold text-gray-700">
+							Variant Class (Non-Coding) ({{ disease }})
+						</div>
 						<GraphBar
 							showAll
 							:isPercent="percentageSwitcher"
@@ -94,7 +98,7 @@
 					</div>
 
 					<div class="text-center">
-						<div class="pb-2 text-sm font-semibold text-gray-700">Variant Type</div>
+						<div class="pb-2 text-sm font-semibold text-gray-700">Variant Type ({{ disease }})</div>
 						<GraphBar
 							title="Variant Type"
 							:isPercent="percentageSwitcher"
@@ -104,7 +108,7 @@
 					</div>
 
 					<div class="text-center">
-						<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class</div>
+						<div class="pb-2 text-sm font-semibold text-gray-700">SNV Class ({{ disease }})</div>
 						<GraphBar
 							showAll
 							title="SNV Class"
