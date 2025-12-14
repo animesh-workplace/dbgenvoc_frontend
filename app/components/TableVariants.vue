@@ -20,7 +20,7 @@
 		:loading="loading || pending"
 		:rowsPerPageOptions="[10, 25, 50, 100]"
 	>
-		<template #header>
+		<!-- <template #header>
 			<div class="flex justify-end">
 				<IconField>
 					<InputIcon>
@@ -29,7 +29,8 @@
 					<InputText v-model="test" placeholder="Keyword Search" />
 				</IconField>
 			</div>
-		</template>
+		</template> -->
+
 		<Column
 			sortable
 			:key="col.field"
