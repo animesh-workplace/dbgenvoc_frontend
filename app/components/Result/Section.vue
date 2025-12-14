@@ -197,9 +197,7 @@ const handleLegendClick = (gene) => {
 // --- Data Processors ---
 
 const processVariantType = (result, group_total) => {
-	const diseases = uniq(map(result, 'disease'))
-
-	forEach(diseases, (disease) => {
+	forEach(diseaseList.value, (disease) => {
 		const diseaseData = filter(result, (r) => r.disease === disease)
 		// Calculate local total for this disease (crucial for per-disease percentage)
 		const localTotal =
@@ -223,9 +221,7 @@ const processVariantType = (result, group_total) => {
 }
 
 const processVariantClass = (result, group_total) => {
-	const diseases = uniq(map(result, 'disease'))
-
-	forEach(diseases, (disease) => {
+	forEach(diseaseList.value, (disease) => {
 		const diseaseData = filter(result, (r) => r.disease === disease)
 		const localTotal =
 			group_total && group_total[disease] ? group_total[disease] : sumBy(diseaseData, 'aggregated_value')
@@ -270,9 +266,7 @@ const processVariantClass = (result, group_total) => {
 }
 
 const processSNVClass = (result, group_total) => {
-	const diseases = uniq(map(result, 'disease'))
-
-	forEach(diseases, (disease) => {
+	forEach(diseaseList.value, (disease) => {
 		const diseaseData = filter(result, (r) => r.disease === disease)
 		const localTotal =
 			group_total && group_total[disease] ? group_total[disease] : sumBy(diseaseData, 'aggregated_value')
