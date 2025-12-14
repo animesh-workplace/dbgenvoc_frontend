@@ -119,6 +119,24 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="px-8 pt-8 text-center">
+				<div class="pb-2 text-sm font-semibold text-gray-700">Lollipop Plot</div>
+
+				<Tabs v-model:value="selectedTab" scrollable>
+					<TabList>
+						<Tab v-for="(gene, index) in genesList" :key="index" :value="index">
+							{{ gene }}
+						</Tab>
+					</TabList>
+					<TabPanels>
+						<TabPanel v-for="(gene, index) in genesList" :key="index" :value="index">
+							<p class="m-0">{{ gene }}</p>
+							<GraphLollipop />
+						</TabPanel>
+					</TabPanels>
+				</Tabs>
+			</div>
 		</ClientOnly>
 	</div>
 </template>
@@ -162,6 +180,7 @@ const props = defineProps({
 	sectionName: String,
 })
 
+const selectedTab = ref(0)
 const isLoading = ref(true)
 const percentageSwitcher = ref(false)
 const genesList = computed(() => [].concat(route.query.genes_list || []))
@@ -303,7 +322,7 @@ const fetchData = async () => {
 	const aggType = percentageSwitcher.value ? 'percentage' : 'count'
 
 	try {
-		const [typeRes, classRes, snvRes] = await Promise.all([
+		const [typeRes, classRes, snvRes, lolliRes] = await Promise.all([
 			// 1. Variant Type (Grouped by Disease)
 			AggregateAPI(props.tableName, {
 				filters,
@@ -332,6 +351,18 @@ const fetchData = async () => {
 					conditions: [...filters.conditions, { column: 'variant_type', operator: 'eq', value: 'SNP' }],
 				},
 			}),
+			AggregateAPI(props.tableName, {
+				column: 'protein_change',
+				group_by: ['protein_change', 'variant_class'],
+				aggregation_type: 'count',
+				filters: {
+					logic: 'AND',
+					conditions: [
+						{ column: 'gene', operator: 'eq', value: 'TP53' },
+						{ column: 'protein_change', operator: 'neq', value: null },
+					],
+				},
+			}),
 		])
 
 		// Combine results to find ALL diseases present across datasets
@@ -356,7 +387,6 @@ onMounted(() => {
 	})
 })
 
-watch(genesList, fetchData)
 watch(percentageSwitcher, fetchData)
 watch(() => props.tableName, fetchData)
 </script>
