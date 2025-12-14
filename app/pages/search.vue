@@ -61,7 +61,7 @@
 
 		<section class="mb-12">
 			<ResultSection
-				sectionName="peer-reviewed paper's"
+				sectionName="peer-reviewed papers"
 				tableName="journal_exome_somatic_variants"
 				:noData="somaticVariationType === 'Whole Genome' ? true : false"
 			/>
