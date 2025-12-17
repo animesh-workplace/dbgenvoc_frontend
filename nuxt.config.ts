@@ -1,6 +1,7 @@
 import Aura from '@primeuix/themes/aura'
 import tailwindcss from '@tailwindcss/vite'
 import { definePreset } from '@primeuix/themes'
+import AutoComplete from 'primevue/autocomplete'
 
 const dbgenvocTheme = definePreset(Aura, {
 	semantic: {
@@ -56,7 +57,7 @@ export default defineNuxtConfig({
 			ripple: true,
 			theme: { preset: dbgenvocTheme, options: { darkModeSelector: '.dark' } },
 		},
-		components: { include: [] },
+		components: { include: [AutoComplete] },
 	},
 	echarts: {
 		renderer: ['canvas'],
