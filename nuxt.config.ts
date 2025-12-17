@@ -43,7 +43,7 @@ export default defineNuxtConfig({
 		outputDir: 'app/assets',
 		families: { Poppins: true, 'Lexend+Deca': { wght: '100..900' } },
 	},
-	icon: { clientBundle: { scan: true }, serverBundle: { collections: ['solar'] } },
+	icon: { clientBundle: { scan: true }, serverBundle: { collections: ['solar', 'tabler', 'svg-spinners'] } },
 	modules: [
 		'@nuxt/icon',
 		'@nuxt/image',
