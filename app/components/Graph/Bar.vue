@@ -16,6 +16,7 @@ const props = defineProps({
 	plotData: {
 		type: Object,
 		default: () => ({
+			stack: ['A1', 'A2'],
 			categories: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'],
 			data: [
 				[120, 200, 150, 80, 70, 110, 130],
@@ -72,7 +73,7 @@ const chartOption = ref({
 
 const updateChart = () => {
 	const { categories, data } = props.plotData
-	const genes_list = [].concat(route.query.genes_list || [])
+	const genes_list = props.plotData.stack
 	const roundedRadii = props.horizontal ? [0, 5, 5, 0] : [5, 5, 0, 0]
 
 	chartOption.value.tooltip.trigger = props.plotData.data.length > 20 ? 'item' : 'axis'
