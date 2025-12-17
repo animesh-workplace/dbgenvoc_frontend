@@ -29,13 +29,13 @@
 		</div>
 
 		<div class="px-8 pt-8">
-			<div class="flex flex-wrap justify-center gap-4">
+			<div class="flex flex-wrap justify-center gap-2">
 				<button
 					:key="gene"
 					@click="handleLegendClick(gene)"
 					v-for="(gene, index) in visibleGenes"
 					:style="{ backgroundColor: color_scheme[index] + '33' }"
-					class="flex items-center space-x-2 px-3 py-1 rounded-full text-sm transition-all border"
+					class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border"
 					:class="
 						!hiddenSeries.includes(gene)
 							? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
@@ -130,22 +130,49 @@
 			</div>
 
 			<div class="px-8 pt-8 text-center">
-				<div class="pb-2 text-sm font-semibold text-gray-700">Lollipop Plot</div>
+				<div class="pb-4 font-semibold text-gray-700">Lollipop Plot</div>
 
-				<Tabs
-					v-model:value="selectedTab"
-					scrollable
-					@update:value="() => console.log('Value emitted from tabs')"
-				>
-					<TabList>
-						<Tab v-for="(gene, index) in genesList" :key="index" :value="gene">
+				<Tabs scrollable v-model:value="selectedTab" @update:value="processLollipopData">
+					<TabList
+						:pt="{
+							tabList: genesList.length < 10 ? 'justify-center gap-2' : 'gap-2',
+							activeBar: 'border-b-4 border-blue-400',
+						}"
+					>
+						<Tab
+							:key="index"
+							:value="gene"
+							v-for="(gene, index) in genesList"
+							class="rounded-t-lg !bg-blue-800/10 !gap-2 !px-4 !py-2 text-sm font-medium text-blue-800 hover:!bg-blue-800/20 transition-colors"
+						>
 							{{ gene }}
 						</Tab>
 					</TabList>
 					<TabPanels>
 						<TabPanel v-for="(gene, index) in genesList" :key="index" :value="gene">
-							<p class="m-0">{{ gene }}</p>
-							<GraphLollipop :dataPoints="lollipopData" />
+							<div class="flex flex-wrap justify-center gap-2 mt-4">
+								<button
+									:key="index"
+									v-for="(category, index) in lollipopCategories"
+									:style="{ backgroundColor: VARIANT_COLOR_MAP[category] + '33' }"
+									class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border"
+									:class="
+										!hiddenSeries.includes(category)
+											? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
+											: 'border-gray-200 opacity-70 inset-shadow-sm hover:inset-shadow-md cursor-pointer'
+									"
+								>
+									<span
+										class="w-3 h-3 rounded-full"
+										:style="{ backgroundColor: VARIANT_COLOR_MAP[category] }"
+									></span>
+									<span class="font-medium text-gray-700">{{
+										category.replaceAll('_', ' ')
+									}}</span>
+								</button>
+							</div>
+
+							<GraphLollipop :dataPoints="lollipopData" :dataDomain="lollipopDomain" />
 						</TabPanel>
 					</TabPanels>
 				</Tabs>
@@ -160,6 +187,42 @@ import { useHelper } from '@/composables/useHelper'
 import { uniq, map, sumBy, forEach, filter, orderBy } from 'lodash-es'
 
 // --- Constants ---
+const VARIANT_COLOR_MAP = {
+	// --- Major Coding Variants (Standard Palette) ---
+	Silent: '#17becf',
+	Splice_Site: '#d62728',
+	Frame_Shift_Del: '#2ca02c',
+	Frame_Shift_Ins: '#8c564b',
+	Missense_Mutation: '#1f77b4',
+	Nonsense_Mutation: '#ff7f0e',
+
+	// --- In-Frame Changes (Purples / Greys) ---
+	In_Frame_Ins: '#9467bd',
+	In_Frame_Del: '#a55194',
+
+	// --- Stop Codon Variations (Pinks) ---
+	Stop_Codon_Ins: '#e377c2',
+	Stop_Codon_Del: '#f7b6d2',
+
+	// --- Start Codon Variations (Light/Pastel Variants) ---
+	Start_Codon_SNP: '#ffbb78',
+	Start_Codon_Ins: '#98df8a',
+	Start_Codon_Del: '#ff9896',
+
+	// --- Complex / Other Coding (Earthy / Muted) ---
+	Nonstop_Mutation: '#c5b0d5',
+	De_novo_Start_InFrame: '#c49c94',
+	De_novo_Start_OutOfFrame: '#c7c7c7',
+
+	// --- Non-Coding Variants (Yellows / Teals / Darks) ---
+	IGR: '#637939',
+	ncRNA: '#393b79',
+	Intron: '#546e7a',
+	"3'UTR": '#bcbd22',
+	"5'UTR": '#dbdb8d',
+	"5'Flank": '#9edae5',
+	Mixed: '#333333',
+}
 const CODING_VARIANTS = [
 	'Silent',
 	'Splice_Site',
@@ -183,7 +246,7 @@ const SNV_CATEGORIES = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 
 
 // --- Setup & Refs ---
 const route = useRoute()
-const { AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
+const { AggregateAPI, ConcateAggregateAPI, StructureAPI } = useGeneAPI()
 const { useVariantMatrix, useLollipopMatrix, color_scheme } = useHelper()
 
 const props = defineProps({
@@ -193,12 +256,11 @@ const props = defineProps({
 })
 
 const GENE_LIMIT = 20
+const genesList = ref([])
 const isLoading = ref(true)
 const isExpanded = ref(false)
 const selectedTab = ref(null)
 const percentageSwitcher = ref(false)
-const genesList = ref([])
-// const genesList = computed(() => [].concat(route.query.genes_list || []))
 
 // Data State
 const snvClass = ref({})
@@ -206,9 +268,11 @@ const graphRefs = ref({})
 const diseaseList = ref([])
 const variantType = ref({})
 const hiddenSeries = ref([])
-const variantClassCoding = ref({})
-const variantClassNoncoding = ref({})
 const lollipopData = ref([])
+const lollipopDomain = ref({})
+const variantClassCoding = ref({})
+const lollipopCategories = ref([])
+const variantClassNoncoding = ref({})
 
 // --- Graph Ref Helper ---
 const setGraphRef = (el, d, t) => {
@@ -331,6 +395,53 @@ const processSNVClass = (result, group_total) => {
 	})
 }
 
+const processLollipopData = async (gene) => {
+	const [lolliStruc, lolliRes] = await Promise.all([
+		StructureAPI({ gene: gene }),
+
+		AggregateAPI(props.tableName, {
+			column: 'protein_change',
+			aggregation_type: 'count',
+			group_by: ['protein_change', 'variant_class'],
+			filters: {
+				logic: 'AND',
+				conditions: [
+					{ column: 'gene', operator: 'eq', value: gene },
+					{ column: 'protein_change', operator: 'neq', value: null },
+				],
+			},
+		}),
+	])
+	const lollipopDataMatrix = useLollipopMatrix(lolliRes.result || [])
+	const maxCount = Math.max(...map(lollipopDataMatrix, (item) => item.count))
+	const rawCategories = uniq(
+		map(lollipopDataMatrix, (item) => (item.type && item.type.includes(',') ? 'Mixed' : item.type)),
+	)
+	lollipopCategories.value = rawCategories.sort((a, b) => {
+		if (a === 'Mixed') return 1 // Move Mixed to the end
+		if (b === 'Mixed') return -1 // Keep Mixed at the end
+		return 0 // Keep original order for everything else
+	})
+
+	lollipopData.value = {
+		maxValue: maxCount < 3 ? maxCount + 5 : maxCount, // Ensure some space if low counts
+		data: map(lollipopDataMatrix, (item) => ({
+			variations: item.variations,
+			value: [item.location, item.count],
+			type: item.type.replaceAll('_', ' '),
+			itemStyle: { color: VARIANT_COLOR_MAP[item.type] || '#333333' },
+		})),
+	}
+	lollipopDomain.value = {
+		length: lolliStruc.structure[0].length,
+		structure: map(lolliStruc.structure[0].regions, (region) => ({
+			name: region.text,
+			itemStyle: { color: region.colour },
+			value: [0, region.start, region.end, 0],
+		})),
+	}
+}
+
 // --- Main Fetcher ---
 
 const fetchData = async () => {
@@ -348,7 +459,7 @@ const fetchData = async () => {
 	const aggType = percentageSwitcher.value ? 'percentage' : 'count'
 
 	try {
-		const [geneRes, typeRes, classRes, snvRes, lolliRes] = await Promise.all([
+		const [geneRes, typeRes, classRes, snvRes] = await Promise.all([
 			// 0. Gene list
 			AggregateAPI(props.tableName, {
 				filters,
@@ -356,7 +467,6 @@ const fetchData = async () => {
 				column: 'variant_type',
 				aggregation_type: 'count',
 			}),
-
 			// 1. Variant Type (Grouped by Disease)
 			AggregateAPI(props.tableName, {
 				filters,
@@ -385,23 +495,9 @@ const fetchData = async () => {
 					conditions: [...filters.conditions, { column: 'variant_type', operator: 'eq', value: 'SNP' }],
 				},
 			}),
-			// 4. Lollipop Data (Need better grouping)
-			AggregateAPI(props.tableName, {
-				column: 'protein_change',
-				aggregation_type: 'count',
-				group_by: ['protein_change', 'variant_class'],
-				filters: {
-					logic: 'AND',
-					conditions: [
-						{ column: 'gene', operator: 'eq', value: 'TP53' },
-						{ column: 'protein_change', operator: 'neq', value: null },
-					],
-				},
-			}),
 		])
 
 		genesList.value = map(orderBy(geneRes.result, ['aggregated_value'], ['desc']), (item) => item.gene)
-		lollipopData.value = map(useLollipopMatrix(lolliRes.result || []), (item) => [item.location, item.count])
 
 		// Combine results to find ALL diseases present across datasets
 		const allData = [...(typeRes.result || []), ...(classRes.result || []), ...(snvRes.result || [])]
@@ -409,6 +505,7 @@ const fetchData = async () => {
 		selectedTab.value = genesList.value[0]
 
 		// Run Processors
+		processLollipopData(genesList.value[0])
 		processSNVClass(snvRes.result || [], snvRes.group_totals)
 		processVariantType(typeRes.result || [], typeRes.group_totals)
 		processVariantClass(classRes.result || [], classRes.group_totals)
