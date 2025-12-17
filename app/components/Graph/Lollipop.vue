@@ -9,30 +9,29 @@
 const isLoading = ref(true)
 const chartContainer = ref(null)
 
+const props = defineProps({
+	dataPoints: {
+		type: Array,
+		default: () => [],
+	},
+	pieDataArray: {
+		type: Array,
+		default: () => [],
+	},
+	// If your domain rectangles (data) are also dynamic, add them to props
+	// For now keeping 'data' static as per your snippet
+})
+
 const calculateDimensions = () => {
 	if (!chartContainer.value?.$el) return
 	return [chartContainer.value.$el.clientWidth, chartContainer.value.$el.clientHeight]
 }
 
-// Sample data
-const categories = [1, 2, 3, 4, 5, 6, 7] // Count of each position
-const data1 = [
-	[0, 0],
-	[120, 1],
-	[200, 2],
-	[150, 3],
-	[80, 3],
-	[70, 5],
-	[110, 2],
-	[130, 7],
-	[300, 9],
-]
-
-// const data2 = [300]
+// --- Static Data (Rectangles) ---
 const data = [
 	{
 		name: 'Type 1',
-		value: [0, 10, 80, 0], // [categoryIndex, start, end, duration]
+		value: [0, 10, 80, 0],
 		itemStyle: { color: '#7b9ce1' },
 	},
 	{
@@ -46,66 +45,35 @@ const data = [
 		itemStyle: { color: '#75d874' },
 	},
 ]
-// // Sample pie data for each scatter point (2-3 segments each)
-const pieDataArray = [
-	[{ value: 70, name: 'A' }],
-	[
-		{ value: 70, name: 'A' },
-		{ value: 30, name: 'B' },
-	], // L1
-	[
-		{ value: 60, name: 'A' },
-		{ value: 25, name: 'B' },
-		{ value: 15, name: 'C' },
-	], // L2
-	[
-		{ value: 50, name: 'A' },
-		{ value: 50, name: 'B' },
-	], // L3
-	[
-		{ value: 45, name: 'A' },
-		{ value: 35, name: 'B' },
-		{ value: 20, name: 'C' },
-	], // L4
-	[
-		{ value: 65, name: 'A' },
-		{ value: 35, name: 'B' },
-	], // L5
-	[
-		{ value: 40, name: 'A' },
-		{ value: 30, name: 'B' },
-		{ value: 30, name: 'C' },
-	], // L6
-	[
-		{ value: 55, name: 'A' },
-		{ value: 45, name: 'B' },
-	], // L7
-	[{ value: 70, name: 'A' }],
-]
 
-function scaleValue(value, min = 0, max = 300, newMin = 1, newMax = 100) {
-	if (value < min) value = min
-	if (value > max) value = max
+// --- Helpers ---
 
-	return ((value - min) / (max - min)) * (newMax - newMin) + newMin
+// Calculate max dynamically based on new data props so the chart scales correctly
+const getMaxValue = (points) => {
+	if (!points || points.length === 0) return 200
+	// points is [[x, y], [x, y]], we want max X
+	return Math.max(...points.map((p) => p[0]))
 }
 
-const maxValue = 200
+// Note: Ensure maxCategories aligns with your Y-axis max
 const maxCategories = 7
 
-// // Calculate positions for pie charts based on data values and categories
 const calculatePiePosition = (categoryIndex, value, maxValue) => {
+	if (!value) return ['0%', '0%']
+
+	// Recalculate percentages based on the specific coordinate (value[0] is X, value[1] is Y)
 	const baseXPercent = (value[0] / (maxValue + 100)) * 100
 	const shiftXPercent = 0.4 - 1.2 * (baseXPercent / 100)
-	const xPercent = baseXPercent + shiftXPercent // 0 -> 0.67 100-> -0.67
+	const xPercent = baseXPercent + shiftXPercent
+
 	const baseYPercent = (value[1] / (maxCategories + 2)) * 100
 	const shiftYPercent = 15.5 - 0.155 * baseYPercent
 	const yPercent = baseYPercent + shiftYPercent
+
 	return [xPercent + '%', 100 - yPercent + '%']
 }
 
 const truncateText = (text, maxWidth, fontSize = 10) => {
-	// Approximate text width (ECharts doesn't give exact here, so use char * fontSize * factor)
 	const avgCharWidth = fontSize * 0.6
 	const maxChars = Math.floor(maxWidth / avgCharWidth)
 	if (text.length > maxChars) {
@@ -114,153 +82,29 @@ const truncateText = (text, maxWidth, fontSize = 10) => {
 	return text
 }
 
-const chartOption = ref({
-	animation: false,
-	yAxis: [
-		{
-			show: false,
-			type: 'category',
-			id: 'normalYAxis',
-			position: 'left',
-			axisTick: { show: true },
-			data: [1, 2, 3, 4, 5, 6, 7], // L1 to L7
-			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-		},
-		{
-			min: -1,
-			show: false,
-			type: 'value',
-			position: 'left',
-			id: 'lollipopYAxis',
-			max: maxCategories + 2,
-			splitLine: { show: false },
-			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-		},
-	],
-	xAxis: [
-		{
-			show: false,
-			type: 'value',
-			id: 'normalXAxis',
-			position: 'bottom',
-			max: maxValue + 100, // Add some padding
-			axisTick: { show: true },
-			axisLine: { show: true },
-			splitLine: { show: false },
-			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-		},
-		{
-			show: true,
-			type: 'value',
-			position: 'bottom',
-			id: 'lollipopXAxis',
-			max: maxValue + 100, // Add some padding
-			axisTick: { show: true, alignWithLabel: true },
-			axisLine: { show: true },
-			splitLine: { show: false },
-			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-		},
-	],
-	grid: {
-		top: '0%',
-		left: '0%',
-		right: '0%',
-		bottom: '0%',
-		outerBoundsMode: 'same',
-	},
-	series: [
-		{
-			z: 1,
-			type: 'bar',
-			barWidth: 15,
-			xAxisId: 'normalXAxis',
-			yAxisId: 'normalYAxis',
-			data: [maxValue + 100],
-			itemStyle: { borderRadius: 30, color: '#4b5563', opacity: 0.2 },
-		},
-		{
-			data,
-			z: 10,
-			type: 'custom',
-			xAxisId: 'normalXAxis',
-			yAxisId: 'normalYAxis',
-			// encode: { x: [1, 2], y: 0 },
-			renderItem(params, api) {
-				const categoryIndex = api.value(0)
-				const start = api.coord([api.value(1), categoryIndex])
-				const end = api.coord([api.value(2), categoryIndex])
-				const height = api.size([0, 1])[1] * 0.5
-				const rectWidth = end[0] - start[0]
+// --- Reactive Chart Option ---
+// Using computed() ensures this object rebuilds whenever props.dataPoints or props.pieDataArray changes
+const chartOption = computed(() => {
+	// 1. Calculate dynamic scaling based on current props
+	const currentMaxX = getMaxValue(props.dataPoints)
+	const axisMax = currentMaxX + 100 // Add padding
 
-				return {
-					type: 'group',
-					children: [
-						// Rounded rectangle
-						{
-							type: 'rect',
-							shape: {
-								x: start[0],
-								y: start[1] - height / 2,
-								width: rectWidth,
-								height,
-								r: 8, // rounded corners
-							},
-							style: api.style(),
-						},
-						// Label text centered in the rectangle
-						{
-							type: 'text',
-							style: {
-								text: truncateText(data[params.dataIndex].name, rectWidth, 10), // use rect's name
-								x: start[0] + rectWidth / 2,
-								y: start[1],
-								textAlign: 'center',
-								textVerticalAlign: 'middle',
-								fontFamily: 'Lexend Deca',
-								fontWeight: 400,
-								fontSize: 10,
-							},
-							z: 10,
-						},
-					],
-				}
-			},
-		},
-		// Stem series (thin bars from 0 to value)
-		{
-			z: -1,
-			type: 'bar',
-			data: data1,
-			xAxisId: 'lollipopXAxis',
-			yAxisId: 'lollipopYAxis',
-			barWidth: 2,
-			name: 'Stems',
-			itemStyle: {
-				color: '#666666',
-			},
-		},
-		// Dot series
-		{
-			xAxisId: 'lollipopXAxis',
-			yAxisId: 'lollipopYAxis',
-			data: data1,
-			name: 'Values',
-			symbolSize: 20,
-			type: 'scatter',
-			itemStyle: { color: 'red' },
-		},
+	// 2. Generate Pie Series dynamically
+	// We map over props.pieDataArray and use corresponding coordinate from props.dataPoints
+	const dynamicPieSeries = props.pieDataArray.map((pieData, index) => {
+		const coordinate = props.dataPoints[index] || [0, 0]
 
-		// Create multiple pie series - one for each data point
-		...pieDataArray.map((pieData, index) => ({
+		return {
 			z: 10,
 			type: 'pie',
 			data: pieData,
-			showInLegend: false, // Don't show each pie in legend individually
-			radius: ['12%', '7%'], // Small donut charts
+			showInLegend: false,
+			radius: ['12%', '7%'],
 			xAxisId: 'lollipopXAxis',
 			yAxisId: 'lollipopYAxis',
-			name: `Distribution ${categories[index]}`,
-			center: calculatePiePosition(index, data1[index], maxValue),
+			name: `Distribution ${index}`, // Unique name
+			// Recalculate position for this specific point
+			center: calculatePiePosition(index, coordinate, currentMaxX),
 			itemStyle: {
 				borderWidth: 1,
 				borderRadius: 2,
@@ -276,8 +120,144 @@ const chartOption = ref({
 					shadowColor: 'rgba(0, 0, 0, 0.3)',
 				},
 			},
-		})),
-	],
+		}
+	})
+
+	return {
+		animation: true, // Keep false for performance updates, or true for smooth transitions
+		yAxis: [
+			{
+				show: false,
+				type: 'category',
+				id: 'normalYAxis',
+				position: 'left',
+				axisTick: { show: true },
+				data: [1, 2, 3, 4, 5, 6, 7],
+				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+			},
+			{
+				min: -1,
+				show: false,
+				type: 'value',
+				position: 'left',
+				id: 'lollipopYAxis',
+				max: maxCategories + 2,
+				splitLine: { show: false },
+				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+			},
+		],
+		xAxis: [
+			{
+				show: false,
+				type: 'value',
+				id: 'normalXAxis',
+				position: 'bottom',
+				axisTick: { show: true },
+				axisLine: { show: true },
+				splitLine: { show: false },
+				max: axisMax, // Dynamic Max
+				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+			},
+			{
+				show: true,
+				type: 'value',
+				position: 'bottom',
+				id: 'lollipopXAxis',
+				axisLine: { show: true },
+				splitLine: { show: false },
+				max: axisMax, // Dynamic Max
+				axisTick: { show: true, alignWithLabel: true },
+				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+			},
+		],
+		grid: {
+			top: '0%',
+			left: '0%',
+			right: '0%',
+			bottom: '0%',
+			outerBoundsMode: 'same',
+		},
+		series: [
+			{
+				z: 1,
+				type: 'bar',
+				barWidth: 15,
+				xAxisId: 'normalXAxis',
+				yAxisId: 'normalYAxis',
+				data: [axisMax], // Ensure background bar stretches to new max
+				itemStyle: { borderRadius: 30, color: '#4b5563', opacity: 0.2 },
+			},
+			{
+				data: data, // Static background rectangles
+				z: 10,
+				type: 'custom',
+				xAxisId: 'normalXAxis',
+				yAxisId: 'normalYAxis',
+				renderItem(params, api) {
+					const categoryIndex = api.value(0)
+					const start = api.coord([api.value(1), categoryIndex])
+					const end = api.coord([api.value(2), categoryIndex])
+					const height = api.size([0, 1])[1] * 0.5
+					const rectWidth = end[0] - start[0]
+
+					return {
+						type: 'group',
+						children: [
+							{
+								type: 'rect',
+								shape: {
+									height,
+									x: start[0],
+									width: rectWidth,
+									r: 8,
+									y: start[1] - height / 2,
+								},
+								style: api.style(),
+							},
+							{
+								type: 'text',
+								style: {
+									y: start[1],
+									fontSize: 10,
+									fontWeight: 400,
+									textAlign: 'center',
+									fontFamily: 'Lexend Deca',
+									x: start[0] + rectWidth / 2,
+									textVerticalAlign: 'middle',
+									text: truncateText(data[params.dataIndex].name, rectWidth, 10),
+								},
+								z: 10,
+							},
+						],
+					}
+				},
+			},
+			// Stem series (Reactive to props.dataPoints)
+			{
+				z: -1,
+				type: 'bar',
+				data: props.dataPoints,
+				barWidth: 2,
+				name: 'Stems',
+				xAxisId: 'lollipopXAxis',
+				yAxisId: 'lollipopYAxis',
+				itemStyle: { color: '#666666' },
+			},
+			// Dot series (Reactive to props.dataPoints)
+			{
+				data: props.dataPoints,
+				name: 'Values',
+				symbolSize: 20,
+				type: 'scatter',
+				xAxisId: 'lollipopXAxis',
+				yAxisId: 'lollipopYAxis',
+				itemStyle: { color: 'red' },
+			},
+
+			// Dynamic Pie Series
+			...dynamicPieSeries,
+		],
+	}
 })
 
 // Initialize on mount
