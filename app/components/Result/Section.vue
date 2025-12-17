@@ -157,7 +157,7 @@
 <script setup>
 import { useGeneAPI } from '@/api/geneAPI'
 import { useHelper } from '@/composables/useHelper'
-import { uniq, map, sumBy, forEach, filter } from 'lodash-es'
+import { uniq, map, sumBy, forEach, filter, orderBy } from 'lodash-es'
 
 // --- Constants ---
 const CODING_VARIANTS = [
@@ -197,7 +197,8 @@ const isLoading = ref(true)
 const isExpanded = ref(false)
 const selectedTab = ref(null)
 const percentageSwitcher = ref(false)
-const genesList = computed(() => [].concat(route.query.genes_list || []))
+const genesList = ref([])
+// const genesList = computed(() => [].concat(route.query.genes_list || []))
 
 // Data State
 const snvClass = ref({})
@@ -255,6 +256,7 @@ const processVariantType = (result, group_total) => {
 		variantType.value[disease] = {
 			data: matrix,
 			total: localTotal,
+			stack: genesList.value,
 			categories: sort_row_names,
 		}
 	})
@@ -282,6 +284,7 @@ const processVariantClass = (result, group_total) => {
 		variantClassCoding.value[disease] = {
 			data: c_mat,
 			total: localTotal,
+			stack: genesList.value,
 			categories: map(c_sort, (d) => d.replaceAll('_', ' ').replaceAll('Mutation', '')),
 		}
 
@@ -300,6 +303,7 @@ const processVariantClass = (result, group_total) => {
 		variantClassNoncoding.value[disease] = {
 			data: nc_mat,
 			total: localTotal,
+			stack: genesList.value,
 			categories: map(nc_sort, (d) => d.replaceAll('_', ' ').replaceAll('Mutation', '')),
 		}
 	})
@@ -321,6 +325,7 @@ const processSNVClass = (result, group_total) => {
 		snvClass.value[disease] = {
 			data: matrix,
 			total: localTotal,
+			stack: genesList.value,
 			categories: sort_row_names,
 		}
 	})
@@ -343,7 +348,15 @@ const fetchData = async () => {
 	const aggType = percentageSwitcher.value ? 'percentage' : 'count'
 
 	try {
-		const [typeRes, classRes, snvRes, lolliRes] = await Promise.all([
+		const [geneRes, typeRes, classRes, snvRes, lolliRes] = await Promise.all([
+			// 0. Gene list
+			AggregateAPI(props.tableName, {
+				filters,
+				group_by: ['gene'],
+				column: 'variant_type',
+				aggregation_type: 'count',
+			}),
+
 			// 1. Variant Type (Grouped by Disease)
 			AggregateAPI(props.tableName, {
 				filters,
@@ -387,7 +400,7 @@ const fetchData = async () => {
 			}),
 		])
 
-		console.log('Lollipop Data:', useLollipopMatrix(lolliRes.result || []))
+		genesList.value = map(orderBy(geneRes.result, ['aggregated_value'], ['desc']), (item) => item.gene)
 		lollipopData.value = map(useLollipopMatrix(lolliRes.result || []), (item) => [item.location, item.count])
 
 		// Combine results to find ALL diseases present across datasets
@@ -413,6 +426,13 @@ onMounted(() => {
 	})
 })
 
+watch(
+	() => route.query.genes_list,
+	(q) => {
+		genesList.value = q ? (Array.isArray(q) ? q : [q]) : []
+	},
+	{ immediate: true },
+)
 watch(percentageSwitcher, fetchData)
 watch(() => props.tableName, fetchData)
 </script>
