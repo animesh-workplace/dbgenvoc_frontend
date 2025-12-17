@@ -1,6 +1,6 @@
 <template>
-	<section class="-mt-7 mx-8 xl:mx-0 w-[calc(100%-2rem)] xl:w-full mb-12">
-		<div class="flex xl:justify-center">
+	<section class="-mt-7 mx-8 xl:mx-auto xl:w-full max-w-5xl mb-12 relative z-20">
+		<div class="flex items-start shadow-xl rounded-2xl bg-white">
 			<AutoComplete
 				fluid
 				multiple
@@ -11,21 +11,24 @@
 				name="Search Input"
 				@focus="handleFocus"
 				@paste="handlePaste"
-				@keyup.enter="StartSearch"
 				optionGroupLabel="label"
 				aria-label="Search Input"
-				optionGroupChildren="items"
-				@complete="SearchGenePathway"
 				@item-select="ItemSelect"
+				@keyup.enter="StartSearch"
+				optionGroupChildren="items"
+				@item-unselect="ItemRemoved"
+				@complete="SearchGenePathway"
 				:suggestions="searchSuggestions"
 				:class="{ 'gradient-bg': !isFocused }"
-				class="min-w-[calc(100%-2rem-5rem)] max-w-[calc(100%-2rem-5rem)] xl:min-w-4xl"
+				class="flex-1 rounded-l-2xl"
 				:placeholder="search.length ? '' : 'Enter gene name or multiple gene names or region or pathway'"
 				optionLabel="value"
 				:pt="{
+					root: 'rounded-l-2xl',
+					container: 'rounded-l-2xl border-none',
 					input: 'placeholder:text-sm caret-blue-800',
 					inputMultiple:
-						'!rounded-r-none !rounded-l-2xl !py-3 !px-5 !shadow-xl !border-gray-200 !border-r-0 caret-blue-800',
+						'!rounded-r-none !rounded-l-2xl !py-3 !px-5 !border-none caret-blue-800 !flex-wrap !w-full !h-auto',
 				}"
 			>
 				<template #optiongroup="slotProps">
@@ -104,9 +107,7 @@
 				id="Search Button"
 				@click="StartSearch"
 				aria-label="Search Button"
-				:pt="{
-					root: '!rounded-l-none !rounded-r-2xl !w-20 !shadow-xl !bg-sky-200 !border-gray-200 !border-0 z-10',
-				}"
+				class="!w-20 !rounded-l-none !rounded-r-2xl !bg-sky-200 !border-0 hover:!bg-sky-300 transition-colors h-auto self-stretch"
 			>
 				<template #icon>
 					<Icon name="solar:magnifer-bold-duotone" class="!w-6 !h-6 text-blue-800" />
@@ -128,7 +129,7 @@
 					</span>
 				</div>
 
-				<div class="mb-2">
+				<!-- <div class="mb-2">
 					<span class="text-gray-500 text-sm mr-2">Region:</span>
 					<span
 						@click="applyExample([{ value: 'chr1:915188-1015188', type: 'region' }])"
@@ -136,7 +137,7 @@
 					>
 						chr1:915188-1015188
 					</span>
-				</div>
+				</div> -->
 
 				<div class="mb-2">
 					<span class="text-gray-500 text-sm mr-2">Multiple Genes:</span>
@@ -156,7 +157,7 @@
 					</span>
 				</div>
 
-				<div>
+				<!-- <div>
 					<span class="text-gray-500 text-sm mr-2">Multi-sites:</span>
 					<span
 						@click="
@@ -174,7 +175,7 @@
 						<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr17:7577538</span>
 						<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr17:7577120</span>
 					</span>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</section>
@@ -321,6 +322,20 @@ const ItemSelect = (event) => {
 			actualSearch.value.push(event.value.value)
 		}
 	}
+}
+
+const ItemRemoved = (event) => {
+	const remainingGenes = search.value.flatMap((item) => {
+		if (item.type === 'pathway') {
+			// If it's a pathway, keep all its genes
+			return item.pathway_genes || []
+		}
+		// If it's a single gene or region, keep the value
+		return item.value
+	})
+
+	// Remove duplicates and update the logic state
+	actualSearch.value = [...new Set(remainingGenes)]
 }
 
 const SearchGenePathway = async (event) => {
