@@ -6,57 +6,43 @@
 </template>
 
 <script setup>
+import { map } from 'lodash-es'
 const isLoading = ref(true)
 const chartContainer = ref(null)
 
 const props = defineProps({
-	dataPoints: {
-		type: Array,
-		default: () => [],
+	pieDataArray: { type: Array, default: () => [] },
+	dataPoints: { type: Object, default: () => ({ maxValue: 7, data: [] }) },
+	dataDomain: {
+		type: Object,
+		default: () => ({
+			length: 400,
+			structure: [
+				{
+					name: 'Type 1',
+					value: [0, 10, 80, 0],
+					itemStyle: { color: '#7b9ce1' },
+				},
+				{
+					name: 'Type 2',
+					value: [0, 90, 150, 0],
+					itemStyle: { color: '#bd6d6c' },
+				},
+				{
+					name: 'Type 3',
+					value: [0, 170, 250, 0],
+					itemStyle: { color: '#75d874' },
+				},
+			],
+		}),
 	},
-	pieDataArray: {
-		type: Array,
-		default: () => [],
-	},
-	// If your domain rectangles (data) are also dynamic, add them to props
-	// For now keeping 'data' static as per your snippet
 })
 
+// --- Helpers ---
 const calculateDimensions = () => {
 	if (!chartContainer.value?.$el) return
 	return [chartContainer.value.$el.clientWidth, chartContainer.value.$el.clientHeight]
 }
-
-// --- Static Data (Rectangles) ---
-const data = [
-	{
-		name: 'Type 1',
-		value: [0, 10, 80, 0],
-		itemStyle: { color: '#7b9ce1' },
-	},
-	{
-		name: 'Type 2',
-		value: [0, 90, 150, 0],
-		itemStyle: { color: '#bd6d6c' },
-	},
-	{
-		name: 'Type 3',
-		value: [0, 170, 250, 0],
-		itemStyle: { color: '#75d874' },
-	},
-]
-
-// --- Helpers ---
-
-// Calculate max dynamically based on new data props so the chart scales correctly
-const getMaxValue = (points) => {
-	if (!points || points.length === 0) return 200
-	// points is [[x, y], [x, y]], we want max X
-	return Math.max(...points.map((p) => p[0]))
-}
-
-// Note: Ensure maxCategories aligns with your Y-axis max
-const maxCategories = 7
 
 const calculatePiePosition = (categoryIndex, value, maxValue) => {
 	if (!value) return ['0%', '0%']
@@ -66,7 +52,7 @@ const calculatePiePosition = (categoryIndex, value, maxValue) => {
 	const shiftXPercent = 0.4 - 1.2 * (baseXPercent / 100)
 	const xPercent = baseXPercent + shiftXPercent
 
-	const baseYPercent = (value[1] / (maxCategories + 2)) * 100
+	const baseYPercent = (value[1] / (props.dataPoints.maxValue + 2)) * 100
 	const shiftYPercent = 15.5 - 0.155 * baseYPercent
 	const yPercent = baseYPercent + shiftYPercent
 
@@ -86,12 +72,15 @@ const truncateText = (text, maxWidth, fontSize = 10) => {
 // Using computed() ensures this object rebuilds whenever props.dataPoints or props.pieDataArray changes
 const chartOption = computed(() => {
 	// 1. Calculate dynamic scaling based on current props
-	const currentMaxX = getMaxValue(props.dataPoints)
-	const axisMax = currentMaxX + 100 // Add padding
+	const currentMaxX = props.dataDomain.length
+	const domainAxisMax = props.dataDomain.length
+	const stemData = map(props.dataPoints?.data || [], (item) => ({
+		value: item.value,
+	}))
 
 	// 2. Generate Pie Series dynamically
 	// We map over props.pieDataArray and use corresponding coordinate from props.dataPoints
-	const dynamicPieSeries = props.pieDataArray.map((pieData, index) => {
+	const dynamicPieSeries = map(props.pieDataArray, (pieData, index) => {
 		const coordinate = props.dataPoints[index] || [0, 0]
 
 		return {
@@ -124,16 +113,26 @@ const chartOption = computed(() => {
 	})
 
 	return {
-		animation: true, // Keep false for performance updates, or true for smooth transitions
+		animation: true,
+		// --- ADDED TOOLTIP CONFIGURATION ---
+		tooltip: {
+			show: true,
+			confine: true,
+			trigger: 'item',
+			borderColor: '#e5e7eb',
+			backgroundColor: '#ebe6e7',
+			extraCssText: 'padding: 0;',
+			textStyle: { fontSize: 12, color: '#374151', fontFamily: 'Lexend Deca' },
+		},
 		yAxis: [
 			{
 				show: false,
 				type: 'category',
-				id: 'normalYAxis',
 				position: 'left',
+				id: 'normalYAxis',
 				axisTick: { show: true },
-				data: [1, 2, 3, 4, 5, 6, 7],
 				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+				data: map(Array.from({ length: props.dataPoints.maxValue }), (_, i) => i + 1),
 			},
 			{
 				min: -1,
@@ -141,8 +140,8 @@ const chartOption = computed(() => {
 				type: 'value',
 				position: 'left',
 				id: 'lollipopYAxis',
-				max: maxCategories + 2,
 				splitLine: { show: false },
+				max: props.dataPoints.maxValue + 2,
 				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 			},
 		],
@@ -155,7 +154,7 @@ const chartOption = computed(() => {
 				axisTick: { show: true },
 				axisLine: { show: true },
 				splitLine: { show: false },
-				max: axisMax, // Dynamic Max
+				max: domainAxisMax, // Dynamic Max
 				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 			},
 			{
@@ -165,7 +164,7 @@ const chartOption = computed(() => {
 				id: 'lollipopXAxis',
 				axisLine: { show: true },
 				splitLine: { show: false },
-				max: axisMax, // Dynamic Max
+				max: domainAxisMax, // Dynamic Max
 				axisTick: { show: true, alignWithLabel: true },
 				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 			},
@@ -182,17 +181,18 @@ const chartOption = computed(() => {
 				z: 1,
 				type: 'bar',
 				barWidth: 15,
+				silent: true,
 				xAxisId: 'normalXAxis',
 				yAxisId: 'normalYAxis',
-				data: [axisMax], // Ensure background bar stretches to new max
+				data: [domainAxisMax], // Ensure background bar stretches to new max
 				itemStyle: { borderRadius: 30, color: '#4b5563', opacity: 0.2 },
 			},
 			{
-				data: data, // Static background rectangles
 				z: 10,
 				type: 'custom',
 				xAxisId: 'normalXAxis',
 				yAxisId: 'normalYAxis',
+				data: props.dataDomain.structure, // Static background rectangles
 				renderItem(params, api) {
 					const categoryIndex = api.value(0)
 					const start = api.coord([api.value(1), categoryIndex])
@@ -224,34 +224,78 @@ const chartOption = computed(() => {
 									fontFamily: 'Lexend Deca',
 									x: start[0] + rectWidth / 2,
 									textVerticalAlign: 'middle',
-									text: truncateText(data[params.dataIndex].name, rectWidth, 10),
+									text: truncateText(
+										props.dataDomain.structure[params.dataIndex].name,
+										rectWidth,
+										10,
+									),
 								},
 								z: 10,
 							},
 						],
 					}
 				},
+				tooltip: {
+					formatter: (params) => {
+						const d = params.data
+						return `
+						<div class="text-sm p-2 text-center">
+							<div class="font-bold">${d.name}</div>
+							<div class="text-xs text-gray-500">Range: ${d.value[1]} - ${d.value[2]}</div>
+						</div>
+                    `
+					},
+				},
 			},
 			// Stem series (Reactive to props.dataPoints)
 			{
 				z: -1,
 				type: 'bar',
-				data: props.dataPoints,
 				barWidth: 2,
+				silent: true,
 				name: 'Stems',
+				data: stemData,
 				xAxisId: 'lollipopXAxis',
 				yAxisId: 'lollipopYAxis',
 				itemStyle: { color: '#666666' },
 			},
 			// Dot series (Reactive to props.dataPoints)
 			{
-				data: props.dataPoints,
 				name: 'Values',
 				symbolSize: 20,
 				type: 'scatter',
 				xAxisId: 'lollipopXAxis',
 				yAxisId: 'lollipopYAxis',
+				data: props.dataPoints.data,
 				itemStyle: { color: 'red' },
+				tooltip: {
+					formatter: (params) => {
+						return `
+						<div class="text-sm">
+							<div class="flex items-center justify-center gap-2 border-b border-gray-400 pb-2 bg-gray-200 px-4 pt-2">
+								<span class="font-bold text-base text-gray-900">${params.data.type}</span>
+							</div>
+                
+							<div class="flex flex-col gap-1 bg-gray-50 p-2">
+								<div class="flex justify-between gap-4">
+									<span class="text-gray-500 font-medium">Location:</span>
+									<span class="font-semibold">${params.value[0]}</span>
+								</div>
+								
+								<div class="flex justify-between gap-4">
+									<span class="text-gray-500 font-medium">Count:</span>
+									<span class="font-semibold">${params.value[1]}</span>
+								</div>
+
+								<div class="flex justify-between gap-4">
+									<span class="text-gray-500 font-medium">Variations:</span>
+									<span class="font-semibold">${params.data.variations}</span>
+								</div>
+							</div>
+            			</div>
+						`
+					},
+				},
 			},
 
 			// Dynamic Pie Series
