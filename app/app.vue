@@ -20,8 +20,8 @@ nuxtApp.hook('page:finish', () => {
 			class="fixed inset-0 z-[9999] bg-white/80 backdrop-blur-sm flex items-center justify-center"
 		>
 			<div class="flex flex-col items-center">
-				<!-- <Icon name="line-md:loading-loop" class="w-20 h-20 text-blue-600 mb-4" /> -->
-				<h2 class="text-xl font-bold text-gray-800">Searching Database...</h2>
+				<Icon name="svg-spinners:ring-resize" class="w-20 h-20 text-blue-600 mb-4" />
+				<h2 class="text-xl font-bold text-gray-800">Fetching the data...</h2>
 			</div>
 		</div>
 
