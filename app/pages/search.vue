@@ -33,7 +33,7 @@
 		</section>
 		<Divider />
 
-		<section ref="tcgaSection" class="min-h-[300px]">
+		<section ref="tcgaSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
 			<template v-if="isTcgaLoaded">
 				<ResultSection
 					tableName="tcga_exome_somatic_variants"
@@ -65,7 +65,7 @@
 		</section>
 		<Divider />
 
-		<section ref="peerReviewedSection" class="mb-12 min-h-[300px]">
+		<section ref="peerReviewedSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
 			<template v-if="isPeerReviewedLoaded">
 				<ResultSection
 					sectionName="peer-reviewed papers"
@@ -90,59 +90,76 @@
 					</div>
 				</div>
 			</template>
+			<div v-else class="flex justify-center items-center h-full text-gray-400 text-sm">
+				Scroll to load peer reviewed data...
+			</div>
 		</section>
 	</div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { useIntersectionObserver } from '@vueuse/core'
 
 const somaticVariationType = ref('Exome')
 const somaticVariationOptions = ref(['Exome', 'Whole Genome'])
 
-// Refs for the DOM elements to observe
 const tcgaSection = ref(null)
 const peerReviewedSection = ref(null)
 
-// State to track if the component should be rendered
 const isTcgaLoaded = ref(false)
 const isPeerReviewedLoaded = ref(false)
 
-let observer = null
+// We store the 'stop' functions returned by VueUse so we can reset them manually
+let stopTcgaObserver = null
+let stopPeerObserver = null
 
-onMounted(() => {
-	// specific options for the observer
-	const options = {
-		root: null, // viewport
-		rootMargin: '200px', // Load data when user scrolls within 200px of the section
-		threshold: 0.1, // Trigger when 10% of the placeholder is visible
-	}
+const initObservers = () => {
+	// 1. Cleanup previous observers if they exist (for the reset case)
+	if (stopTcgaObserver) stopTcgaObserver()
+	if (stopPeerObserver) stopPeerObserver()
 
-	observer = new IntersectionObserver((entries) => {
-		entries.forEach((entry) => {
-			if (entry.isIntersecting) {
-				// If TCGA section comes into view
-				if (entry.target === tcgaSection.value) {
-					isTcgaLoaded.value = true
-					observer.unobserve(entry.target) // Stop observing once loaded (load once behavior)
-				}
-				// If Peer Reviewed section comes into view
-				if (entry.target === peerReviewedSection.value) {
-					isPeerReviewedLoaded.value = true
-					observer.unobserve(entry.target)
-				}
+	// 2. Setup TCGA Observer
+	const tcgaOutput = useIntersectionObserver(
+		tcgaSection,
+		([{ isIntersecting }]) => {
+			if (isIntersecting) {
+				isTcgaLoaded.value = true
+				stopTcgaObserver() // Stop observing once loaded (Load Once)
 			}
-		})
-	}, options)
+		},
+		{ rootMargin: '200px', threshold: 0.1 },
+	)
+	stopTcgaObserver = tcgaOutput.stop
 
-	// Start observing
-	if (tcgaSection.value) observer.observe(tcgaSection.value)
-	if (peerReviewedSection.value) observer.observe(peerReviewedSection.value)
-})
+	// 3. Setup Peer Reviewed Observer
+	const peerOutput = useIntersectionObserver(
+		peerReviewedSection,
+		([{ isIntersecting }]) => {
+			if (isIntersecting) {
+				isPeerReviewedLoaded.value = true
+				stopPeerObserver() // Stop observing once loaded
+			}
+		},
+		{ rootMargin: '200px', threshold: 0.1 },
+	)
+	stopPeerObserver = peerOutput.stop
+}
 
-onUnmounted(() => {
-	if (observer) observer.disconnect()
-})
+// Watch for dropdown changes
+watch(
+	somaticVariationType,
+	() => {
+		// Reset data state
+		isTcgaLoaded.value = false
+		isPeerReviewedLoaded.value = false
+
+		// Re-initialize observers
+		// This is crucial: It re-attaches the observer, which immediately checks
+		// if the element is currently visible.
+		initObservers()
+	},
+	{ immediate: true },
+) // 'immediate: true' replaces onMounted
 </script>
 
 <style scoped></style>
