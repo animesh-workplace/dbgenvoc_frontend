@@ -1,4 +1,4 @@
-import { map, forEach, sum, zip } from 'lodash-es'
+import { map, forEach, sum, zip, reduce, values, sortBy, uniq, join, toInteger } from 'lodash-es'
 
 type VariantMatrix = number[][]
 
@@ -6,6 +6,13 @@ interface VariantRecord {
 	gene: string
 	aggregated_value: number
 	[key: string]: string | number | undefined
+}
+
+export interface LollipopRecord {
+	type: string
+	count: number
+	location: number
+	variations: string
 }
 
 export const useHelper = () => {
@@ -42,6 +49,54 @@ export const useHelper = () => {
 		}
 
 		return { matrix, sort_row_names }
+	}
+
+	const useLollipopMatrix = (data: VariantRecord[]): LollipopRecord[] => {
+		// Internal helper to extract numeric position
+		const getPosition = (str: string | undefined): number | null => {
+			if (!str) return null
+			const match = str.match(/p\.[a-zA-Z]*(\d+)/)
+			return match ? toInteger(match[1]) : null
+		}
+
+		// 1. Group & Aggregate using Lodash reduce
+		const groupedMap = reduce(
+			data,
+			(acc, item) => {
+				const count = item['aggregated_value'] as number
+				const variantClass = item['variant_class'] as string
+				const proteinChange = item['protein_change'] as string
+
+				const pos = getPosition(proteinChange)
+
+				if (pos) {
+					if (!acc[pos]) {
+						acc[pos] = {
+							count: 0,
+							location: pos,
+							rawTypes: [] as string[],
+							rawVariations: [] as string[],
+						}
+					}
+
+					acc[pos].count += count
+					if (variantClass) acc[pos].rawTypes.push(variantClass)
+					if (proteinChange) acc[pos].rawVariations.push(proteinChange)
+				}
+				return acc
+			},
+			{} as Record<number, { location: number; count: number; rawTypes: string[]; rawVariations: string[] }>,
+		)
+
+		// 2. Format and Sort using Lodash
+		const formattedList = map(values(groupedMap), (item) => ({
+			count: item.count,
+			location: item.location,
+			type: join(uniq(item.rawTypes), ', '), // uniq + join replaces Set
+			variations: join(uniq(item.rawVariations), ', '), // uniq + join replaces Set
+		}))
+
+		return sortBy(formattedList, 'location')
 	}
 
 	const color_scheme = [
@@ -319,5 +374,5 @@ export const useHelper = () => {
 		'#FF0033',
 	]
 
-	return { useVariantMatrix, color_scheme }
+	return { useVariantMatrix, useLollipopMatrix, color_scheme }
 }
