@@ -32,7 +32,7 @@ const props = defineProps({
 const chartOption = ref({
 	series: [],
 	tooltip: {
-		trigger: 'axis',
+		trigger: 'item',
 		axisPointer: { type: 'shadow' },
 		textStyle: { fontFamily: 'Lexend Deca', fontWeight: 500 },
 		valueFormatter: (value) =>
@@ -75,6 +75,7 @@ const updateChart = () => {
 	const genes_list = [].concat(route.query.genes_list || [])
 	const roundedRadii = props.horizontal ? [0, 5, 5, 0] : [5, 5, 0, 0]
 
+	chartOption.value.tooltip.trigger = props.plotData.data.length > 20 ? 'item' : 'axis'
 	chartOption.value.legend = {
 		show: false,
 		data: genes_list.map((genes_list, index) => ({
