@@ -10,6 +10,8 @@
 				@blur="handleBlur"
 				name="Search Input"
 				@focus="handleFocus"
+				@paste="handlePaste"
+				@keyup.enter="StartSearch"
 				optionGroupLabel="label"
 				aria-label="Search Input"
 				optionGroupChildren="items"
@@ -32,7 +34,6 @@
 					</div>
 				</template>
 
-				<!-- Custom option template -->
 				<template #option="slotProps">
 					<div class="flex items-center gap-2 py-0 px-2 w-full">
 						<Icon
@@ -62,7 +63,6 @@
 					</div>
 				</template>
 
-				<!-- Custom chip template for selected items -->
 				<template #chip="slotProps">
 					<div
 						:class="`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer ${
@@ -89,7 +89,6 @@
 					</div>
 				</template>
 
-				<!-- Header with instructions -->
 				<template #header>
 					<div class="px-3 py-2 bg-gray-50 border-b border-gray-200 flex flex-col gap-1">
 						<div class="text-xs text-gray-500">Select genes or pathways</div>
@@ -119,30 +118,36 @@
 			<div class="text-gray-500 text-sm ml-2">
 				<h3 class="text-sm font-semibold text-gray-700 mb-3">Example Searches:</h3>
 
-				<!-- Single Gene -->
 				<div class="mb-2">
 					<span class="text-gray-500 text-sm mr-2">Gene:</span>
 					<span
+						@click="applyExample([{ value: 'FAT1', type: 'gene' }])"
 						class="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-100 transition text-xs"
 					>
 						FAT1
 					</span>
 				</div>
 
-				<!-- Region -->
 				<div class="mb-2">
 					<span class="text-gray-500 text-sm mr-2">Region:</span>
 					<span
+						@click="applyExample([{ value: 'chr1:915188-1015188', type: 'region' }])"
 						class="inline-block bg-green-50 text-green-600 px-3 py-1 rounded-full cursor-pointer hover:bg-green-100 transition text-xs"
 					>
 						chr1:915188-1015188
 					</span>
 				</div>
 
-				<!-- Multi Genes -->
 				<div class="mb-2">
 					<span class="text-gray-500 text-sm mr-2">Multiple Genes:</span>
 					<span
+						@click="
+							applyExample([
+								{ value: 'TP53', type: 'gene' },
+								{ value: 'BRCA2', type: 'gene' },
+								{ value: 'NOTCH1', type: 'gene' },
+							])
+						"
 						class="inline-flex items-center gap-1 bg-white text-blue-600 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-100 transition"
 					>
 						<span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">TP53</span>
@@ -151,10 +156,17 @@
 					</span>
 				</div>
 
-				<!-- Multi Sites -->
 				<div>
 					<span class="text-gray-500 text-sm mr-2">Multi-sites:</span>
 					<span
+						@click="
+							applyExample([
+								{ value: 'chr11:534289', type: 'region' },
+								{ value: 'chr17:7578406', type: 'region' },
+								{ value: 'chr17:7577538', type: 'region' },
+								{ value: 'chr17:7577120', type: 'region' },
+							])
+						"
 						class="inline-flex flex-wrap items-center gap-1 bg-white text-purple-600 lg:px-3 py-1 rounded-full cursor-pointer hover:bg-purple-100 transition"
 					>
 						<span class="bg-purple-100 px-2 py-0.5 rounded-full text-xs">chr11:534289</span>
@@ -179,26 +191,118 @@ const searchSuggestions = ref([
 	{ label: 'Pathways', items: [] },
 ])
 const { AutocompleteAPI } = useGeneAPI()
+const router = useRouter()
 
 const handleFocus = () => {
-	// Logic to fetch suggestions or handle focus event
-	// console.log('Search input focused')
 	isFocused.value = true
 }
 
 const handleBlur = () => {
-	// Logic to fetch suggestions or handle focus event
-	// console.log('Search input blurred')
 	isFocused.value = false
 }
+
+// ----------------------------------------------------------------------
+// APPLY EXAMPLE SEARCH
+// ----------------------------------------------------------------------
+const applyExample = (exampleItems) => {
+	// 1. Set Visual Chips
+	// We replace the current search or append. Here I'm replacing for a "clean" example click.
+	// If you want to append, use: [...search.value, ...exampleItems]
+	search.value = exampleItems
+
+	// 2. Set Logic Values (Actual Search)
+	const newActualSearch = []
+	exampleItems.forEach((item) => {
+		if (item.type === 'pathway') {
+			// If you have example pathways, you'd need the pathway_genes data here
+			// For now, simple push
+			if (item.pathway_genes) newActualSearch.push(...item.pathway_genes)
+		} else {
+			newActualSearch.push(item.value)
+		}
+	})
+
+	// Ensure uniqueness
+	actualSearch.value = [...new Set(newActualSearch)]
+}
+
+// ----------------------------------------------------------------------
+// COPY / PASTE LOGIC
+// ----------------------------------------------------------------------
+const handlePaste = async (event) => {
+	const clipboardData = event.clipboardData || window.clipboardData
+	const pastedText = clipboardData.getData('text')
+	event.preventDefault()
+
+	if (!pastedText) return
+
+	const items = pastedText
+		.split(/[\n\r, \t]+/)
+		.map((item) => item.trim().toUpperCase())
+		.filter((item) => item.length > 0)
+
+	if (items.length === 0) return
+
+	await processPastedItems(items)
+}
+
+const processPastedItems = async (rawItems) => {
+	// 1. Filter out items already in search to avoid duplicates
+	const existingValues = search.value.map((s) => s.value.toUpperCase())
+	const newItems = rawItems.filter((item) => !existingValues.includes(item))
+
+	if (newItems.length === 0) return
+
+	const promises = newItems.map(async (item) => {
+		try {
+			const response = await AutocompleteAPI({ term: item })
+
+			if (!response || !Array.isArray(response)) return null
+
+			let allOptions = []
+			if (response[0] && response[0].items) {
+				allOptions = response.flatMap((group) => group.items || [])
+			} else {
+				allOptions = response
+			}
+
+			return allOptions.find((opt) => opt.value.toUpperCase() === item)
+		} catch (e) {
+			console.error(`Failed to validate ${item}`, e)
+			return null
+		}
+	})
+
+	const results = await Promise.all(promises)
+	const validObjects = results.filter((res) => res !== null && res !== undefined)
+
+	if (validObjects.length === 0) return
+
+	// 2. Update Visual State (Reassign for Reactivity)
+	search.value = [...search.value, ...validObjects]
+
+	// 3. Update Logic State
+	validObjects.forEach((obj) => {
+		if (obj.type === 'pathway') {
+			const pathwayGenes = obj.pathway_genes || []
+			actualSearch.value = [...new Set([...actualSearch.value, ...pathwayGenes])]
+		} else {
+			if (!actualSearch.value.includes(obj.value)) {
+				actualSearch.value.push(obj.value)
+			}
+		}
+	})
+}
+
+// ----------------------------------------------------------------------
+// EXISTING LOGIC
+// ----------------------------------------------------------------------
 
 const StartSearch = () => {
 	if (actualSearch.value.length === 0) {
 		return
 	}
 
-	// Navigate to search page with genes_list as query parameter
-	const router = useRouter()
 	router.push({
 		path: '/search',
 		query: {
@@ -210,29 +314,20 @@ const StartSearch = () => {
 const ItemSelect = (event) => {
 	if (event.value.type === 'pathway') {
 		const pathwayGenes = event.value.pathway_genes
-		// Remove duplicates and merge with existing
 		const uniqueGenes = [...new Set([...actualSearch.value, ...pathwayGenes])]
 		actualSearch.value = uniqueGenes
 	} else if (event.value.type === 'gene') {
-		// Check if gene already exists
 		if (!actualSearch.value.includes(event.value.value)) {
 			actualSearch.value.push(event.value.value)
 		}
 	}
-	console.log('Selected item:', event.value)
 }
 
 const SearchGenePathway = async (event) => {
 	try {
 		const response = await AutocompleteAPI({ term: event.query })
 		if (response) {
-			// const genes = response.suggestions.filter((item) => item.type === 'gene')
-			// const pathways = response.suggestions.filter((item) => item.type === 'pathway')
 			searchSuggestions.value = response
-			// = [
-			// 	{ label: 'Genes', items: genes },
-			// 	{ label: 'Pathways', items: pathways },
-			// ]
 		} else {
 			searchSuggestions.value = []
 		}
@@ -267,14 +362,6 @@ const SearchGenePathway = async (event) => {
 	transition: all 1s ease-in-out;
 	min-width: calc(100% + 5rem + 4px);
 	animation: spin 10s linear infinite;
-	/* background-image: conic-gradient(
-		from var(--rotate),
-		#ffffff 0%,
-		#1c398e 86%,
-		#a5b4fc 90%,
-		#1c398e 94%,
-		#d70249 90%
-	); */
 	background-image: conic-gradient(
 		from var(--rotate),
 		#fbb1bd 0%,
