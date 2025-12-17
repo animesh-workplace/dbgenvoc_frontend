@@ -29,6 +29,7 @@
 	"devDependencies": {
 		"@iconify/json": "^2.2.371",
 		"@nuxtjs/google-fonts": "^3.2.0",
-		"@primevue/nuxt-module": "^4.3.7"
+		"@primevue/nuxt-module": "^4.3.7",
+		"@types/lodash-es": "^4.17.12"
 	}
 }
