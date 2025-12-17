@@ -33,7 +33,7 @@
 				<button
 					:key="gene"
 					@click="handleLegendClick(gene)"
-					v-for="(gene, index) in genesList"
+					v-for="(gene, index) in visibleGenes"
 					:style="{ backgroundColor: color_scheme[index] + '33' }"
 					class="flex items-center space-x-2 px-3 py-1 rounded-full text-sm transition-all border"
 					:class="
@@ -44,6 +44,15 @@
 				>
 					<span class="w-3 h-3 rounded-full" :style="{ backgroundColor: color_scheme[index] }"></span>
 					<span class="font-medium text-gray-700">{{ gene }}</span>
+				</button>
+
+				<button
+					v-if="genesList.length > GENE_LIMIT"
+					@click="isExpanded = !isExpanded"
+					class="flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer border border-blue-100"
+				>
+					<span>{{ isExpanded ? 'Show Less' : `+${genesList.length - GENE_LIMIT} More` }}</span>
+					<Icon :name="isExpanded ? 'tabler:chevron-up' : 'tabler:chevron-down'" class="w-4 h-4" />
 				</button>
 			</div>
 
@@ -93,7 +102,7 @@
 							:isPercent="percentageSwitcher"
 							:plotData="variantClassNoncoding[disease]"
 							:ref="(el) => setGraphRef(el, disease, 'noncoding')"
-							:horizontal="variantClassNoncoding[disease]?.categories?.length > 3"
+							:horizontal="variantClassNoncoding[disease]?.categories?.length > 4"
 						/>
 					</div>
 
@@ -123,16 +132,20 @@
 			<div class="px-8 pt-8 text-center">
 				<div class="pb-2 text-sm font-semibold text-gray-700">Lollipop Plot</div>
 
-				<Tabs v-model:value="selectedTab" scrollable>
+				<Tabs
+					v-model:value="selectedTab"
+					scrollable
+					@update:value="() => console.log('Value emitted from tabs')"
+				>
 					<TabList>
-						<Tab v-for="(gene, index) in genesList" :key="index" :value="index">
+						<Tab v-for="(gene, index) in genesList" :key="index" :value="gene">
 							{{ gene }}
 						</Tab>
 					</TabList>
 					<TabPanels>
-						<TabPanel v-for="(gene, index) in genesList" :key="index" :value="index">
+						<TabPanel v-for="(gene, index) in genesList" :key="index" :value="gene">
 							<p class="m-0">{{ gene }}</p>
-							<GraphLollipop />
+							<GraphLollipop :dataPoints="lollipopData" />
 						</TabPanel>
 					</TabPanels>
 				</Tabs>
@@ -144,7 +157,6 @@
 <script setup>
 import { useGeneAPI } from '@/api/geneAPI'
 import { useHelper } from '@/composables/useHelper'
-import { group } from '@primeuix/themes/aura/avatar'
 import { uniq, map, sumBy, forEach, filter } from 'lodash-es'
 
 // --- Constants ---
@@ -171,8 +183,8 @@ const SNV_CATEGORIES = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 
 
 // --- Setup & Refs ---
 const route = useRoute()
-const { useVariantMatrix, color_scheme } = useHelper()
 const { AggregateAPI, ConcateAggregateAPI } = useGeneAPI()
+const { useVariantMatrix, useLollipopMatrix, color_scheme } = useHelper()
 
 const props = defineProps({
 	noData: Boolean,
@@ -180,8 +192,10 @@ const props = defineProps({
 	sectionName: String,
 })
 
-const selectedTab = ref(0)
+const GENE_LIMIT = 20
 const isLoading = ref(true)
+const isExpanded = ref(false)
+const selectedTab = ref(null)
 const percentageSwitcher = ref(false)
 const genesList = computed(() => [].concat(route.query.genes_list || []))
 
@@ -193,6 +207,7 @@ const variantType = ref({})
 const hiddenSeries = ref([])
 const variantClassCoding = ref({})
 const variantClassNoncoding = ref({})
+const lollipopData = ref([])
 
 // --- Graph Ref Helper ---
 const setGraphRef = (el, d, t) => {
@@ -212,6 +227,12 @@ const handleLegendClick = (gene) => {
 		}
 	})
 }
+
+const visibleGenes = computed(() => {
+	// If expanded, show everything. If not, slice the array.
+	if (isExpanded.value) return genesList.value
+	return genesList.value.slice(0, GENE_LIMIT)
+})
 
 // --- Data Processors ---
 
@@ -351,10 +372,11 @@ const fetchData = async () => {
 					conditions: [...filters.conditions, { column: 'variant_type', operator: 'eq', value: 'SNP' }],
 				},
 			}),
+			// 4. Lollipop Data (Need better grouping)
 			AggregateAPI(props.tableName, {
 				column: 'protein_change',
-				group_by: ['protein_change', 'variant_class'],
 				aggregation_type: 'count',
+				group_by: ['protein_change', 'variant_class'],
 				filters: {
 					logic: 'AND',
 					conditions: [
@@ -365,9 +387,13 @@ const fetchData = async () => {
 			}),
 		])
 
+		console.log('Lollipop Data:', useLollipopMatrix(lolliRes.result || []))
+		lollipopData.value = map(useLollipopMatrix(lolliRes.result || []), (item) => [item.location, item.count])
+
 		// Combine results to find ALL diseases present across datasets
 		const allData = [...(typeRes.result || []), ...(classRes.result || []), ...(snvRes.result || [])]
 		diseaseList.value = uniq(map(allData, 'disease')).sort()
+		selectedTab.value = genesList.value[0]
 
 		// Run Processors
 		processSNVClass(snvRes.result || [], snvRes.group_totals)
