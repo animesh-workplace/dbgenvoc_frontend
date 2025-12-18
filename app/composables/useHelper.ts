@@ -52,6 +52,9 @@ export const useHelper = () => {
 	}
 
 	const useLollipopMatrix = (data: any[]): any[] => {
+		let colorIndex = 0
+		const diseaseColorAssignment: Record<string, string> = {}
+
 		const getPosition = (str: string | undefined): number | null => {
 			if (!str) return null
 			const match = str.match(/p\.[a-zA-Z]*(\d+)/)
@@ -99,10 +102,22 @@ export const useHelper = () => {
 			type: join(uniq(item.rawTypes), ', '),
 			variations: join(uniq(item.rawVariations), ', '),
 			// Convert the map to the array format required for ECharts Pie
-			diseaseBreakdown: map(item.diseaseMap, (count, disease) => ({
-				value: count,
-				name: disease,
-			})),
+			diseaseBreakdown: map(item.diseaseMap, (count, disease: string) => {
+				const name: string = disease.trim()
+
+				// If we haven't seen this disease yet, assign it the next color in the array
+				if (!diseaseColorAssignment[name]) {
+					diseaseColorAssignment[name] =
+						DISEASE_COLOR_MAP[colorIndex % DISEASE_COLOR_MAP.length] ?? '#000000'
+					colorIndex++
+				}
+
+				return {
+					value: count,
+					name: disease,
+					itemStyle: { color: diseaseColorAssignment[name] },
+				}
+			}),
 		}))
 
 		return sortBy(formattedList, 'location')
@@ -440,11 +455,14 @@ export const useHelper = () => {
 		'#FF0033',
 	]
 
+	const DISEASE_COLOR_MAP = ['#04F757', '#FF2F80', '#9B9700']
+
 	return {
 		color_scheme,
 		SNV_CATEGORIES,
 		CODING_VARIANTS,
 		useVariantMatrix,
+		DISEASE_COLOR_MAP,
 		useLollipopMatrix,
 		VARIANT_COLOR_MAP,
 		NON_CODING_VARIANTS,
