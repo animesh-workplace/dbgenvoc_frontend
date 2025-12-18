@@ -51,21 +51,20 @@ export const useHelper = () => {
 		return { matrix, sort_row_names }
 	}
 
-	const useLollipopMatrix = (data: VariantRecord[]): LollipopRecord[] => {
-		// Internal helper to extract numeric position
+	const useLollipopMatrix = (data: any[]): any[] => {
 		const getPosition = (str: string | undefined): number | null => {
 			if (!str) return null
 			const match = str.match(/p\.[a-zA-Z]*(\d+)/)
-			return match ? toInteger(match[1]) : null
+			return match && match[1] ? toInteger(match[1]) : null
 		}
 
-		// 1. Group & Aggregate using Lodash reduce
 		const groupedMap = reduce(
 			data,
 			(acc, item) => {
 				const count = item['aggregated_value'] as number
 				const variantClass = item['variant_class'] as string
 				const proteinChange = item['protein_change'] as string
+				const disease = item['disease'] as string // Ensure this is in your group_by
 
 				const pos = getPosition(proteinChange)
 
@@ -76,29 +75,38 @@ export const useHelper = () => {
 							location: pos,
 							rawTypes: [] as string[],
 							rawVariations: [] as string[],
+							diseaseMap: {} as Record<string, number>, // Track counts per disease
 						}
 					}
 
 					acc[pos].count += count
 					if (variantClass) acc[pos].rawTypes.push(variantClass)
 					if (proteinChange) acc[pos].rawVariations.push(proteinChange)
+
+					// Aggregate disease counts for the pie chart
+					if (disease) {
+						acc[pos].diseaseMap[disease] = (acc[pos].diseaseMap[disease] || 0) + count
+					}
 				}
 				return acc
 			},
-			{} as Record<number, { location: number; count: number; rawTypes: string[]; rawVariations: string[] }>,
+			{} as Record<number, any>,
 		)
 
-		// 2. Format and Sort using Lodash
 		const formattedList = map(values(groupedMap), (item) => ({
 			count: item.count,
 			location: item.location,
-			type: join(uniq(item.rawTypes), ', '), // uniq + join replaces Set
-			variations: join(uniq(item.rawVariations), ', '), // uniq + join replaces Set
+			type: join(uniq(item.rawTypes), ', '),
+			variations: join(uniq(item.rawVariations), ', '),
+			// Convert the map to the array format required for ECharts Pie
+			diseaseBreakdown: map(item.diseaseMap, (count, disease) => ({
+				value: count,
+				name: disease,
+			})),
 		}))
 
 		return sortBy(formattedList, 'location')
 	}
-
 	// --- Constants ---
 	const VARIANT_COLOR_MAP = {
 		// --- Major Coding Variants (Standard Palette) ---
