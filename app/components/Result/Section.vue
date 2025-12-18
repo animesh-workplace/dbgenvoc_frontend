@@ -178,8 +178,22 @@
 								<GraphLollipop
 									:dataPoints="lollipopData"
 									:dataDomain="lollipopDomain"
+									v-if="lollipopCategories.length"
 									:hiddenCategories="hiddenLollipopSeries"
 								/>
+
+								<div
+									v-else
+									class="flex flex-col items-center justify-center min-h-[20rem] bg-gray-50/50 rounded-xl mt-4"
+								>
+									<Icon name="tabler:database-off" class="!w-12 !h-12 text-gray-400" />
+									<h3 class="text-lg font-semibold text-gray-700">No Variations Found</h3>
+									<p class="text-gray-500 text-sm max-w-sm text-center mt-1">
+										There are no recorded protein-changing variants for
+										<span class="font-mono font-bold text-blue-600">{{ gene }}</span> in the
+										current dataset.
+									</p>
+								</div>
 							</template>
 						</TabPanel>
 					</TabPanels>
