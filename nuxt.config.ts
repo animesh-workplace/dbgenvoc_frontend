@@ -25,6 +25,7 @@ export default defineNuxtConfig({
 	devServer: { port: 3011 },
 	devtools: { enabled: true },
 	compatibilityDate: '2025-07-15',
+	features: { inlineStyles: true },
 	css: ['@/assets/css/tailwind.css'],
 	app: {
 		baseURL: process.env.ROUTER_BASE || '/dbgenvoc/',
@@ -35,7 +36,10 @@ export default defineNuxtConfig({
 		},
 	},
 	build: { transpile: ['echarts', 'echarts-gl', 'zrender'] },
-	vite: { plugins: [tailwindcss()] },
+	vite: {
+		plugins: [tailwindcss()],
+		build: { cssCodeSplit: true },
+	},
 	googleFonts: {
 		preload: true,
 		prefetch: true,
