@@ -39,7 +39,7 @@
 					:class="
 						!hiddenSeries.includes(gene)
 							? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
-							: 'border-gray-200 opacity-70 inset-shadow-sm hover:inset-shadow-md cursor-pointer'
+							: 'border-gray-200 opacity-70 grayscale inset-shadow-sm hover:inset-shadow-md cursor-pointer'
 					"
 				>
 					<span class="w-3 h-3 rounded-full" :style="{ backgroundColor: color_scheme[index] }"></span>
@@ -162,7 +162,7 @@
 										:class="
 											!hiddenLollipopSeries.includes(category)
 												? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
-												: 'border-gray-200 opacity-50 grayscale inset-shadow-sm cursor-pointer'
+												: 'border-gray-200 opacity-70 grayscale inset-shadow-sm cursor-pointer'
 										"
 									>
 										<span
@@ -225,11 +225,11 @@ const VARIANT_COLOR_MAP = {
 	// --- Non-Coding Variants (Yellows / Teals / Darks) ---
 	IGR: '#637939',
 	ncRNA: '#393b79',
+	Mixed: '#333333',
 	Intron: '#546e7a',
 	"3'UTR": '#bcbd22',
 	"5'UTR": '#dbdb8d',
 	"5'Flank": '#9edae5',
-	Mixed: '#333333',
 }
 const CODING_VARIANTS = [
 	'Silent',
@@ -276,11 +276,11 @@ const graphRefs = ref({})
 const diseaseList = ref([])
 const variantType = ref({})
 const hiddenSeries = ref([])
-const hiddenLollipopSeries = ref([])
 const lollipopData = ref([])
 const lollipopDomain = ref({})
 const variantClassCoding = ref({})
 const lollipopCategories = ref([])
+const hiddenLollipopSeries = ref([])
 const variantClassNoncoding = ref({})
 
 // --- Graph Ref Helper ---
@@ -317,7 +317,6 @@ const visibleGenes = computed(() => {
 })
 
 // --- Data Processors ---
-
 const processVariantType = (result, group_total) => {
 	forEach(diseaseList.value, (disease) => {
 		const diseaseData = filter(result, (r) => r.disease === disease)
@@ -447,6 +446,7 @@ const processLollipopData = async (gene) => {
 			value: [item.location, item.count],
 			type: item.type.replaceAll('_', ' '),
 			itemStyle: { color: VARIANT_COLOR_MAP[item.type] || '#333333' },
+			header: item.type.includes(',') ? 'Mixed' : item.type.replaceAll('_', ' '),
 		})),
 	}
 	lollipopDomain.value = {
