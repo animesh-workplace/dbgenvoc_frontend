@@ -9,6 +9,7 @@
 import { map, filter } from 'lodash-es'
 // Define a fixed height for the background track (Genomic Backbone)
 const TRACK_HEIGHT = 23
+const pieCenters = ref([])
 const isLoading = ref(true)
 const chartContainer = ref(null)
 
@@ -42,24 +43,23 @@ const props = defineProps({
 })
 
 // --- Helpers ---
-const calculateDimensions = () => {
-	if (!chartContainer.value?.$el) return
-	return [chartContainer.value.$el.clientWidth, chartContainer.value.$el.clientHeight]
-}
+const updatePieCenters = () => {
+	// 1. Safety check for the VChart component ref
+	if (!chartContainer.value) return
 
-const calculatePiePosition = (categoryIndex, value, maxValue) => {
-	if (!value) return ['0%', '0%']
+	// 2. Access the ECharts instance safely
+	const chartInstance =
+		chartContainer.value.getChart?.() || chartContainer.value.chartInstance || chartContainer.value.chart
+	if (!chartInstance) return
 
-	// Recalculate percentages based on the specific coordinate (value[0] is X, value[1] is Y)
-	const baseXPercent = (value[0] / (maxValue + 100)) * 100
-	const shiftXPercent = 0.4 - 1.2 * (baseXPercent / 100)
-	const xPercent = baseXPercent + shiftXPercent
-
-	const baseYPercent = (value[1] / (props.dataPoints.maxValue + 2)) * 100
-	const shiftYPercent = 15.5 - 0.155 * baseYPercent
-	const yPercent = baseYPercent + shiftYPercent
-
-	return [xPercent + '%', 100 - yPercent + '%']
+	// 3. Map visible data points to pixel coordinates
+	pieCenters.value = map(props.dataPoints?.data || [], (point) => {
+		try {
+			return chartInstance.convertToPixel({ xAxisId: 'mainXAxis', yAxisId: 'mainYAxis' }, point.value)
+		} catch (e) {
+			return ['-100%', '-100%']
+		}
+	})
 }
 
 const truncateText = (text, maxWidth, fontSize = 10) => {
@@ -71,49 +71,32 @@ const truncateText = (text, maxWidth, fontSize = 10) => {
 	return text
 }
 
-// --- Reactive Chart Option ---
 // Using computed() ensures this object rebuilds whenever props.dataPoints or props.pieDataArray changes
 const chartOption = computed(() => {
 	const domainAxisMax = props.dataDomain.length
 
 	// 1. FILTER DATA based on hiddenCategories
-	const visibleData = (props.dataPoints?.data || []).filter(
+	const visibleData = filter(
+		props.dataPoints?.data || [],
 		(item) => !props.hiddenCategories.includes(item.header.replaceAll(' ', '_')),
 	)
-	const stemData = visibleData.map((item) => ({ value: item.value }))
-	const visiblePieData = (props.pieDataArray || []).filter(
-		(item) => !props.hiddenCategories.includes(item.header.replaceAll(' ', '_')),
-	)
+	const stemData = map(visibleData, (item) => ({ value: item.value }))
 
-	const dynamicPieSeries = map(visiblePieData, (pieData, index) => {
-		const coordinate = visibleData[index]?.value || [0, 0]
-
+	// 2. DYNAMIC PIE SERIES based on visible data
+	const dynamicPieSeries = map(props.pieDataArray, (pieData, index) => {
 		return {
-			z: 10,
+			z: 0,
 			type: 'pie',
 			padAngle: 5,
+			silent: true,
 			data: pieData,
 			showInLegend: false,
-			radius: ['12%', '7%'],
+			radius: ['7%', '10%'],
 			label: { show: false },
-			xAxisId: 'lollipopXAxis',
-			yAxisId: 'lollipopYAxis',
 			labelLine: { show: false },
-			name: `Distribution ${index}`, // Unique name
-			// Recalculate position for this specific point
-			center: calculatePiePosition(index, coordinate, currentMaxX),
-			itemStyle: {
-				borderWidth: 1,
-				borderRadius: 2,
-				borderColor: '#fff',
-			},
-			emphasis: {
-				itemStyle: {
-					shadowBlur: 5,
-					shadowOffsetX: 0,
-					shadowColor: 'rgba(0, 0, 0, 0.3)',
-				},
-			},
+			emphasis: { disabled: true },
+			itemStyle: { borderRadius: 5 },
+			center: pieCenters.value[index],
 		}
 	})
 
@@ -138,6 +121,7 @@ const chartOption = computed(() => {
 		yAxis: {
 			show: false,
 			type: 'value',
+			id: 'mainYAxis',
 			axisTick: { show: true },
 			splitLine: { show: false },
 			max: props.dataPoints.maxValue + 2,
@@ -147,6 +131,7 @@ const chartOption = computed(() => {
 		xAxis: {
 			min: 0,
 			type: 'value',
+			id: 'mainXAxis',
 			max: domainAxisMax,
 			position: 'bottom',
 			axisTick: { show: true },
@@ -299,9 +284,24 @@ const chartOption = computed(() => {
 onMounted(() => {
 	nextTick(() => {
 		isLoading.value = false
-		setTimeout(calculateDimensions, 50)
+		// setTimeout(calculateDimensions, 50)
+		setTimeout(updatePieCenters, 50)
 	})
 })
+
+useResizeObserver(chartContainer, () => {
+	nextTick(() => {
+		updatePieCenters()
+	})
+})
+
+watch(
+	() => props.dataPoints,
+	() => {
+		setTimeout(updatePieCenters, 50)
+	},
+	{ deep: true },
+)
 </script>
 
 <style scoped>
