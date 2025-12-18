@@ -6,12 +6,15 @@
 </template>
 
 <script setup>
-import { map } from 'lodash-es'
+import { map, filter } from 'lodash-es'
+// Define a fixed height for the background track (Genomic Backbone)
+const TRACK_HEIGHT = 23
 const isLoading = ref(true)
 const chartContainer = ref(null)
 
 const props = defineProps({
 	pieDataArray: { type: Array, default: () => [] },
+	hiddenCategories: { type: Array, default: () => [] },
 	dataPoints: { type: Object, default: () => ({ maxValue: 7, data: [] }) },
 	dataDomain: {
 		type: Object,
@@ -71,17 +74,19 @@ const truncateText = (text, maxWidth, fontSize = 10) => {
 // --- Reactive Chart Option ---
 // Using computed() ensures this object rebuilds whenever props.dataPoints or props.pieDataArray changes
 const chartOption = computed(() => {
-	// 1. Calculate dynamic scaling based on current props
-	const currentMaxX = props.dataDomain.length
 	const domainAxisMax = props.dataDomain.length
-	const stemData = map(props.dataPoints?.data || [], (item) => ({
-		value: item.value,
-	}))
 
-	// 2. Generate Pie Series dynamically
-	// We map over props.pieDataArray and use corresponding coordinate from props.dataPoints
-	const dynamicPieSeries = map(props.pieDataArray, (pieData, index) => {
-		const coordinate = props.dataPoints[index] || [0, 0]
+	// 1. FILTER DATA based on hiddenCategories
+	const visibleData = (props.dataPoints?.data || []).filter(
+		(item) => !props.hiddenCategories.includes(item.type.replaceAll(' ', '_')),
+	)
+	const stemData = visibleData.map((item) => ({ value: item.value }))
+	const visiblePieData = (props.pieDataArray || []).filter(
+		(item) => !props.hiddenCategories.includes(item.type.replaceAll(' ', '_')),
+	)
+
+	const dynamicPieSeries = map(visiblePieData, (pieData, index) => {
+		const coordinate = visibleData[index]?.value || [0, 0]
 
 		return {
 			z: 10,
@@ -113,8 +118,7 @@ const chartOption = computed(() => {
 	})
 
 	return {
-		animation: true,
-		// --- ADDED TOOLTIP CONFIGURATION ---
+		animation: false,
 		tooltip: {
 			show: true,
 			confine: true,
@@ -124,80 +128,68 @@ const chartOption = computed(() => {
 			extraCssText: 'padding: 0;',
 			textStyle: { fontSize: 12, color: '#374151', fontFamily: 'Lexend Deca' },
 		},
-		yAxis: [
-			{
-				show: false,
-				type: 'category',
-				position: 'left',
-				id: 'normalYAxis',
-				axisTick: { show: true },
-				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-				data: map(Array.from({ length: props.dataPoints.maxValue }), (_, i) => i + 1),
-			},
-			{
-				min: -1,
-				show: false,
-				type: 'value',
-				position: 'left',
-				id: 'lollipopYAxis',
-				splitLine: { show: false },
-				max: props.dataPoints.maxValue + 2,
-				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-			},
-		],
-		xAxis: [
-			{
-				show: false,
-				type: 'value',
-				id: 'normalXAxis',
-				position: 'bottom',
-				axisTick: { show: true },
-				axisLine: { show: true },
-				splitLine: { show: false },
-				max: domainAxisMax, // Dynamic Max
-				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-			},
-			{
-				show: true,
-				type: 'value',
-				position: 'bottom',
-				id: 'lollipopXAxis',
-				axisLine: { show: true },
-				splitLine: { show: false },
-				max: domainAxisMax, // Dynamic Max
-				axisTick: { show: true, alignWithLabel: true },
-				axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
-			},
-		],
 		grid: {
 			top: '0%',
 			left: '0%',
 			right: '0%',
-			bottom: '0%',
+			bottom: '2%', // Space for X-axis labels
 			outerBoundsMode: 'same',
 		},
+		yAxis: {
+			show: false,
+			type: 'value',
+			axisTick: { show: true },
+			splitLine: { show: false },
+			max: props.dataPoints.maxValue + 2,
+			min: props.dataPoints.maxValue > 10 ? -2 : -1,
+			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		},
+		xAxis: {
+			min: 0,
+			type: 'value',
+			// offset: 15,
+			max: domainAxisMax,
+			position: 'bottom',
+			axisTick: { show: true },
+			splitLine: { show: false },
+			axisLine: { show: true, onZero: false },
+			axisLabel: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		},
 		series: [
+			// 1. BACKGROUND TRACK (The Grey Bar)
 			{
 				z: 1,
-				type: 'bar',
-				barWidth: 15,
 				silent: true,
-				xAxisId: 'normalXAxis',
-				yAxisId: 'normalYAxis',
-				data: [domainAxisMax], // Ensure background bar stretches to new max
-				itemStyle: { borderRadius: 30, color: '#4b5563', opacity: 0.2 },
-			},
-			{
-				z: 10,
 				type: 'custom',
-				xAxisId: 'normalXAxis',
-				yAxisId: 'normalYAxis',
-				data: props.dataDomain.structure, // Static background rectangles
+				// We only need one entry: from 0 to domainAxisMax
+				data: [[0, domainAxisMax]],
 				renderItem(params, api) {
-					const categoryIndex = api.value(0)
-					const start = api.coord([api.value(1), categoryIndex])
-					const end = api.coord([api.value(2), categoryIndex])
-					const height = api.size([0, 1])[1] * 0.5
+					// Calculate pixels for start (0) and end (max) at Y=0
+					const start = api.coord([0, 0])
+					const end = api.coord([api.value(1), 0])
+					const width = end[0] - start[0]
+
+					return {
+						type: 'rect',
+						shape: {
+							x: start[0],
+							y: start[1],
+							width: width,
+							r: TRACK_HEIGHT / 2,
+							height: TRACK_HEIGHT - 8,
+						},
+						style: { fill: '#4b5563', opacity: 0.3 },
+					}
+				},
+			},
+			// 2. DOMAIN REGIONS (The Colored Rectangles)
+			{
+				z: 4,
+				type: 'custom',
+				data: props.dataDomain.structure,
+				renderItem(params, api) {
+					const start = api.coord([api.value(1), 0])
+					const end = api.coord([api.value(2), 0])
 					const rectWidth = end[0] - start[0]
 
 					return {
@@ -206,31 +198,29 @@ const chartOption = computed(() => {
 							{
 								type: 'rect',
 								shape: {
-									height,
+									r: 8,
 									x: start[0],
 									width: rectWidth,
-									r: 8,
-									y: start[1] - height / 2,
+									height: TRACK_HEIGHT,
+									y: start[1] - 0.2 * TRACK_HEIGHT,
 								},
 								style: api.style(),
 							},
 							{
 								type: 'text',
 								style: {
-									y: start[1],
 									fontSize: 10,
 									fontWeight: 400,
 									textAlign: 'center',
 									fontFamily: 'Lexend Deca',
-									x: start[0] + rectWidth / 2,
 									textVerticalAlign: 'middle',
+									x: start[0] + rectWidth / 2,
+									y: start[1] + TRACK_HEIGHT / 2 - 0.15 * TRACK_HEIGHT,
 									text: truncateText(
 										props.dataDomain.structure[params.dataIndex].name,
 										rectWidth,
-										10,
 									),
 								},
-								z: 10,
 							},
 						],
 					}
@@ -247,27 +237,21 @@ const chartOption = computed(() => {
 					},
 				},
 			},
-			// Stem series (Reactive to props.dataPoints)
+			// 3. STEMS (Grow from Y=0)
 			{
-				z: -1,
+				z: 2,
 				type: 'bar',
 				barWidth: 2,
 				silent: true,
-				name: 'Stems',
 				data: stemData,
-				xAxisId: 'lollipopXAxis',
-				yAxisId: 'lollipopYAxis',
 				itemStyle: { color: '#666666' },
 			},
-			// Dot series (Reactive to props.dataPoints)
+			// 4. DOTS (Scatter)
 			{
-				name: 'Values',
+				z: 3,
 				symbolSize: 20,
 				type: 'scatter',
-				xAxisId: 'lollipopXAxis',
-				yAxisId: 'lollipopYAxis',
-				data: props.dataPoints.data,
-				itemStyle: { color: 'red' },
+				data: visibleData,
 				tooltip: {
 					formatter: (params) => {
 						return `
@@ -275,13 +259,13 @@ const chartOption = computed(() => {
 							<div class="flex items-center justify-center gap-2 border-b border-gray-400 pb-2 bg-gray-200 px-4 pt-2">
 								<span class="font-bold text-base text-gray-900">${params.data.type}</span>
 							</div>
-                
+
 							<div class="flex flex-col gap-1 bg-gray-50 p-2">
 								<div class="flex justify-between gap-4">
 									<span class="text-gray-500 font-medium">Location:</span>
 									<span class="font-semibold">${params.value[0]}</span>
 								</div>
-								
+
 								<div class="flex justify-between gap-4">
 									<span class="text-gray-500 font-medium">Count:</span>
 									<span class="font-semibold">${params.value[1]}</span>
@@ -299,7 +283,7 @@ const chartOption = computed(() => {
 			},
 
 			// Dynamic Pie Series
-			...dynamicPieSeries,
+			// ...dynamicPieSeries,
 		],
 	}
 })
