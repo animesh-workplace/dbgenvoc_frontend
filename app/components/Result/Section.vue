@@ -178,6 +178,7 @@
 								<GraphLollipop
 									:dataPoints="lollipopData"
 									:dataDomain="lollipopDomain"
+									:pieDataArray="lollipopPieData"
 									v-if="lollipopCategories.length"
 									:hiddenCategories="hiddenLollipopSeries"
 								/>
@@ -241,6 +242,7 @@ const variantType = ref({})
 const hiddenSeries = ref([])
 const lollipopData = ref([])
 const lollipopDomain = ref({})
+const lollipopPieData = ref([])
 const variantClassCoding = ref({})
 const lollipopCategories = ref([])
 const hiddenLollipopSeries = ref([])
@@ -410,6 +412,7 @@ const processLollipopData = async (gene) => {
 			type: item.type.replaceAll('_', ' '),
 			itemStyle: { color: VARIANT_COLOR_MAP[item.type] || '#333333' },
 			header: item.type.includes(',') ? 'Mixed' : item.type.replaceAll('_', ' '),
+			diseaseBreakdown: diseaseList.value.length > 1 ? item.diseaseBreakdown : [],
 		})),
 	}
 	lollipopDomain.value = {
@@ -420,6 +423,8 @@ const processLollipopData = async (gene) => {
 			value: [0, region.start, region.end, 0],
 		})),
 	}
+	lollipopPieData.value =
+		diseaseList.value.length > 1 ? map(lollipopDataMatrix, (item) => item.diseaseBreakdown) : []
 }
 
 // --- Main Fetcher ---
