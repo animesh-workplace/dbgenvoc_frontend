@@ -107,8 +107,6 @@
 </template>
 
 <script setup>
-import { useIntersectionObserver } from '@vueuse/core'
-
 const somaticVariationType = ref('Exome')
 const somaticVariationOptions = ref(['Exome', 'Whole Genome'])
 
