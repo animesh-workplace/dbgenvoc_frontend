@@ -274,7 +274,7 @@ const chartOption = computed(() => {
 				},
 			},
 
-			// Dynamic Pie Series
+			// 5. Dynamic Pie Series
 			...dynamicPieSeries,
 		],
 	}
@@ -284,7 +284,6 @@ const chartOption = computed(() => {
 onMounted(() => {
 	nextTick(() => {
 		isLoading.value = false
-		// setTimeout(calculateDimensions, 50)
 		setTimeout(updatePieCenters, 50)
 	})
 })
