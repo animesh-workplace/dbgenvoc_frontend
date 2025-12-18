@@ -148,31 +148,39 @@
 							{{ gene }}
 						</Tab>
 					</TabList>
+
 					<TabPanels>
 						<TabPanel v-for="(gene, index) in genesList" :key="index" :value="gene">
-							<div class="flex flex-wrap justify-center gap-2 mt-4">
-								<button
-									:key="index"
-									v-for="(category, index) in lollipopCategories"
-									:style="{ backgroundColor: VARIANT_COLOR_MAP[category] + '33' }"
-									class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border"
-									:class="
-										!hiddenSeries.includes(category)
-											? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
-											: 'border-gray-200 opacity-70 inset-shadow-sm hover:inset-shadow-md cursor-pointer'
-									"
-								>
-									<span
-										class="w-3 h-3 rounded-full"
-										:style="{ backgroundColor: VARIANT_COLOR_MAP[category] }"
-									></span>
-									<span class="font-medium text-gray-700">{{
-										category.replaceAll('_', ' ')
-									}}</span>
-								</button>
-							</div>
+							<template v-if="selectedTab == gene">
+								<div class="flex flex-wrap justify-center gap-2 mt-4">
+									<button
+										:key="index"
+										@click="toggleSeries(category)"
+										v-for="(category, index) in lollipopCategories"
+										:style="{ backgroundColor: VARIANT_COLOR_MAP[category] + '33' }"
+										class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border"
+										:class="
+											!hiddenLollipopSeries.includes(category)
+												? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
+												: 'border-gray-200 opacity-50 grayscale inset-shadow-sm cursor-pointer'
+										"
+									>
+										<span
+											class="w-3 h-3 rounded-full"
+											:style="{ backgroundColor: VARIANT_COLOR_MAP[category] }"
+										/>
+										<span class="font-medium text-gray-700">
+											{{ category.replaceAll('_', ' ') }}
+										</span>
+									</button>
+								</div>
 
-							<GraphLollipop :dataPoints="lollipopData" :dataDomain="lollipopDomain" />
+								<GraphLollipop
+									:dataPoints="lollipopData"
+									:dataDomain="lollipopDomain"
+									:hiddenCategories="hiddenLollipopSeries"
+								/>
+							</template>
 						</TabPanel>
 					</TabPanels>
 				</Tabs>
@@ -268,6 +276,7 @@ const graphRefs = ref({})
 const diseaseList = ref([])
 const variantType = ref({})
 const hiddenSeries = ref([])
+const hiddenLollipopSeries = ref([])
 const lollipopData = ref([])
 const lollipopDomain = ref({})
 const variantClassCoding = ref({})
@@ -291,6 +300,14 @@ const handleLegendClick = (gene) => {
 			forEach(Object.values(graphRefs.value[d]), (g) => g?.toggleSeries(gene))
 		}
 	})
+}
+
+const toggleSeries = (category) => {
+	if (hiddenLollipopSeries.value.includes(category)) {
+		hiddenLollipopSeries.value = hiddenLollipopSeries.value.filter((c) => c !== category)
+	} else {
+		hiddenLollipopSeries.value.push(category)
+	}
 }
 
 const visibleGenes = computed(() => {
