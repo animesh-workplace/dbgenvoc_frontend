@@ -381,7 +381,7 @@ const processLollipopData = async (gene) => {
 		AggregateAPI(props.tableName, {
 			column: 'protein_change',
 			aggregation_type: 'count',
-			group_by: ['protein_change', 'variant_class'],
+			group_by: ['protein_change', 'variant_class', 'disease'],
 			filters: {
 				logic: 'AND',
 				conditions: [
@@ -430,14 +430,12 @@ const fetchData = async () => {
 
 	// Clear previous refs to avoid stale tooltip issues
 	graphRefs.value = {}
-
 	const filters = {
 		logic: 'AND',
 		conditions: [{ column: 'gene', operator: 'in', value: genesList.value }],
 	}
 
 	const aggType = percentageSwitcher.value ? 'percentage' : 'count'
-
 	try {
 		const [geneRes, typeRes, classRes, snvRes] = await Promise.all([
 			// 0. Gene list
