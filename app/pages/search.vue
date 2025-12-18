@@ -23,7 +23,7 @@
 			/>
 		</div>
 
-		<!-- <section>
+		<section>
 			<ResultSection
 				sectionName="dbGENVOC"
 				:tableName="
@@ -31,41 +31,41 @@
 				"
 			/>
 		</section>
-		<Divider /> -->
+		<Divider />
 
 		<section ref="tcgaSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
-			<!-- <template v-if="isTcgaLoaded"> -->
-			<ResultSection
-				tableName="tcga_exome_somatic_variants"
-				sectionName="TCGA (Exome somatic specific)"
-				:noData="somaticVariationType === 'Whole Genome' ? true : false"
-			/>
+			<template v-if="isTcgaLoaded">
+				<ResultSection
+					tableName="tcga_exome_somatic_variants"
+					sectionName="TCGA (Exome somatic specific)"
+					:noData="somaticVariationType === 'Whole Genome' ? true : false"
+				/>
 
-			<div
-				v-if="somaticVariationType === 'Whole Genome'"
-				class="bg-blue-50 border-l-4 border-blue-400 p-4 my-8 mx-8 rounded-2xl"
-			>
-				<div class="flex">
-					<div class="flex-shrink-0">
-						<Icon name="solar:info-circle-bold-duotone" class="!w-5 !h-5 text-blue-400" />
-					</div>
-					<div class="ml-3">
-						<p class="text-sm text-blue-800">
-							Our database contains public data from TCGA Exome somatic variation resources. Whole
-							Genome Sequence dataset from TCGA project will be available later once the project data
-							is publicly accessible.
-						</p>
+				<div
+					v-if="somaticVariationType === 'Whole Genome'"
+					class="bg-blue-50 border-l-4 border-blue-400 p-4 my-8 mx-8 rounded-2xl"
+				>
+					<div class="flex">
+						<div class="flex-shrink-0">
+							<Icon name="solar:info-circle-bold-duotone" class="!w-5 !h-5 text-blue-400" />
+						</div>
+						<div class="ml-3">
+							<p class="text-sm text-blue-800">
+								Our database contains public data from TCGA Exome somatic variation resources.
+								Whole Genome Sequence dataset from TCGA project will be available later once the
+								project data is publicly accessible.
+							</p>
+						</div>
 					</div>
 				</div>
-			</div>
-			<!-- </template> -->
+			</template>
 			<div v-else class="flex justify-center items-center h-full text-gray-400 text-sm">
 				Scroll to load TCGA data...
 			</div>
 		</section>
 		<Divider />
 
-		<!-- <section ref="peerReviewedSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
+		<section ref="peerReviewedSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
 			<template v-if="isPeerReviewedLoaded">
 				<ResultSection
 					sectionName="peer-reviewed papers"
@@ -93,7 +93,7 @@
 			<div v-else class="flex justify-center items-center h-full text-gray-400 text-sm">
 				Scroll to load peer reviewed data...
 			</div>
-		</section> -->
+		</section>
 	</div>
 </template>
 
