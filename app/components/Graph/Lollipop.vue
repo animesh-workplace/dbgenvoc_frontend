@@ -78,11 +78,11 @@ const chartOption = computed(() => {
 
 	// 1. FILTER DATA based on hiddenCategories
 	const visibleData = (props.dataPoints?.data || []).filter(
-		(item) => !props.hiddenCategories.includes(item.type.replaceAll(' ', '_')),
+		(item) => !props.hiddenCategories.includes(item.header.replaceAll(' ', '_')),
 	)
 	const stemData = visibleData.map((item) => ({ value: item.value }))
 	const visiblePieData = (props.pieDataArray || []).filter(
-		(item) => !props.hiddenCategories.includes(item.type.replaceAll(' ', '_')),
+		(item) => !props.hiddenCategories.includes(item.header.replaceAll(' ', '_')),
 	)
 
 	const dynamicPieSeries = map(visiblePieData, (pieData, index) => {
@@ -147,7 +147,6 @@ const chartOption = computed(() => {
 		xAxis: {
 			min: 0,
 			type: 'value',
-			// offset: 15,
 			max: domainAxisMax,
 			position: 'bottom',
 			axisTick: { show: true },
@@ -257,7 +256,7 @@ const chartOption = computed(() => {
 						return `
 						<div class="text-sm">
 							<div class="flex items-center justify-center gap-2 border-b border-gray-400 pb-2 bg-gray-200 px-4 pt-2">
-								<span class="font-bold text-base text-gray-900">${params.data.type}</span>
+								<span class="font-bold text-base text-gray-900">${params.data.header}</span>
 							</div>
 
 							<div class="flex flex-col gap-1 bg-gray-50 p-2">
@@ -269,6 +268,11 @@ const chartOption = computed(() => {
 								<div class="flex justify-between gap-4">
 									<span class="text-gray-500 font-medium">Count:</span>
 									<span class="font-semibold">${params.value[1]}</span>
+								</div>
+
+								<div class="flex justify-between gap-4">
+									<span class="text-gray-500 font-medium">Type:</span>
+									<span class="font-semibold">${params.data.type}</span>
 								</div>
 
 								<div class="flex justify-between gap-4">
