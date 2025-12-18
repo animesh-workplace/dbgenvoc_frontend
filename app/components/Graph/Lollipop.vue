@@ -91,7 +91,7 @@ const chartOption = computed(() => {
 			silent: true,
 			data: pieData,
 			showInLegend: false,
-			radius: ['7%', '10%'],
+			radius: ['8%', '6%'],
 			label: { show: false },
 			labelLine: { show: false },
 			emphasis: { disabled: true },
@@ -108,7 +108,7 @@ const chartOption = computed(() => {
 			trigger: 'item',
 			borderColor: '#e5e7eb',
 			backgroundColor: '#ebe6e7',
-			extraCssText: 'padding: 0;',
+			extraCssText: 'padding: 0; border-radius: 0.75rem;',
 			textStyle: { fontSize: 12, color: '#374151', fontFamily: 'Lexend Deca' },
 		},
 		grid: {
@@ -236,39 +236,82 @@ const chartOption = computed(() => {
 			// 4. DOTS (Scatter)
 			{
 				z: 3,
-				symbolSize: 20,
+				symbolSize: 15,
 				type: 'scatter',
 				data: visibleData,
 				tooltip: {
 					formatter: (params) => {
+						// 1. DATA PREPARATION
+						// Subtract the 0.5 visual offset to show the real database count
+						const realCount = params.value[1]
+						const isMixedType = params.data.header === 'Mixed'
+						const diseaseData = params.data.diseaseBreakdown || []
+						const hasDiseaseData = params.data.diseaseBreakdown.length > 0
+
+						// 2. COMPONENT: Disease Breakdown Rows
+						const diseaseHtml = map(
+							diseaseData,
+							(d) => `
+								<div class="flex justify-between items-center gap-4 py-0.5">
+									<div class="flex items-center gap-2">
+										<span class="w-2 h-2 rounded-full" style="background-color: ${d.itemStyle.color}"></span>
+										<span class="text-gray-500 font-medium">${d.name}:</span>
+									</div>
+									<span class="font-semibold text-gray-800">${d.value}</span>
+								</div>
+							`,
+						).join('')
+
+						// 3. COMPONENT: Variation List (Handles long lists with truncation/scroll)
+						const variationList = params.data.variations || 'N/A'
+
+						// 4. MAIN TOOLTIP TEMPLATE (Unified for DRY code)
 						return `
-						<div class="text-sm">
-							<div class="flex items-center justify-center gap-2 border-b border-gray-400 pb-2 bg-gray-200 px-4 pt-2">
-								<span class="font-bold text-base text-gray-900">${params.data.header}</span>
+							<div class="text-sm min-w-[220px]">
+								<div class="flex items-center justify-center gap-2 border-b border-gray-300 pb-2 rounded-t-xl px-4 pt-2" 
+									style="background-color: ${params.color}22">
+									<span class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${params.color}"></span>
+									<span class="font-bold text-base text-gray-900">${params.data.header}</span>
+								</div>
+
+								<div class="flex flex-col gap-2 bg-white p-3 rounded-b-xl border border-gray-200 border-t-0">
+									<div class="grid grid-cols-2 gap-x-4 gap-y-1">
+										<span class="text-gray-500 text-left">Position:</span>
+										<span class="font-semibold text-right">${params.value[0]}</span>
+										
+										<span class="text-gray-500 text-left">Total Count:</span>
+										<span class="font-semibold text-right">${realCount}</span>
+									</div>
+
+									${
+										isMixedType
+											? `
+											<div class="flex flex-col border-t border-gray-100 pt-2">
+												<span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Functional Type</span>
+												<span class="font-semibold text-gray-800">${params.data.type}</span>
+											</div>
+										`
+											: ''
+									}
+									${
+										hasDiseaseData
+											? `
+										<div class="flex flex-col border-t border-gray-100 pt-2 mt-1">
+											<span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Disease Distribution</span>
+											<div class="flex flex-col">${diseaseHtml}</div>
+										</div>
+									`
+											: ''
+									}
+
+									<div class="flex flex-col border-t border-gray-100 pt-2 mt-1">
+										<span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Specific Variations</span>
+										<div class="text-gray-600 italic leading-snug break-words max-w-[250px]">
+											${variationList}
+										</div>
+									</div>
+								</div>
 							</div>
-
-							<div class="flex flex-col gap-1 bg-gray-50 p-2">
-								<div class="flex justify-between gap-4">
-									<span class="text-gray-500 font-medium">Location:</span>
-									<span class="font-semibold">${params.value[0]}</span>
-								</div>
-
-								<div class="flex justify-between gap-4">
-									<span class="text-gray-500 font-medium">Count:</span>
-									<span class="font-semibold">${params.value[1]}</span>
-								</div>
-
-								<div class="flex justify-between gap-4">
-									<span class="text-gray-500 font-medium">Type:</span>
-									<span class="font-semibold">${params.data.type}</span>
-								</div>
-
-								<div class="flex justify-between gap-4">
-									<span class="text-gray-500 font-medium">Variations:</span>
-									<span class="font-semibold">${params.data.variations}</span>
-								</div>
-							</div>
-            			</div>
 						`
 					},
 				},
