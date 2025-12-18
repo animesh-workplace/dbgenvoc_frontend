@@ -135,8 +135,8 @@
 				<Tabs scrollable v-model:value="selectedTab" @update:value="processLollipopData">
 					<TabList
 						:pt="{
-							tabList: genesList.length < 10 ? 'justify-center gap-2' : 'gap-2',
 							activeBar: 'border-b-4 border-blue-400',
+							tabList: genesList.length < 10 ? 'justify-center gap-2' : 'gap-2',
 						}"
 					>
 						<Tab
@@ -205,71 +205,20 @@
 
 <script setup>
 import { useGeneAPI } from '@/api/geneAPI'
-import { useHelper } from '@/composables/useHelper'
 import { uniq, map, sumBy, forEach, filter, orderBy } from 'lodash-es'
-
-// --- Constants ---
-const VARIANT_COLOR_MAP = {
-	// --- Major Coding Variants (Standard Palette) ---
-	Silent: '#17becf',
-	Splice_Site: '#d62728',
-	Frame_Shift_Del: '#2ca02c',
-	Frame_Shift_Ins: '#8c564b',
-	Missense_Mutation: '#1f77b4',
-	Nonsense_Mutation: '#ff7f0e',
-
-	// --- In-Frame Changes (Purples / Greys) ---
-	In_Frame_Ins: '#9467bd',
-	In_Frame_Del: '#a55194',
-
-	// --- Stop Codon Variations (Pinks) ---
-	Stop_Codon_Ins: '#e377c2',
-	Stop_Codon_Del: '#f7b6d2',
-
-	// --- Start Codon Variations (Light/Pastel Variants) ---
-	Start_Codon_SNP: '#ffbb78',
-	Start_Codon_Ins: '#98df8a',
-	Start_Codon_Del: '#ff9896',
-
-	// --- Complex / Other Coding (Earthy / Muted) ---
-	Nonstop_Mutation: '#c5b0d5',
-	De_novo_Start_InFrame: '#c49c94',
-	De_novo_Start_OutOfFrame: '#c7c7c7',
-
-	// --- Non-Coding Variants (Yellows / Teals / Darks) ---
-	IGR: '#637939',
-	ncRNA: '#393b79',
-	Mixed: '#333333',
-	Intron: '#546e7a',
-	"3'UTR": '#bcbd22',
-	"5'UTR": '#dbdb8d',
-	"5'Flank": '#9edae5',
-}
-const CODING_VARIANTS = [
-	'Silent',
-	'Splice_Site',
-	'In_Frame_Ins',
-	'In_Frame_Del',
-	'Stop_Codon_Ins',
-	'Stop_Codon_Del',
-	'Frame_Shift_Del',
-	'Frame_Shift_Ins',
-	'Start_Codon_SNP',
-	'Start_Codon_Ins',
-	'Start_Codon_Del',
-	'Nonstop_Mutation',
-	'Missense_Mutation',
-	'Nonsense_Mutation',
-	'De_novo_Start_InFrame',
-	'De_novo_Start_OutOfFrame',
-]
-const NON_CODING_VARIANTS = ['IGR', 'Intron', "3'UTR", "5'Flank", "5'UTR", 'ncRNA']
-const SNV_CATEGORIES = ['C>T', 'G>A', 'C>A', 'G>T', 'C>G', 'G>C', 'T>A', 'A>T', 'T>C', 'A>G', 'T>G', 'A>C']
 
 // --- Setup & Refs ---
 const route = useRoute()
 const { AggregateAPI, ConcateAggregateAPI, StructureAPI } = useGeneAPI()
-const { useVariantMatrix, useLollipopMatrix, color_scheme } = useHelper()
+const {
+	color_scheme,
+	SNV_CATEGORIES,
+	CODING_VARIANTS,
+	useVariantMatrix,
+	useLollipopMatrix,
+	VARIANT_COLOR_MAP,
+	NON_CODING_VARIANTS,
+} = useHelper()
 
 const props = defineProps({
 	noData: Boolean,
