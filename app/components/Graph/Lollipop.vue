@@ -91,11 +91,14 @@ const chartOption = computed(() => {
 		return {
 			z: 10,
 			type: 'pie',
+			padAngle: 5,
 			data: pieData,
 			showInLegend: false,
 			radius: ['12%', '7%'],
+			label: { show: false },
 			xAxisId: 'lollipopXAxis',
 			yAxisId: 'lollipopYAxis',
+			labelLine: { show: false },
 			name: `Distribution ${index}`, // Unique name
 			// Recalculate position for this specific point
 			center: calculatePiePosition(index, coordinate, currentMaxX),
@@ -104,9 +107,6 @@ const chartOption = computed(() => {
 				borderRadius: 2,
 				borderColor: '#fff',
 			},
-			padAngle: 5,
-			label: { show: false },
-			labelLine: { show: false },
 			emphasis: {
 				itemStyle: {
 					shadowBlur: 5,
@@ -203,7 +203,10 @@ const chartOption = computed(() => {
 									height: TRACK_HEIGHT,
 									y: start[1] - 0.2 * TRACK_HEIGHT,
 								},
-								style: api.style(),
+								style: {
+									stroke: null,
+									fill: api.visual('color'),
+								},
 							},
 							{
 								type: 'text',
@@ -287,7 +290,7 @@ const chartOption = computed(() => {
 			},
 
 			// Dynamic Pie Series
-			// ...dynamicPieSeries,
+			...dynamicPieSeries,
 		],
 	}
 })
