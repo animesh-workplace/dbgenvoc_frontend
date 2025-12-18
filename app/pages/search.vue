@@ -43,22 +43,27 @@
 
 				<div
 					v-if="somaticVariationType === 'Whole Genome'"
-					class="bg-blue-50 border-l-4 border-blue-400 p-4 my-8 mx-8 rounded-2xl"
+					class="bg-blue-50 p-5 my-8 mx-8 rounded-2xl shadow-sm border-1 border-blue-100"
 				>
-					<div class="flex">
+					<div class="flex items-start">
 						<div class="flex-shrink-0">
-							<Icon name="solar:info-circle-bold-duotone" class="!w-5 !h-5 text-blue-400" />
+							<Icon name="solar:info-circle-bold-duotone" class="!w-6 !h-6 text-blue-500" />
 						</div>
-						<div class="ml-3">
-							<p class="text-sm text-blue-800">
-								Our database contains public data from TCGA Exome somatic variation resources.
-								Whole Genome Sequence dataset from TCGA project will be available later once the
-								project data is publicly accessible.
+						<div class="ml-4">
+							<h3 class="text-sm font-bold text-blue-900 uppercase tracking-wider mb-1">
+								Data Availability Notice
+							</h3>
+							<p class="text-sm text-blue-800 leading-relaxed">
+								Our database currently prioritizes public data from
+								<strong>TCGA Exome</strong> somatic variation resources. Whole Genome Sequencing
+								(WGS) datasets from the TCGA project will be integrated once the public data
+								released.
 							</p>
 						</div>
 					</div>
 				</div>
 			</template>
+
 			<div v-else class="flex justify-center items-center h-full text-gray-400 text-sm">
 				Scroll to load TCGA data...
 			</div>
@@ -75,13 +80,16 @@
 
 				<div
 					v-if="somaticVariationType === 'Whole Genome'"
-					class="bg-blue-50 border-l-4 border-blue-400 p-4 my-8 mx-8 rounded-2xl"
+					class="bg-blue-50 p-5 my-8 mx-8 rounded-2xl shadow-sm border-1 border-blue-100"
 				>
-					<div class="flex">
+					<div class="flex items-start">
 						<div class="flex-shrink-0">
-							<Icon name="solar:info-circle-bold-duotone" class="!w-5 !h-5 text-blue-400" />
+							<Icon name="solar:info-circle-bold-duotone" class="!w-6 !h-6 text-blue-500" />
 						</div>
-						<div class="ml-3">
+						<div class="ml-4">
+							<h3 class="text-sm font-bold text-blue-900 uppercase tracking-wider mb-1">
+								Data Availability Notice
+							</h3>
 							<p class="text-sm text-blue-800">
 								No Whole Genome Sequence dataset is available from peer-reviewed paper resources as
 								of now.
@@ -90,6 +98,7 @@
 					</div>
 				</div>
 			</template>
+
 			<div v-else class="flex justify-center items-center h-full text-gray-400 text-sm">
 				Scroll to load peer reviewed data...
 			</div>
@@ -103,15 +112,12 @@ import { useIntersectionObserver } from '@vueuse/core'
 const somaticVariationType = ref('Exome')
 const somaticVariationOptions = ref(['Exome', 'Whole Genome'])
 
-const tcgaSection = ref(null)
-const peerReviewedSection = ref(null)
-
-const isTcgaLoaded = ref(false)
-const isPeerReviewedLoaded = ref(false)
-
-// We store the 'stop' functions returned by VueUse so we can reset them manually
 let stopTcgaObserver = null
 let stopPeerObserver = null
+const tcgaSection = ref(null)
+const isTcgaLoaded = ref(false)
+const peerReviewedSection = ref(null)
+const isPeerReviewedLoaded = ref(false)
 
 const initObservers = () => {
 	// 1. Cleanup previous observers if they exist (for the reset case)
