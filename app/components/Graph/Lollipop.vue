@@ -249,7 +249,7 @@ const chartOption = computed(() => {
 						const realCount = params.value[1]
 						const isMixedType = params.data.header === 'Mixed'
 						const diseaseData = params.data.diseaseBreakdown || []
-						const hasDiseaseData = params.data.diseaseBreakdown.length > 0
+						const hasDiseaseData = params.data.diseaseBreakdown?.length > 0
 
 						// 2. COMPONENT: Disease Breakdown Rows
 						const diseaseHtml = map(
