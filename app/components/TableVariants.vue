@@ -19,17 +19,55 @@
 		:totalRecords="totalRecords"
 		:loading="loading || pending"
 		:rowsPerPageOptions="[10, 25, 50, 100]"
+		:pt="{
+			header: 'rounded-t-2xl !p-4 !bg-sky-50',
+			pcPaginator: {
+				root: '!bg-sky-50',
+				last: 'hover:!bg-blue-100',
+				prev: 'hover:!bg-blue-100',
+				next: 'hover:!bg-blue-100',
+				first: 'hover:!bg-blue-100',
+				page: '!bg-blue-100 hover:!bg-blue-200',
+				pcRowPerPageDropdown: { root: '!rounded-2xl' },
+				paginatorContainer: 'rounded-b-2xl p-1 !bg-sky-50',
+			},
+		}"
 	>
-		<!-- <template #header>
-			<div class="flex justify-end">
-				<IconField>
-					<InputIcon>
-						<Icon name="tabler:search" class="!w-5 !h-5 text-gray-500" />
-					</InputIcon>
-					<InputText v-model="test" placeholder="Keyword Search" />
-				</IconField>
+		<template #header>
+			<div class="grid lg:grid-cols-3 grid-cols-1 justify-end">
+				<div class="col-start-3 flex items-center space-x-2">
+					<FloatLabel variant="on" class="flex-1">
+						<IconField>
+							<InputIcon>
+								<Icon name="tabler:search" class="!w-5 !h-5 text-gray-500" />
+							</InputIcon>
+							<InputText
+								fluid
+								id="table_search"
+								v-model="keyword_search"
+								:pt="{ root: '!rounded-2xl !focus:border-1 !focus:border-blue-800 ' }"
+							/>
+							<InputIcon v-if="keyword_search" @click="keyword_search = ''">
+								<Icon
+									name="solar:close-circle-line-duotone"
+									class="!w-5 !h-5 text-gray-500 cursor-pointer"
+								/>
+							</InputIcon>
+						</IconField>
+						<label for="table_search">Keyword Search</label>
+					</FloatLabel>
+
+					<button
+						class="flex-none flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all cursor-pointer"
+					>
+						<Icon
+							name="solar:cloud-download-bold-duotone"
+							class="!w-8 !h-8 text-gray-500 hover:text-blue-800 cursor-pointer"
+						/>
+					</button>
+				</div>
 			</div>
-		</template> -->
+		</template>
 
 		<Column
 			sortable
@@ -94,10 +132,10 @@ const props = defineProps({
 })
 
 // --- State ---
-const test = ref('')
 const tableData = ref([])
 const loading = ref(false)
 const totalRecords = ref(0)
+const keyword_search = ref('')
 
 // Internal Pagination State
 const pagination = ref({
@@ -111,11 +149,11 @@ const pagination = ref({
 const getPayload = () => {
 	return {
 		// Internal State (Pagination/Sort)
+		term: keyword_search.value,
 		page: pagination.value.page,
 		page_size: pagination.value.rows,
 		sort_by: pagination.value.sortField,
 		sort_order: pagination.value.sortOrder,
-
 		// External State (Props)
 		filters: props.filters,
 		...props.extraParams, // Spreads 'term' or other keys here
@@ -145,6 +183,15 @@ watch(
 		}
 	},
 	{ immediate: true },
+)
+
+watchDebounced(
+	keyword_search,
+	() => {
+		pagination.value.page = 1 // Reset to first page on new search
+		fetchClientSide()
+	},
+	{ debounce: 500 },
 )
 
 // 2. Client-Side Fetch
