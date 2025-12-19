@@ -1,5 +1,5 @@
 <template>
-	<div class="px-8 pt-8">
+	<div class="px-8 pt-8 pb-4 sticky top-16 z-10 bg-white">
 		<div
 			class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-100 flex justify-center items-center gap-2"
 		>
@@ -19,7 +19,7 @@
 			/>
 		</div>
 
-		<div class="px-8 pt-8">
+		<div class="px-8 pt-8 pb-4 sticky top-16 z-10 bg-white">
 			<div
 				class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-50 flex justify-center items-center gap-2"
 			>
@@ -176,9 +176,9 @@
 								</div>
 
 								<GraphLollipop
+									:diseaseList="diseaseList"
 									:dataPoints="lollipopData"
 									:dataDomain="lollipopDomain"
-									:pieDataArray="lollipopPieData"
 									v-if="lollipopCategories.length"
 									:hiddenCategories="hiddenLollipopSeries"
 								/>
@@ -242,7 +242,6 @@ const variantType = ref({})
 const hiddenSeries = ref([])
 const lollipopData = ref([])
 const lollipopDomain = ref({})
-const lollipopPieData = ref([])
 const variantClassCoding = ref({})
 const lollipopCategories = ref([])
 const hiddenLollipopSeries = ref([])
@@ -406,7 +405,8 @@ const processLollipopData = async (gene) => {
 
 	lollipopData.value = {
 		maxValue: maxCount < 3 ? maxCount + 5 : maxCount, // Ensure some space if low counts
-		data: map(lollipopDataMatrix, (item) => ({
+		data: map(lollipopDataMatrix, (item, index) => ({
+			index: index,
 			variations: item.variations,
 			value: [item.location, item.count],
 			type: item.type.replaceAll('_', ' '),
@@ -423,8 +423,6 @@ const processLollipopData = async (gene) => {
 			value: [0, region.start, region.end, 0],
 		})),
 	}
-	lollipopPieData.value =
-		diseaseList.value.length > 1 ? map(lollipopDataMatrix, (item) => item.diseaseBreakdown) : []
 }
 
 // --- Main Fetcher ---
