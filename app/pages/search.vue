@@ -33,7 +33,7 @@
 		</section>
 		<Divider />
 
-		<section ref="tcgaSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
+		<!-- <section ref="tcgaSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
 			<template v-if="isTcgaLoaded">
 				<ResultSection
 					tableName="tcga_exome_somatic_variants"
@@ -102,7 +102,7 @@
 			<div v-else class="flex justify-center items-center h-full text-gray-400 text-sm">
 				Scroll to load peer reviewed data...
 			</div>
-		</section>
+		</section> -->
 	</div>
 </template>
 
