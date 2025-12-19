@@ -75,6 +75,7 @@
 			:field="col.field"
 			:frozen="col.frozen"
 			:header="col.header"
+			:pt="{ columnHeaderContent: 'justify-between' }"
 			v-for="col of columns.filter((c) => c.field !== 'reference_url')"
 		>
 			<template #body="slotProps">
