@@ -35,11 +35,11 @@
 					@click="handleLegendClick(gene)"
 					v-for="(gene, index) in visibleGenes"
 					:style="{ backgroundColor: color_scheme[index] + '33' }"
-					class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border"
+					class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border border-gray-200 cursor-pointer"
 					:class="
 						!hiddenSeries.includes(gene)
-							? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
-							: 'border-gray-200 opacity-70 grayscale inset-shadow-sm hover:inset-shadow-md cursor-pointer'
+							? 'shadow-sm hover:shadow-md'
+							: 'opacity-70 grayscale inset-shadow-sm hover:inset-shadow-md '
 					"
 				>
 					<span class="w-3 h-3 rounded-full" :style="{ backgroundColor: color_scheme[index] }"></span>
@@ -47,8 +47,8 @@
 				</button>
 
 				<button
-					v-if="genesList.length > GENE_LIMIT"
 					@click="isExpanded = !isExpanded"
+					v-if="genesList.length > GENE_LIMIT"
 					class="flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer border border-blue-100"
 				>
 					<span>{{ isExpanded ? 'Show Less' : `+${genesList.length - GENE_LIMIT} More` }}</span>
@@ -158,11 +158,11 @@
 										@click="toggleSeries(category)"
 										v-for="(category, index) in lollipopCategories"
 										:style="{ backgroundColor: VARIANT_COLOR_MAP[category] + '33' }"
-										class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border"
+										class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border border-gray-200 cursor-pointer"
 										:class="
 											!hiddenLollipopSeries.includes(category)
-												? 'border-gray-200 shadow-sm hover:shadow-md cursor-pointer'
-												: 'border-gray-200 opacity-70 grayscale inset-shadow-sm cursor-pointer'
+												? 'shadow-sm hover:shadow-md'
+												: 'opacity-70 grayscale inset-shadow-sm'
 										"
 									>
 										<span
@@ -171,6 +171,26 @@
 										/>
 										<span class="font-medium text-gray-700">
 											{{ category.replaceAll('_', ' ') }}
+										</span>
+									</button>
+								</div>
+
+								<div
+									v-if="diseaseList.length > 1"
+									class="flex flex-wrap justify-center gap-2 mt-4"
+								>
+									<button
+										:key="index"
+										v-for="(disease, index) in diseaseList"
+										:style="{ backgroundColor: DISEASE_COLOR_MAP[index] + '33' }"
+										class="flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all border border-gray-200"
+									>
+										<span
+											class="w-3 h-3 rounded-full"
+											:style="{ backgroundColor: DISEASE_COLOR_MAP[index] }"
+										/>
+										<span class="font-medium text-gray-700">
+											{{ disease }}
 										</span>
 									</button>
 								</div>
@@ -218,6 +238,7 @@ const {
 	useVariantMatrix,
 	useLollipopMatrix,
 	VARIANT_COLOR_MAP,
+	DISEASE_COLOR_MAP,
 	NON_CODING_VARIANTS,
 } = useHelper()
 
@@ -426,7 +447,6 @@ const processLollipopData = async (gene) => {
 }
 
 // --- Main Fetcher ---
-
 const fetchData = async () => {
 	if (!genesList.value.length || props.noData) return
 	isLoading.value = true
@@ -511,6 +531,5 @@ watch(
 	},
 	{ immediate: true },
 )
-watch(percentageSwitcher, fetchData)
-watch(() => props.tableName, fetchData)
+watch([percentageSwitcher, () => props.tableName], fetchData)
 </script>
