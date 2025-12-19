@@ -209,11 +209,11 @@ const applyExample = (exampleItems) => {
 	// 1. Set Visual Chips
 	// We replace the current search or append. Here I'm replacing for a "clean" example click.
 	// If you want to append, use: [...search.value, ...exampleItems]
-	search.value = exampleItems
+	search.value = [...search.value, ...exampleItems]
 
 	// 2. Set Logic Values (Actual Search)
 	const newActualSearch = []
-	exampleItems.forEach((item) => {
+	search.value.forEach((item) => {
 		if (item.type === 'pathway') {
 			// If you have example pathways, you'd need the pathway_genes data here
 			// For now, simple push
