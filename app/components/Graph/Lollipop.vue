@@ -14,7 +14,7 @@ const isLoading = ref(true)
 const chartContainer = ref(null)
 
 const props = defineProps({
-	pieDataArray: { type: Array, default: () => [] },
+	diseaseList: { type: Array, default: () => [] },
 	hiddenCategories: { type: Array, default: () => [] },
 	dataPoints: { type: Object, default: () => ({ maxValue: 7, data: [] }) },
 	dataDomain: {
@@ -83,22 +83,25 @@ const chartOption = computed(() => {
 	const stemData = map(visibleData, (item) => ({ value: item.value }))
 
 	// 2. DYNAMIC PIE SERIES based on visible data
-	const dynamicPieSeries = map(props.pieDataArray, (pieData, index) => {
-		return {
-			z: 0,
-			type: 'pie',
-			padAngle: 5,
-			silent: true,
-			data: pieData,
-			showInLegend: false,
-			radius: ['8%', '6%'],
-			label: { show: false },
-			labelLine: { show: false },
-			emphasis: { disabled: true },
-			itemStyle: { borderRadius: 5 },
-			center: pieCenters.value[index],
-		}
-	})
+	const dynamicPieSeries =
+		props.diseaseList.length <= 1
+			? []
+			: map(visibleData, (pieData, index) => {
+					return {
+						z: 0,
+						type: 'pie',
+						padAngle: 5,
+						silent: true,
+						showInLegend: false,
+						radius: ['7%', '5%'],
+						label: { show: false },
+						labelLine: { show: false },
+						emphasis: { disabled: true },
+						data: pieData.diseaseBreakdown,
+						itemStyle: { borderRadius: 5 },
+						center: pieCenters.value[pieData.index],
+					}
+			  })
 
 	return {
 		animation: false,
@@ -338,7 +341,7 @@ useResizeObserver(chartContainer, () => {
 })
 
 watch(
-	() => props.dataPoints,
+	[() => props.dataPoints, () => props.hiddenCategories],
 	() => {
 		setTimeout(updatePieCenters, 50)
 	},
