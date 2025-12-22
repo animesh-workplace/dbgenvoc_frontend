@@ -1,5 +1,5 @@
 <template>
-	<div class="px-8 pt-8 pb-4 sticky top-16 z-10 bg-white">
+	<div class="px-8 pt-8 pb-4 sticky top-16 z-[1002] bg-white">
 		<div
 			class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-100 flex justify-center items-center gap-2"
 		>
@@ -19,7 +19,7 @@
 			/>
 		</div>
 
-		<div class="px-8 pt-8 pb-4 sticky top-16 z-10 bg-white">
+		<div class="px-8 pt-8 pb-4 sticky top-16 z-[1002] bg-white">
 			<div
 				class="p-4 mb-2 text-lg text-blue-900 rounded-2xl text-center bg-sky-50 flex justify-center items-center gap-2"
 			>
