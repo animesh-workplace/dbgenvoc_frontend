@@ -2,10 +2,10 @@
 	<Dialog v-model:visible="visible" modal header="Solve CAPTCHA">
 		<div class="flex items-center gap-4 mb-4">
 			<vue-hcaptcha
-				@verify="exportCSV"
-				@error="(err) => console.log('Some error found', err)"
-				sitekey="0c102196-a888-4902-8dfc-b10251923386"
 				ref="Hcaptcha"
+				@verify="exportCSV"
+				sitekey="0c102196-a888-4902-8dfc-b10251923386"
+				@error="(err) => console.log('Some error found', err)"
 			/>
 		</div>
 	</Dialog>
