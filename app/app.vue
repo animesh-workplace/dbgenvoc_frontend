@@ -1,5 +1,6 @@
 <script setup>
 const { colorMode } = useTheme()
+import { materialTheme } from 'notivue'
 
 const isLoading = useGlobalLoader()
 
@@ -27,6 +28,9 @@ nuxtApp.hook('page:finish', () => {
 
 		<NuxtLayout>
 			<NuxtPage />
+			<Notivue v-slot="item">
+				<Notification :item="item" :theme="materialTheme" />
+			</Notivue>
 		</NuxtLayout>
 	</div>
 </template>
