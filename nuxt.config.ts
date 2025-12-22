@@ -26,13 +26,24 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 	compatibilityDate: '2025-07-15',
 	features: { inlineStyles: true },
-	css: ['@/assets/css/tailwind.css'],
+	css: ['@/assets/css/tailwind.css', 'notivue/notification.css', 'notivue/animations.css'],
 	app: {
 		baseURL: process.env.ROUTER_BASE || '/dbgenvoc/',
 		head: {
 			title: 'dbGENVOC | National Institute of Biomedical Genomics | BRIC-NIBMG',
 			meta: [],
 			link: [],
+			// script: [{ src: 'https://challenges.cloudflare.com/turnstile/v0/api.js', async: true, defer: true }],
+			script: [
+				// { src: 'https://unpkg.com/@hcaptcha/vue3-hcaptcha', async: true, defer: true },
+				// {
+				// 	src: 'https://client-api.arkoselabs.com/v2/YOUR_PUBLIC_KEY/api.js',
+				// 	async: true,
+				// 	defer: true,
+				// 	// Arkose requires a global callback function name
+				// 	'data-callback': 'setupFunCaptcha',
+				// },
+			],
 		},
 	},
 	build: { transpile: ['echarts', 'echarts-gl', 'zrender'] },
@@ -53,6 +64,7 @@ export default defineNuxtConfig({
 		'@nuxt/image',
 		'nuxt-echarts',
 		'@vueuse/nuxt',
+		'notivue/nuxt',
 		'@nuxtjs/google-fonts',
 		'@primevue/nuxt-module',
 	],
