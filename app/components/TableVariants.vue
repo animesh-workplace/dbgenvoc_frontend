@@ -1,4 +1,15 @@
 <template>
+	<Dialog v-model:visible="visible" modal header="Solve CAPTCHA">
+		<div class="flex items-center gap-4 mb-4">
+			<vue-hcaptcha
+				@verify="exportCSV"
+				@error="(err) => console.log('Some error found', err)"
+				sitekey="0c102196-a888-4902-8dfc-b10251923386"
+				ref="Hcaptcha"
+			/>
+		</div>
+	</Dialog>
+
 	<DataTable
 		lazy
 		rowHover
@@ -13,11 +24,13 @@
 		@page="onPage"
 		resizableColumns
 		:value="tableData"
+		ref="dataTableRef"
 		scrollHeight="20rem"
 		:rows="pagination.rows"
 		columnResizeMode="expand"
 		:totalRecords="totalRecords"
 		:loading="loading || pending"
+		:exportFilename="downloadFilename"
 		:rowsPerPageOptions="[10, 25, 50, 100]"
 		:pt="{
 			header: 'rounded-t-2xl !p-4 !bg-sky-50',
@@ -58,6 +71,7 @@
 					</FloatLabel>
 
 					<button
+						@click="visible = true"
 						class="flex-none flex items-center space-x-2 px-2 py-2 rounded-full text-sm transition-all cursor-pointer hover:bg-blue-200 group"
 					>
 						<Icon
@@ -79,13 +93,13 @@
 
 						<MultiSelect
 							ref="lockSelect"
-							:options="columns"
 							optionValue="index"
 							optionLabel="header"
 							:selectionLimit="LockLimit"
-							@update:modelValue="lockColumn"
 							v-model="lockSelectedColumns"
 							class="absolute-hidden-select"
+							@update:modelValue="lockColumn"
+							:options="columns.filter((c) => c.field !== 'reference_url')"
 						/>
 					</div>
 
@@ -102,12 +116,12 @@
 
 						<MultiSelect
 							ref="columnSelect"
-							:options="columns"
 							optionValue="index"
 							optionLabel="header"
 							v-model="selectedColumns"
 							class="absolute-hidden-select"
 							@update:model-value="showColumn"
+							:options="columns.filter((c) => c.field !== 'reference_url')"
 						/>
 					</div>
 				</div>
@@ -166,15 +180,11 @@
 
 <script setup>
 import { map } from 'lodash-es'
+import { useNotivue } from 'notivue'
+import VueHcaptcha from '@hcaptcha/vue3-hcaptcha'
+
 import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI } = useGeneAPI()
-
-// Test
-const LockLimit = 4
-const lockSelect = ref(null) // Reference to the MultiSelect component
-const columnSelect = ref(null) // Reference to the MultiSelect component
-const selectedColumns = ref([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
-const lockSelectedColumns = ref([1, 2])
 
 // 1. GENERIC PROPS
 const props = defineProps({
@@ -184,12 +194,22 @@ const props = defineProps({
 	// Any other top-level parameters (e.g., 'term', 'search_text')
 	extraParams: { type: Object, default: () => ({}) },
 })
+const config = useNotivue()
 
 // --- State ---
+const LockLimit = 4
 const tableData = ref([])
+const visible = ref(false)
+const Hcaptcha = ref(null)
 const loading = ref(false)
 const totalRecords = ref(0)
+const dataTableRef = ref(null)
 const keyword_search = ref('')
+const lockSelectedColumns = ref([1, 2])
+const downloadFilename = ref('export_variants_')
+const lockSelect = ref(null) // Reference to the MultiSelect component
+const columnSelect = ref(null) // Reference to the MultiSelect component
+const selectedColumns = ref([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
 
 // Internal Pagination State
 const pagination = ref({
@@ -236,8 +256,16 @@ const showColumn = (data) => {
 	})
 }
 
-// --- API Logic ---
+const exportCSV = async (event) => {
+	const now = new Date()
+	const timestamp = now.toLocaleString('sv-SE').replace(/ /g, '_').replace(/:/g, '-')
+	downloadFilename.value = `${props.tableName}_export_${timestamp}`
+	await nextTick()
+	dataTableRef.value.exportCSV()
+	visible.value = false
+}
 
+// --- API Logic ---
 // 1. Initial SSR Load
 const { data, pending } = await useAsyncData(
 	() => `table-${props.tableName}-${JSON.stringify(props.filters)}-${pagination.value.page}`,
