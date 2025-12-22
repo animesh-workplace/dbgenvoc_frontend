@@ -58,13 +58,58 @@
 					</FloatLabel>
 
 					<button
-						class="flex-none flex items-center space-x-2 px-2 py-0.5 rounded-full text-sm transition-all cursor-pointer"
+						class="flex-none flex items-center space-x-2 px-2 py-2 rounded-full text-sm transition-all cursor-pointer hover:bg-blue-200 group"
 					>
 						<Icon
 							name="solar:cloud-download-bold-duotone"
-							class="!w-8 !h-8 text-gray-500 hover:text-blue-800 cursor-pointer"
+							class="!w-7 !h-7 text-gray-500 group-hover:text-blue-800 cursor-pointer"
 						/>
 					</button>
+
+					<div class="relative inline-block">
+						<button
+							@click="openLockDropdown"
+							class="flex-none flex items-center space-x-2 px-2 py-2 rounded-full text-sm transition-all cursor-pointer hover:bg-blue-200 group"
+						>
+							<Icon
+								name="solar:lock-keyhole-minimalistic-bold-duotone"
+								class="!w-7 !h-7 text-gray-500 group-hover:text-blue-800 cursor-pointer"
+							/>
+						</button>
+
+						<MultiSelect
+							ref="lockSelect"
+							:options="columns"
+							optionValue="index"
+							optionLabel="header"
+							:selectionLimit="LockLimit"
+							@update:modelValue="lockColumn"
+							v-model="lockSelectedColumns"
+							class="absolute-hidden-select"
+						/>
+					</div>
+
+					<div class="relative inline-block">
+						<button
+							@click="openDropdown"
+							class="relative flex-none flex items-center space-x-2 px-2 py-2 rounded-full text-sm transition-all cursor-pointer hover:bg-blue-200 group"
+						>
+							<Icon
+								name="solar:filter-bold-duotone"
+								class="!w-7 !h-7 text-gray-500 group-hover:text-blue-800 cursor-pointer"
+							/>
+						</button>
+
+						<MultiSelect
+							ref="columnSelect"
+							:options="columns"
+							optionValue="index"
+							optionLabel="header"
+							v-model="selectedColumns"
+							class="absolute-hidden-select"
+							@update:model-value="showColumn"
+						/>
+					</div>
 				</div>
 			</div>
 		</template>
@@ -76,7 +121,7 @@
 			:frozen="col.frozen"
 			:header="col.header"
 			:pt="{ columnHeaderContent: 'justify-between' }"
-			v-for="col of columns.filter((c) => c.field !== 'reference_url')"
+			v-for="col of columns.filter((c) => c.field !== 'reference_url' && c.show)"
 		>
 			<template #body="slotProps">
 				<template v-if="col.field === 'reference'">
@@ -120,8 +165,16 @@
 </template>
 
 <script setup>
+import { map } from 'lodash-es'
 import { useGeneAPI } from '@/api/geneAPI'
 const { SearchAPI } = useGeneAPI()
+
+// Test
+const LockLimit = 4
+const lockSelect = ref(null) // Reference to the MultiSelect component
+const columnSelect = ref(null) // Reference to the MultiSelect component
+const selectedColumns = ref([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
+const lockSelectedColumns = ref([1, 2])
 
 // 1. GENERIC PROPS
 const props = defineProps({
@@ -146,7 +199,7 @@ const pagination = ref({
 	sortOrder: 'asc',
 })
 
-// --- Helper to Construct Payload ---
+// --- Helper ---
 const getPayload = () => {
 	return {
 		// Internal State (Pagination/Sort)
@@ -159,6 +212,28 @@ const getPayload = () => {
 		filters: props.filters,
 		...props.extraParams, // Spreads 'term' or other keys here
 	}
+}
+
+const openDropdown = (event) => {
+	columnSelect.value.show()
+}
+
+const openLockDropdown = (event) => {
+	lockSelect.value.show()
+}
+
+const lockColumn = (data) => {
+	map(columns.value, (col) => (col.frozen = false))
+	map(data, (colIndex) => {
+		columns.value[colIndex].frozen = true
+	})
+}
+
+const showColumn = (data) => {
+	map(columns.value, (col) => (col.show = false))
+	map(data, (colIndex) => {
+		columns.value[colIndex].show = true
+	})
 }
 
 // --- API Logic ---
@@ -234,31 +309,31 @@ watch(
 )
 
 // --- Columns & Utilities ---
-const columns = [
-	{ field: 'variant_id', header: 'DB ID', frozen: false },
-	{ field: 'tumor_sample_barcode', header: 'Patient ID', frozen: true },
-	{ field: 'gene', header: 'Gene', frozen: true },
-	{ field: 'entrez_gene_id', header: 'Entrez ID', frozen: false },
-	{ field: 'disease', header: 'Disease', frozen: false },
-	{ field: 'chrom', header: 'Chromosome', frozen: false },
-	{ field: 'start', header: 'Start', frozen: false },
-	{ field: 'end', header: 'End', frozen: false },
-	{ field: 'genome_change', header: 'Genome Change', frozen: false },
-	{ field: 'genome_change_link', header: 'UCSC Browser', frozen: false },
-	{ field: 'cDNA_change', header: 'cDNA Change', frozen: false },
-	{ field: 'codon_change', header: 'Codon Change', frozen: false },
-	{ field: 'protein_change', header: 'Protein Change', frozen: false },
-	{ field: 'variant_class', header: 'Variant Class', frozen: false },
-	{ field: 'variant_type', header: 'Variant Type', frozen: false },
-	{ field: 'ref_allele', header: 'Ref Allele', frozen: false },
-	{ field: 'tumor_seq_allele2', header: 'Tumor Allele', frozen: false },
-	{ field: 'dbsnp_rs', header: 'dbSNP ID', frozen: false },
-	{ field: 'annotation_transcript', header: 'Annotation Transcript', frozen: false },
-	{ field: 'transcript_strand', header: 'Transcript Strand', frozen: false },
-	{ field: 'transcript_exon', header: 'Transcript Exon', frozen: false },
-	{ field: 'reference', header: 'Reference', frozen: false },
-	{ field: 'reference_url', header: 'Reference URL', frozen: false },
-]
+const columns = ref([
+	{ show: true, index: 0, field: 'variant_id', header: 'DB ID', frozen: false },
+	{ show: true, index: 1, field: 'tumor_sample_barcode', header: 'Patient ID', frozen: true },
+	{ show: true, index: 2, field: 'gene', header: 'Gene', frozen: true },
+	{ show: true, index: 3, field: 'entrez_gene_id', header: 'Entrez ID', frozen: false },
+	{ show: true, index: 4, field: 'disease', header: 'Disease', frozen: false },
+	{ show: true, index: 5, field: 'chrom', header: 'Chromosome', frozen: false },
+	{ show: true, index: 6, field: 'start', header: 'Start', frozen: false },
+	{ show: true, index: 7, field: 'end', header: 'End', frozen: false },
+	{ show: true, index: 8, field: 'genome_change', header: 'Genome Change', frozen: false },
+	{ show: true, index: 9, field: 'genome_change_link', header: 'UCSC Browser', frozen: false },
+	{ show: true, index: 10, field: 'cDNA_change', header: 'cDNA Change', frozen: false },
+	{ show: true, index: 11, field: 'codon_change', header: 'Codon Change', frozen: false },
+	{ show: true, index: 12, field: 'protein_change', header: 'Protein Change', frozen: false },
+	{ show: true, index: 13, field: 'variant_class', header: 'Variant Class', frozen: false },
+	{ show: true, index: 14, field: 'variant_type', header: 'Variant Type', frozen: false },
+	{ show: true, index: 15, field: 'ref_allele', header: 'Ref Allele', frozen: false },
+	{ show: true, index: 16, field: 'tumor_seq_allele2', header: 'Tumor Allele', frozen: false },
+	{ show: true, index: 17, field: 'dbsnp_rs', header: 'dbSNP ID', frozen: false },
+	{ show: true, index: 18, field: 'annotation_transcript', header: 'Annotation Transcript', frozen: false },
+	{ show: true, index: 19, field: 'transcript_strand', header: 'Transcript Strand', frozen: false },
+	{ show: true, index: 20, field: 'transcript_exon', header: 'Transcript Exon', frozen: false },
+	{ show: true, index: 21, field: 'reference', header: 'Reference', frozen: false },
+	{ show: true, index: 22, field: 'reference_url', header: 'Reference URL', frozen: false },
+])
 
 const parseGenomicCoordinates = (genomeChange) => {
 	const patterns = [
@@ -296,3 +371,17 @@ const generateUCSCUrl = (genomeChange) => {
 	return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=${coords.formattedPosition}&hgsid=783385835_z0061mD0u0xo6HFQCdLHaeOZp9UA`
 }
 </script>
+
+<style>
+.absolute-hidden-select {
+	bottom: 0;
+	left: 50%;
+	overflow: hidden;
+	opacity: 0 !important;
+	width: 0px !important;
+	height: 0px !important;
+	transform: translateX(-50%);
+	position: absolute !important;
+	pointer-events: none !important;
+}
+</style>
