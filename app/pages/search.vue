@@ -33,7 +33,7 @@
 		</section>
 		<Divider />
 
-		<!-- <section ref="tcgaSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
+		<section ref="tcgaSection" :class="somaticVariationType === 'Exome' ? 'min-h-[300px]' : 'mb-12'">
 			<template v-if="isTcgaLoaded">
 				<ResultSection
 					tableName="tcga_exome_somatic_variants"
@@ -102,20 +102,19 @@
 			<div v-else class="flex justify-center items-center h-full text-gray-400 text-sm">
 				Scroll to load peer reviewed data...
 			</div>
-		</section> -->
+		</section>
 	</div>
 </template>
 
 <script setup>
-const somaticVariationType = ref('Exome')
-const somaticVariationOptions = ref(['Exome', 'Whole Genome'])
-
 let stopTcgaObserver = null
 let stopPeerObserver = null
 const tcgaSection = ref(null)
 const isTcgaLoaded = ref(false)
 const peerReviewedSection = ref(null)
 const isPeerReviewedLoaded = ref(false)
+const somaticVariationType = ref('Exome')
+const somaticVariationOptions = ref(['Exome', 'Whole Genome'])
 
 const initObservers = () => {
 	// 1. Cleanup previous observers if they exist (for the reset case)
