@@ -111,7 +111,7 @@ const chartOption = computed(() => {
 			trigger: 'item',
 			borderColor: '#e5e7eb',
 			backgroundColor: '#ebe6e7',
-			extraCssText: 'padding: 0; border-radius: 0.75rem;',
+			extraCssText: 'padding: 0; border-radius: 0.75rem; z-index: 1000;',
 			textStyle: { fontSize: 12, color: '#374151', fontFamily: 'Lexend Deca' },
 		},
 		grid: {
