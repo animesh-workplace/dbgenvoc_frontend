@@ -17,10 +17,10 @@
 				@keyup.enter="StartSearch"
 				optionGroupChildren="items"
 				@item-unselect="ItemRemoved"
+				class="flex-1 rounded-l-2xl"
 				@complete="SearchGenePathway"
 				:suggestions="searchSuggestions"
 				:class="{ 'gradient-bg': !isFocused }"
-				class="flex-1 rounded-l-2xl"
 				:placeholder="search.length ? '' : 'Enter gene name or multiple gene names or region or pathway'"
 				optionLabel="value"
 				:pt="{
@@ -373,7 +373,7 @@ const SearchGenePathway = async (event) => {
 	z-index: -1;
 	bottom: -2px;
 	position: absolute;
-	border-radius: 1.2rem;
+	border-radius: 1rem;
 	transition: all 1s ease-in-out;
 	min-width: calc(100% + 5rem + 4px);
 	animation: spin 10s linear infinite;
