@@ -1,10 +1,11 @@
 <template>
 	<Dialog v-model:visible="visible" modal header="Solve CAPTCHA">
 		<div class="flex items-center gap-4 mb-4">
-			<vue-hcaptcha
+			<VueHcaptcha
 				ref="Hcaptcha"
 				@verify="exportCSV"
 				sitekey="0c102196-a888-4902-8dfc-b10251923386"
+				@expired="() => console.log('Captcha expired')"
 				@error="(err) => console.log('Some error found', err)"
 			/>
 		</div>
@@ -257,6 +258,7 @@ const showColumn = (data) => {
 }
 
 const exportCSV = async (event) => {
+	console.log('CAPTCHA solved, exporting CSV...', event)
 	const now = new Date()
 	const timestamp = now.toLocaleString('sv-SE').replace(/ /g, '_').replace(/:/g, '-')
 	downloadFilename.value = `${props.tableName}_export_${timestamp}`
