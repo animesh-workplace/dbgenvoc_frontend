@@ -1,7 +1,6 @@
 import Aura from '@primeuix/themes/aura'
 import tailwindcss from '@tailwindcss/vite'
 import { definePreset } from '@primeuix/themes'
-import AutoComplete from 'primevue/autocomplete'
 
 const dbgenvocTheme = definePreset(Aura, {
 	semantic: {
@@ -33,17 +32,7 @@ export default defineNuxtConfig({
 			title: 'dbGENVOC | National Institute of Biomedical Genomics | BRIC-NIBMG',
 			meta: [],
 			link: [],
-			// script: [{ src: 'https://challenges.cloudflare.com/turnstile/v0/api.js', async: true, defer: true }],
-			script: [
-				// { src: 'https://unpkg.com/@hcaptcha/vue3-hcaptcha', async: true, defer: true },
-				// {
-				// 	src: 'https://client-api.arkoselabs.com/v2/YOUR_PUBLIC_KEY/api.js',
-				// 	async: true,
-				// 	defer: true,
-				// 	// Arkose requires a global callback function name
-				// 	'data-callback': 'setupFunCaptcha',
-				// },
-			],
+			script: [],
 		},
 	},
 	build: { transpile: ['echarts', 'echarts-gl', 'zrender'] },
@@ -62,6 +51,7 @@ export default defineNuxtConfig({
 	modules: [
 		'@nuxt/icon',
 		'@nuxt/image',
+		'nuxt-lottie',
 		'nuxt-echarts',
 		'@vueuse/nuxt',
 		'notivue/nuxt',
@@ -73,7 +63,27 @@ export default defineNuxtConfig({
 			ripple: true,
 			theme: { preset: dbgenvocTheme, options: { darkModeSelector: '.dark' } },
 		},
-		components: { include: [AutoComplete] },
+		components: {
+			include: [
+				'Tab',
+				'Tabs',
+				'Button',
+				'Column',
+				'Dialog',
+				'TabList',
+				'Menubar',
+				'TabPanel',
+				'Dropdown',
+				'TabPanels',
+				'DataTable',
+				'InputText',
+				'IconField',
+				'InputIcon',
+				'FloatLabel',
+				'MultiSelect',
+				'AutoComplete',
+			],
+		},
 	},
 	echarts: {
 		renderer: ['canvas'],
