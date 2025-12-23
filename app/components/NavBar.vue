@@ -5,7 +5,7 @@
 			start: '!bg-sky-200',
 			rootList: '!bg-sky-200',
 			itemContent: 'group !rounded-2xl',
-			root: '!bg-sky-200 shadow !border-0 !justify-between !px-7 !py-4 top-0 z-[99999] sticky',
+			root: '!bg-sky-200 shadow !border-0 !justify-between !px-7 !py-4 top-0 z-[99999] !sticky',
 		}"
 	>
 		<!-- Dont forget to add !sticky to root in menubar -->
