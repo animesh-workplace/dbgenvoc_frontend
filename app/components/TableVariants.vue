@@ -57,8 +57,8 @@
 							</InputIcon>
 							<InputText
 								fluid
-								id="table_search"
 								v-model="keyword_search"
+								:id="`table_search_${props.tableName}`"
 								:pt="{ root: '!rounded-2xl !focus:border-1 !focus:border-blue-800 ' }"
 							/>
 							<InputIcon v-if="keyword_search" @click="keyword_search = ''">
@@ -68,7 +68,7 @@
 								/>
 							</InputIcon>
 						</IconField>
-						<label for="table_search">Keyword Search</label>
+						<label :for="`table_search_${props.tableName}`">Keyword Search</label>
 					</FloatLabel>
 
 					<button
@@ -100,6 +100,7 @@
 							v-model="lockSelectedColumns"
 							class="absolute-hidden-select"
 							@update:modelValue="lockColumn"
+							:name="`lockSelect_${props.tableName}`"
 							:options="columns.filter((c) => c.field !== 'reference_url')"
 						/>
 					</div>
@@ -122,6 +123,7 @@
 							v-model="selectedColumns"
 							class="absolute-hidden-select"
 							@update:model-value="showColumn"
+							:name="`columnSelect_${props.tableName}`"
 							:options="columns.filter((c) => c.field !== 'reference_url')"
 						/>
 					</div>
@@ -204,12 +206,12 @@ const visible = ref(false)
 const Hcaptcha = ref(null)
 const loading = ref(false)
 const totalRecords = ref(0)
+const lockSelect = ref(null)
 const dataTableRef = ref(null)
 const keyword_search = ref('')
+const columnSelect = ref(null)
 const lockSelectedColumns = ref([1, 2])
 const downloadFilename = ref('export_variants_')
-const lockSelect = ref(null) // Reference to the MultiSelect component
-const columnSelect = ref(null) // Reference to the MultiSelect component
 const selectedColumns = ref([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
 
 // Internal Pagination State
