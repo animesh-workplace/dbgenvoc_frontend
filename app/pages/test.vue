@@ -17,6 +17,10 @@
 			<div class="grid grid-cols-1 gap-6 my-8">
 				<GraphLollipop />
 			</div>
+
+			<div class="grid grid-cols-3">
+				<Lottie name="loading_files" class="col-start-2" />
+			</div>
 		</div>
 	</div>
 </template>
