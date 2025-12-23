@@ -36,6 +36,7 @@ const chartOption = ref({
 		trigger: 'item',
 		axisPointer: { type: 'shadow' },
 		textStyle: { fontFamily: 'Lexend Deca', fontWeight: 500 },
+		extraCssText: 'border-radius: 0.75rem; z-index: 1000;',
 		valueFormatter: (value) =>
 			props.isPercent ? `${value}% [${round((props.plotData.total * value) / 100)}]` : `${value}`,
 	},
