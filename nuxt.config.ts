@@ -50,6 +50,7 @@ export default defineNuxtConfig({
 	icon: { clientBundle: { scan: true }, serverBundle: { collections: ['solar', 'tabler', 'svg-spinners'] } },
 	modules: [
 		'@nuxt/icon',
+		'@nuxtjs/mdc',
 		'@nuxt/image',
 		'nuxt-lottie',
 		'nuxt-echarts',
