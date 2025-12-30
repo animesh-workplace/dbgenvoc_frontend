@@ -27,6 +27,7 @@ export default defineNuxtConfig({
 	features: { inlineStyles: true },
 	css: ['@/assets/css/tailwind.css', 'notivue/notification.css', 'notivue/animations.css'],
 	app: {
+		pageTransition: { name: 'page', mode: 'out-in' },
 		baseURL: process.env.ROUTER_BASE || '/dbgenvoc/',
 		head: {
 			title: 'dbGENVOC | National Institute of Biomedical Genomics | BRIC-NIBMG',
