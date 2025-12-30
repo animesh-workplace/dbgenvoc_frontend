@@ -26,9 +26,9 @@
 							<AccordionContent>
 								<div>{{ plan.query_context }}</div>
 								<div>
-									<pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
- {{ plan.params }} </pre
-									>
+									<pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto">{{
+										plan.params
+									}}</pre>
 								</div>
 							</AccordionContent>
 						</AccordionPanel>
@@ -38,7 +38,7 @@
 						class="rounded-lg px-4 py-2 max-w-md"
 						:class="message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'"
 					>
-						<p>{{ message.content }}</p>
+						<MDC :value="message.content" tag="article" />
 					</div>
 
 					<div v-if="message.tables && message.tables.length" class="mt-4 w-full">
@@ -126,7 +126,7 @@ const ChatWithAI = async (query) => {
 		})
 		const ai_output = {
 			sender: 'ai',
-			plan: response.results.map((item) => ({
+			plan: map(response.results, (item) => ({
 				tool_name: item.tool_name,
 				query_context: item.context,
 				params: JSON.stringify(item.params, null, 2),
