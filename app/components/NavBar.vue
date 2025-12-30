@@ -46,7 +46,7 @@
 						class="!w-5 !h-5 group-hover:text-blue-800"
 					/>
 					<Icon :name="item.icon_light" class="!w-5 !h-5 group-hover:text-blue-800" v-else />
-					<span class="text-gray-800"> {{ item.label }} </span>
+					<span class="text-gray-800 font-light"> {{ item.label }} </span>
 				</div>
 			</div>
 		</template>
