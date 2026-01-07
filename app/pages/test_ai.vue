@@ -50,26 +50,23 @@
 <script setup>
 // Fake state for the conversation
 const messages = ref([
-	{
-		role: 'user',
-		content:
-			'Analyze the variant call format (VCF) data from the recent sequencing run, focusing on chromosome 17.',
-	},
-	{
-		role: 'assistant',
-		thinking: 'thoughts',
-		title: 'VCF Analysis: Chromosome 17 Region',
-		content: `
-Based on the provided dataset, I have analyzed the requested genomic regions. Below is a summary of high-impact variants found within the *TP53* locus on Chromosome 17.
-### Key Findings
-- **Variant rs28934578 (c.733G>A):**
-A missense mutation observed with a frequency of 12% in the sample set. Pathogenicity prediction tools classify this as likely pathogenic.
-- **Indel at pos 7,577,120:**
-A 4bp deletion causing a frameshift. This is a novel variant not previously recorded in dbSNP.
-### Interpretation
-The concentration of variants in the DNA-binding domain suggests potential functional disruption. I recommend cross-referencing these findings with the ClinVar database for established clinical significance.
-					`,
-	},
+	// 	{
+	// 		role: 'user',
+	// 		content:
+	// 			'Analyze the variant call format (VCF) data from the recent sequencing run, focusing on chromosome 17.',
+	// 	},
+	// 	{
+	// 		role: 'assistant',
+	// 		thinking: 'thoughts',
+	// 		title: 'VCF Analysis: Chromosome 17 Region',
+	// 		content: `
+	// In response to your query about the number of SNP (Single Nucleotide Polymorphism) variants in the **TCGA Exome Dataset**, here is the detailed analysis:
+	// - **Total SNP Variants in TCGA Exome Dataset:** There are a total of **45,193 SNP variants** identified within the **TCGA Exome Dataset**.
+	// ### Summary
+	// The **TCGA Exome Dataset** contains a substantial number of SNP variants, totaling 45,193. This dataset is rich in genetic information that can be crucial for understanding the mutational landscape of various cancers.
+	// Feel free to ask if you need further details or comparative analyses with other datasets.
+	// 					`,
+	// 	},
 ])
 
 const userInput = ref('')
