@@ -30,7 +30,7 @@
 						'w-0 opacity-0': !showFullName,
 					}"
 				>
-					Oral Squamous Cancer Analytics Research
+					Oral Squamous Carcinoma Analytical Research
 				</span>
 			</h1>
 		</div>
