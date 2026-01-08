@@ -41,7 +41,7 @@
 			</div>
 
 			<div class="text-center mt-2 text-xs text-stone-400 font-medium">
-				VOCAL AI can make mistakes. Check important info
+				OSCAR AI can make mistakes. Check important info
 			</div>
 		</footer>
 	</div>
@@ -50,23 +50,18 @@
 <script setup>
 // Fake state for the conversation
 const messages = ref([
-	// 	{
-	// 		role: 'user',
-	// 		content:
-	// 			'Analyze the variant call format (VCF) data from the recent sequencing run, focusing on chromosome 17.',
-	// 	},
-	// 	{
-	// 		role: 'assistant',
-	// 		thinking: 'thoughts',
-	// 		title: 'VCF Analysis: Chromosome 17 Region',
-	// 		content: `
-	// In response to your query about the number of SNP (Single Nucleotide Polymorphism) variants in the **TCGA Exome Dataset**, here is the detailed analysis:
-	// - **Total SNP Variants in TCGA Exome Dataset:** There are a total of **45,193 SNP variants** identified within the **TCGA Exome Dataset**.
-	// ### Summary
-	// The **TCGA Exome Dataset** contains a substantial number of SNP variants, totaling 45,193. This dataset is rich in genetic information that can be crucial for understanding the mutational landscape of various cancers.
-	// Feel free to ask if you need further details or comparative analyses with other datasets.
-	// 					`,
-	// 	},
+	{
+		role: 'user',
+		content:
+			'Analyze the variant call format (VCF) data from the recent sequencing run, focusing on chromosome 17.',
+	},
+	{
+		role: 'assistant',
+		thinking: 'thoughts',
+		title: 'VCF Analysis: Chromosome 17 Region',
+		content: `
+In response to your query, here is a comprehensive analysis of the SNP variants for the **EGFR** gene within the **TCGA Exome Dataset**:\n\n- **Total SNP Variants for EGFR**: The **TCGA Exome Dataset** contains **14 SNP variants** for the **EGFR** gene.\n\nRegarding therapeutic targets, I must clarify that our current database does not provide information on potential therapeutic targets for EGFR mutations. Therefore, I cannot provide specific therapeutic target suggestions at this time.\n\nHere is a summary of the findings:\n\n- **Total SNP Variants for EGFR in TCGA Exome Dataset**: **14**\n\nPlease let me know if you need further information or have additional queries.`,
+	},
 ])
 
 const userInput = ref('')
