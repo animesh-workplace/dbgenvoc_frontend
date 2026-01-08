@@ -4,16 +4,6 @@
 	--font-sans: 'Lexend Deca', sans-serif;
 	--nv-z: 9999999;
 	--nv-root-top: 5.5rem;
-	--animate-disco-border: disco-border 4s linear infinite;
-
-	@keyframes disco-border {
-		0% {
-			transform: rotate(0deg) scale(1.5);
-		}
-		100% {
-			transform: rotate(360deg) scale(1.5);
-		}
-	}
 }
 
 .hero-background {
