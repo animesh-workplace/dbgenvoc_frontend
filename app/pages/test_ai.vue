@@ -50,18 +50,18 @@
 <script setup>
 // Fake state for the conversation
 const messages = ref([
-	{
-		role: 'user',
-		content:
-			'Analyze the variant call format (VCF) data from the recent sequencing run, focusing on chromosome 17.',
-	},
-	{
-		role: 'assistant',
-		thinking: 'thoughts',
-		title: 'VCF Analysis: Chromosome 17 Region',
-		content: `
-In response to your query, here is a comprehensive analysis of the SNP variants for the **EGFR** gene within the **TCGA Exome Dataset**:\n\n- **Total SNP Variants for EGFR**: The **TCGA Exome Dataset** contains **14 SNP variants** for the **EGFR** gene.\n\nRegarding therapeutic targets, I must clarify that our current database does not provide information on potential therapeutic targets for EGFR mutations. Therefore, I cannot provide specific therapeutic target suggestions at this time.\n\nHere is a summary of the findings:\n\n- **Total SNP Variants for EGFR in TCGA Exome Dataset**: **14**\n\nPlease let me know if you need further information or have additional queries.`,
-	},
+	// 	{
+	// 		role: 'user',
+	// 		content:
+	// 			'Analyze the variant call format (VCF) data from the recent sequencing run, focusing on chromosome 17.',
+	// 	},
+	// 	{
+	// 		role: 'assistant',
+	// 		thinking: 'thoughts',
+	// 		title: 'VCF Analysis: Chromosome 17 Region',
+	// 		content: `
+	// In response to your query, here is a comprehensive analysis of the SNP variants for the **EGFR** gene within the **TCGA Exome Dataset**:\n\n- **Total SNP Variants for EGFR**: The **TCGA Exome Dataset** contains **14 SNP variants** for the **EGFR** gene.\n\nRegarding therapeutic targets, I must clarify that our current database does not provide information on potential therapeutic targets for EGFR mutations. Therefore, I cannot provide specific therapeutic target suggestions at this time.\n\nHere is a summary of the findings:\n\n- **Total SNP Variants for EGFR in TCGA Exome Dataset**: **14**\n\nPlease let me know if you need further information or have additional queries.`,
+	// 	},
 ])
 
 const userInput = ref('')
