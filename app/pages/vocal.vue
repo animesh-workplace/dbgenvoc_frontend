@@ -123,6 +123,7 @@ const ChatWithAI = async (query) => {
 	try {
 		const response = await AskAIAPI({
 			query: query,
+			stream: true,
 		})
 		const ai_output = {
 			sender: 'ai',
