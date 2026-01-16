@@ -25,6 +25,7 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 	compatibilityDate: '2025-07-15',
 	features: { inlineStyles: true },
+	mdc: { components: { prose: true } },
 	css: ['@/assets/css/tailwind.css', 'notivue/notification.css', 'notivue/animations.css'],
 	app: {
 		pageTransition: { name: 'page', mode: 'out-in' },
