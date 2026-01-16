@@ -11,6 +11,7 @@
 					<ChatUser :message="msg" v-if="msg.role == 'user'" />
 					<ChatAI :message="msg" v-else />
 				</template>
+				<div ref="bottomRef"></div>
 			</div>
 		</main>
 
@@ -26,15 +27,20 @@
 						ref="textareaRef"
 						v-model="userInput"
 						@input="adjustHeight"
+						@keydown.enter.prevent="sendMessage"
 						placeholder="Enter your research query"
 						class="w-full resize-none bg-transparent border-none focus:ring-0 p-4 text-sm text-stone-800 placeholder-stone-400 outline-none max-h-60 overflow-y-auto"
 					/>
 
 					<div class="p-2 flex flex-col gap-2 shrink-0 self-end">
 						<button
+							@click="sendMessage"
+							:disabled="isLoading"
+							:class="{ 'opacity-50 cursor-not-allowed': isLoading }"
 							class="p-2 bg-blue-800 hover:bg-blue-700 text-white rounded-xl shadow-md transition flex items-center justify-center active:scale-95"
 						>
-							<Icon name="solar:arrow-right-outline" class="!w-5 !h-5" />
+							<Icon v-if="isLoading" name="svg-spinners:90-ring-with-bg" class="!w-5 !h-5" />
+							<Icon v-else name="solar:arrow-right-outline" class="!w-5 !h-5" />
 						</button>
 					</div>
 				</div>
@@ -48,41 +54,144 @@
 </template>
 
 <script setup>
-// Fake state for the conversation
-const messages = ref([
-	// 	{
-	// 		role: 'user',
-	// 		content:
-	// 			'Analyze the variant call format (VCF) data from the recent sequencing run, focusing on chromosome 17.',
-	// 	},
-	// 	{
-	// 		role: 'assistant',
-	// 		thinking: 'thoughts',
-	// 		title: 'VCF Analysis: Chromosome 17 Region',
-	// 		content: `
-	// In response to your query, here is a comprehensive analysis of the SNP variants for the **EGFR** gene within the **TCGA Exome Dataset**:\n\n- **Total SNP Variants for EGFR**: The **TCGA Exome Dataset** contains **14 SNP variants** for the **EGFR** gene.\n\nRegarding therapeutic targets, I must clarify that our current database does not provide information on potential therapeutic targets for EGFR mutations. Therefore, I cannot provide specific therapeutic target suggestions at this time.\n\nHere is a summary of the findings:\n\n- **Total SNP Variants for EGFR in TCGA Exome Dataset**: **14**\n\nPlease let me know if you need further information or have additional queries.`,
-	// 	},
-])
+import { useGeneAPI } from '@/api/geneAPI'
+const { AskAIAPI } = useGeneAPI()
 
+// -- State --
+const messages = ref([])
 const userInput = ref('')
 const textareaRef = ref(null)
+const bottomRef = ref(null) // Reference for auto-scrolling
+const isLoading = ref(false)
 
-// Automatically adjust height based on content
+// -- Auto Resize Logic --
 const adjustHeight = () => {
 	if (textareaRef.value) {
-		// Reset height to 'auto' first to allow it to shrink if text is deleted
 		textareaRef.value.style.height = 'auto'
-		// Set height to scrollHeight (the total height of the content)
 		textareaRef.value.style.height = `${textareaRef.value.scrollHeight}px`
 	}
 }
 
-// Watch the input to trigger resizing
 watch(userInput, () => {
-	nextTick(() => {
-		adjustHeight()
-	})
+	nextTick(adjustHeight)
 })
-</script>
 
-<style></style>
+// -- Auto Scroll Logic --
+const scrollToBottom = () => {
+	nextTick(() => {
+		bottomRef.value?.scrollIntoView({ behavior: 'smooth' })
+	})
+}
+
+// -- Streaming Logic --
+const sendMessage = async () => {
+	const query = userInput.value.trim()
+	if (!query || isLoading.value) return
+
+	userInput.value = ''
+	adjustHeight()
+	isLoading.value = true
+
+	// Add user message
+	messages.value.push({ role: 'user', content: query })
+
+	// Add assistant placeholder
+	const botMsgIndex = messages.value.length
+	messages.value.push({
+		role: 'assistant',
+		thinking: 'Initializing workflow...',
+		content: '',
+		title: 'Processing Request',
+	})
+
+	scrollToBottom()
+
+	try {
+		// Call the updated API function
+		const response = await AskAIAPI({
+			query: query,
+			stream: true,
+		})
+
+		if (!response.body) throw new Error('ReadableStream not supported.')
+
+		const reader = response.body.getReader()
+		const decoder = new TextDecoder()
+		let buffer = ''
+
+		while (true) {
+			const { done, value } = await reader.read()
+			if (done) break
+
+			buffer += decoder.decode(value, { stream: true })
+			const lines = buffer.split('\n')
+			buffer = lines.pop() // Keep incomplete line in buffer
+
+			for (const line of lines) {
+				const trimmedLine = line.trim()
+				if (!trimmedLine) continue
+
+				// Handle SSE format: "data: {...}"
+				if (trimmedLine.startsWith('data: ')) {
+					const jsonStr = trimmedLine.slice(6) // Remove "data: " prefix
+					try {
+						// Check if it's the "[DONE]" message often sent by SSE
+						if (jsonStr.trim() === '[DONE]') continue
+
+						const event = JSON.parse(jsonStr)
+						handleStreamEvent(event, botMsgIndex)
+					} catch (e) {
+						console.error('JSON Parse error on line:', trimmedLine, e)
+					}
+				}
+				// Handle standard NDJSON (fallback)
+				else if (trimmedLine.startsWith('{')) {
+					try {
+						const event = JSON.parse(trimmedLine)
+						handleStreamEvent(event, botMsgIndex)
+					} catch (e) {
+						console.error(e)
+					}
+				}
+			}
+		}
+	} catch (error) {
+		console.error('Stream error:', error)
+		messages.value[botMsgIndex].content = `Error: ${error.message}`
+	} finally {
+		isLoading.value = false
+		scrollToBottom()
+	}
+}
+
+// Helper to map event types to UI updates
+const handleStreamEvent = (event, index) => {
+	const msg = messages.value[index]
+
+	switch (event.type) {
+		case 'status':
+			// Update the "thinking" indicator
+			msg.thinking = event.data.message
+			break
+
+		case 'plan':
+			// Determine if we should update title or thinking based on plan
+			msg.thinking = 'Execution plan generated...'
+			break
+
+		case 'synthesis_complete':
+			// The final answer text is here
+			msg.content = event.data.synthesis
+			scrollToBottom()
+			break
+
+		case 'final':
+			// Final consistency check
+			if (event.data.synthesis) {
+				msg.content = event.data.synthesis
+			}
+			msg.thinking = 'Completed' // or set to null to hide thinking UI
+			break
+	}
+}
+</script>
