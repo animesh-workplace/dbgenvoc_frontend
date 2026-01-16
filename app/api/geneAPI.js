@@ -131,16 +131,25 @@ export function useGeneAPI() {
 
 	const AskAIAPI = async (payload) => {
 		try {
-			const { data, error } = await useFetch(`${BASEURL}/ask`, {
+			// Construct query parameters
+			const params = new URLSearchParams(payload).toString()
+			const url = `${BASEURL}/ask?${params}`
+
+			// Use native fetch to keep the stream open
+			const response = await fetch(url, {
 				method: 'GET',
-				query: payload,
+				headers: {
+					'Content-Type': 'application/json',
+					// Add authentication headers here if needed
+				},
 			})
 
-			if (error.value) {
-				throw new Error(error.value || 'An error occurred')
+			if (!response.ok) {
+				throw new Error(`Error: ${response.statusText}`)
 			}
 
-			return data.value
+			// Return the raw response object so we can access response.body
+			return response
 		} catch (err) {
 			console.error(err)
 			throw err
