@@ -138,10 +138,7 @@ export function useGeneAPI() {
 			// Use native fetch to keep the stream open
 			const response = await fetch(url, {
 				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					// Add authentication headers here if needed
-				},
+				headers: { 'Content-Type': 'application/json' },
 			})
 
 			if (!response.ok) {
