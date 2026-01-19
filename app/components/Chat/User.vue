@@ -1,6 +1,6 @@
 <template>
 	<div class="flex gap-4 justify-end md:pl-12">
-		<div class="bg-white border-2 border-stone-200 p-5 rounded-2xl rounded-tr-sm shadow-xs max-w-xl">
+		<div class="bg-white border-2 border-stone-200 px-4 py-2 rounded-2xl rounded-tr-sm shadow-xs max-w-xl">
 			<p class="text-stone-700 font-medium text-[15px] leading-relaxed">
 				{{ props.message.content }}
 			</p>
