@@ -98,10 +98,11 @@ const sendMessage = async () => {
 	// Add assistant placeholder
 	const botMsgIndex = messages.value.length
 	messages.value.push({
+		title: '',
+		events: [],
+		content: '',
 		role: 'assistant',
 		thinking: 'Initializing workflow...',
-		content: '',
-		title: 'Processing Request',
 	})
 
 	scrollToBottom()
@@ -139,6 +140,7 @@ const sendMessage = async () => {
 						if (jsonStr.trim() === '[DONE]') continue
 
 						const event = JSON.parse(jsonStr)
+						console.log('Parsed event:', event)
 						handleStreamEvent(event, botMsgIndex)
 					} catch (e) {
 						console.error('JSON Parse error on line:', trimmedLine, e)
@@ -148,6 +150,7 @@ const sendMessage = async () => {
 				else if (trimmedLine.startsWith('{')) {
 					try {
 						const event = JSON.parse(trimmedLine)
+						console.log('🚀 ~ :152 ~ sendMessage ~ event:', event)
 						handleStreamEvent(event, botMsgIndex)
 					} catch (e) {
 						console.error(e)
@@ -172,11 +175,30 @@ const handleStreamEvent = (event, index) => {
 		case 'status':
 			// Update the "thinking" indicator
 			msg.thinking = event.data.message
+			msg.events.push({
+				status: event.data.message,
+				timestamp: new Date().toISOString(),
+			})
 			break
 
 		case 'plan':
 			// Determine if we should update title or thinking based on plan
 			msg.thinking = 'Execution plan generated...'
+			msg.events.push({
+				status: 'Plan created',
+				timestamp: new Date().toISOString(),
+				content: event.data?.plan,
+			})
+			break
+
+		case 'step_complete':
+			// Determine if we should update title or thinking based on plan
+			msg.thinking = 'Tool executed...'
+			msg.events.push({
+				status: 'Tool executed',
+				timestamp: new Date().toISOString(),
+				content: event.data?.result?.params,
+			})
 			break
 
 		case 'synthesis_complete':
@@ -190,7 +212,7 @@ const handleStreamEvent = (event, index) => {
 			if (event.data.synthesis) {
 				msg.content = event.data.synthesis
 			}
-			msg.thinking = 'Completed' // or set to null to hide thinking UI
+			msg.thinking = 'Thoughts' // or set to null to hide thinking UI
 			break
 	}
 }
