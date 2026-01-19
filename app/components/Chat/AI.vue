@@ -12,7 +12,9 @@
 					@click="toggleThinking"
 					class="flex items-center gap-2 text-xs text-stone-400 hover:text-blue-800 transition-colors"
 				>
-					{{ props.message.thinking || 'Show Thinking' }}
+					<span :class="{ shimmer: isShimmering }">
+						{{ props.message.thinking || 'Show Thinking' }}
+					</span>
 					<Icon
 						class="transition-transform duration-200"
 						:name="showThinking ? 'tabler:chevron-down' : 'tabler:chevron-right'"
@@ -159,6 +161,31 @@ const toggleThinking = () => {
 	showThinking.value = !showThinking.value
 	autoControlled.value = false // 🔒 user takes control
 }
+
+const isShimmering = computed(() => {
+	return showThinking.value && !props.message.content
+})
 </script>
 
-<style scoped></style>
+<style scoped>
+@keyframes shimmer {
+	0% {
+		-webkit-mask-position: right;
+		mask-position: right;
+	}
+	100% {
+		-webkit-mask-position: left;
+		mask-position: left;
+	}
+}
+
+.shimmer {
+	animation: shimmer 1.5s linear infinite;
+	-webkit-mask-image: linear-gradient(-70deg, #000 50%, #0005 60%, #000 70%);
+	mask-image: linear-gradient(-70deg, #000 50%, #0005 60%, #000 70%);
+	-webkit-mask-size: 300% 100%;
+	mask-size: 300% 100%;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+}
+</style>
