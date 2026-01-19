@@ -204,7 +204,6 @@ const handleStreamEvent = (event, index) => {
 		case 'synthesis_complete':
 			// The final answer text is here
 			msg.content = event.data.synthesis
-			scrollToBottom()
 			break
 
 		case 'final':
