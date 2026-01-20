@@ -55,8 +55,8 @@
 										</div>
 									</template>
 									<pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto text-wrap">
-									{{ slotProps.item.content }} </pre
-									>
+										<code class="lang-js">{{ slotProps.item.content }}</code>
+									</pre>
 									<template #toggleicon>
 										<Icon name="tabler:chevron-down" class="!w-4 !h-4 !text-stone-600" />
 									</template>
@@ -76,16 +76,22 @@
 
 			<div
 				v-if="props.message.content"
-				class="p-4 md:px-8 md:pt-8 md:pb-3 rounded-2xl w-full md:border-t-4 md:border-blue-900 md:bg-white md:shadow-sm"
+				class="p-4 md:px-8 md:pt-8 md:pb-3 rounded-2xl w-full !max-w-full md:border-t-4 md:border-blue-900 md:bg-white md:shadow-sm"
 			>
-				<div
-					v-if="props.message.isWidget"
-					class="h-64 bg-stone-50 rounded-2xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center text-stone-500"
-				>
-					<span class="font-medium">{{ props.message.content }}</span>
+				<div v-for="(step, tIndex) in props.message.results" :key="`table-${tIndex}`" class="hidden">
+					<h3 class="text-md font-semibold mb-2">
+						Search Table for
+						{{
+							step.result.table_name
+								.replaceAll('_somatic_variants', '')
+								.replaceAll('_', ' ')
+								.replace(/\b\w/g, (c) => c.toUpperCase())
+						}}:
+					</h3>
+					<GenericTable :tableData="step.result" :tableParams="step.params" class="!p-0" />
 				</div>
 
-				<div v-else>
+				<div>
 					<h2
 						v-if="props.message.title"
 						class="text-xl font-bold text-stone-900 mb-6 pb-4 border-b border-stone-100"
@@ -101,7 +107,7 @@
 				>
 					<span class="flex items-center gap-1">
 						<Icon name="tabler:stopwatch" class="!w-4 !h-4" />
-						Generated in 2.4s
+						Generated in {{ props.message.total_time }}s
 					</span>
 					<div class="flex gap-3">
 						<button class="hover:text-stone-800 transition flex justify-center items-center gap-1">
@@ -122,6 +128,9 @@
 </template>
 
 <script setup>
+import Prism from 'prismjs'
+import 'prismjs/themes/prism.min.css'
+
 const props = defineProps({
 	message: {
 		type: Object,
@@ -165,6 +174,10 @@ const toggleThinking = () => {
 const isShimmering = computed(() => {
 	return showThinking.value && !props.message.content
 })
+
+onMounted(() => {
+	Prism.highlightAll()
+})
 </script>
 
 <style scoped>
@@ -173,6 +186,7 @@ const isShimmering = computed(() => {
 		-webkit-mask-position: right;
 		mask-position: right;
 	}
+
 	100% {
 		-webkit-mask-position: left;
 		mask-position: left;
