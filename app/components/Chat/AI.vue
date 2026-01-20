@@ -99,7 +99,8 @@
 						{{ props.message.title }}
 					</h2>
 
-					<MDC :value="props.message.content" />
+					<MDC :value="props.message.content" v-if="props.message.content" />
+					<span class="shimmer" v-else>Generating Text</span>
 				</div>
 
 				<div
