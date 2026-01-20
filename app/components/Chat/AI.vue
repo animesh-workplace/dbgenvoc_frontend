@@ -78,17 +78,19 @@
 				v-if="props.message.content"
 				class="p-4 md:px-8 md:pt-8 md:pb-3 rounded-2xl w-full !max-w-full md:border-t-4 md:border-blue-900 md:bg-white md:shadow-sm"
 			>
-				<div v-for="(step, tIndex) in props.message.results" :key="`table-${tIndex}`" class="hidden">
-					<h3 class="text-md font-semibold mb-2">
-						Search Table for
-						{{
-							step.result.table_name
-								.replaceAll('_somatic_variants', '')
-								.replaceAll('_', ' ')
-								.replace(/\b\w/g, (c) => c.toUpperCase())
-						}}:
-					</h3>
-					<GenericTable :tableData="step.result" :tableParams="step.params" class="!p-0" />
+				<div v-for="(step, tIndex) in props.message.results" :key="`table-${tIndex}`">
+					<div v-if="step.tool == 'generic_search'">
+						<h3 class="text-md font-semibold mb-2">
+							Search Table for
+							{{
+								step.result.table_name
+									.replaceAll('_somatic_variants', '')
+									.replaceAll('_', ' ')
+									.replace(/\b\w/g, (c) => c.toUpperCase())
+							}}:
+						</h3>
+						<GenericTable :tableData="step.result" :tableParams="step.params" class="!p-0" />
+					</div>
 				</div>
 
 				<div>
