@@ -9,9 +9,8 @@
 				<ChatHeader center />
 				<template v-for="(msg, idx) in messages" :key="idx">
 					<ChatUser :message="msg" v-if="msg.role == 'user'" />
-					<ChatAI :message="msg" v-else />
+					<ChatAI :message="msg" v-else ref="aiRefs" />
 				</template>
-				<div ref="bottomRef"></div>
 			</div>
 		</main>
 
@@ -79,7 +78,8 @@ watch(userInput, () => {
 // -- Auto Scroll Logic --
 const scrollToBottom = () => {
 	nextTick(() => {
-		bottomRef.value?.scrollIntoView({ behavior: 'smooth' })
+		const lastAI = aiRefs.value.at(-1)
+		lastAI?.$el?.scrollIntoView({ behavior: 'smooth' })
 	})
 }
 
@@ -101,11 +101,14 @@ const sendMessage = async () => {
 		title: '',
 		events: [],
 		content: '',
+		results: {},
 		role: 'assistant',
 		thinking: 'Initializing workflow...',
+		total_time: 0,
 	})
 
 	scrollToBottom()
+	let start_time = Date.now()
 
 	try {
 		// Call the updated API function
@@ -163,7 +166,8 @@ const sendMessage = async () => {
 		messages.value[botMsgIndex].content = `Error: ${error.message}`
 	} finally {
 		isLoading.value = false
-		scrollToBottom()
+		const end_time = Date.now()
+		messages.value[botMsgIndex].total_time = ((end_time - start_time) / 1000).toFixed(2)
 	}
 }
 
@@ -210,6 +214,7 @@ const handleStreamEvent = (event, index) => {
 			// Final consistency check
 			if (event.data.synthesis) {
 				msg.content = event.data.synthesis
+				msg.results = event.data.results || {}
 			}
 			msg.thinking = 'Thoughts' // or set to null to hide thinking UI
 			break
