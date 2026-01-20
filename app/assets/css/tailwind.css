@@ -23,22 +23,3 @@
 .Notivue__notification {
 	z-index: 999999999 !important;
 }
-
-@keyframes thinking-shine {
-	0% {
-		background-position: -150% 50%, 0 0;
-	}
-	50% {
-		background-position: 150% 50%, 0 0;
-	}
-	100% {
-		background-position: -150% 50%, 0 0;
-	}
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-	.animate-thinking-shine {
-		animation: none;
-	}
-}
