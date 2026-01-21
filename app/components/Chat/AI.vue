@@ -101,7 +101,9 @@
 						{{ props.message.title }}
 					</h2>
 
-					<MDC :value="props.message.content" v-if="props.message.content" />
+					<div class="prose prose-sm prose-stone max-w-none" v-if="props.message.content">
+						<MDC :value="props.message.content" />
+					</div>
 					<span class="shimmer" v-else>Generating Text</span>
 				</div>
 
@@ -204,5 +206,59 @@ onMounted(() => {
 	mask-size: 300% 100%;
 	-webkit-mask-repeat: no-repeat;
 	mask-repeat: no-repeat;
+}
+
+.prose-compact {
+	--tw-prose-body: 1rem;
+	--tw-prose-headings: 1em;
+	--tw-prose-lead: 1.25em;
+	--tw-prose-links: 1em;
+	--tw-prose-bold: 1em;
+	--tw-prose-counters: 1em;
+	--tw-prose-bullets: 1em;
+	--tw-prose-hr: 0;
+	--tw-prose-quotes: 1em;
+	--tw-prose-quote-borders: 1em;
+	--tw-prose-captions: 1em;
+	--tw-prose-code: 1em;
+	--tw-prose-pre-code: 1em;
+	--tw-prose-th-borders: 1px;
+}
+
+.prose-compact :deep(p) {
+	margin-top: 0.75em;
+	margin-bottom: 0.75em;
+}
+
+.prose-compact :deep(h2) {
+	margin-top: 1.2em;
+	margin-bottom: 0.6em;
+}
+
+.prose-compact :deep(h3) {
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+
+.prose-compact :deep(ul),
+.prose-compact :deep(ol) {
+	margin-top: 0.25em;
+	margin-bottom: 0.25em;
+}
+
+.prose-compact :deep(li) {
+	margin-top: 0em;
+	margin-bottom: 0em;
+}
+
+.prose-compact :deep(pre) {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	padding: 0.75em;
+}
+
+.prose-compact :deep(blockquote) {
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 </style>
