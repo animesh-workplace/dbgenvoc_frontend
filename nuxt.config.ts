@@ -31,7 +31,7 @@ export default defineNuxtConfig({
 		pageTransition: { name: 'page', mode: 'out-in' },
 		baseURL: process.env.ROUTER_BASE || '/dbgenvoc/',
 		head: {
-			title: 'dbGENVOC | National Institute of Biomedical Genomics | BRIC-NIBMG',
+			title: 'dbGENVOC v2 | National Institute of Biomedical Genomics | BRIC-NIBMG',
 			meta: [],
 			link: [],
 			script: [],
