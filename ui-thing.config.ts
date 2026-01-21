@@ -1,11 +1,11 @@
 export default {
-  "theme": "gray",
-  "tailwindCSSLocation": "app/assets/css/tailwind.css",
-  "componentsLocation": "app/components/Ui",
-  "composablesLocation": "app/composables",
-  "pluginsLocation": "app/plugins",
-  "utilsLocation": "app/utils",
-  "force": false,
-  "useDefaultFilename": true,
-  "packageManager": "bun"
+	force: false,
+	theme: 'gray',
+	packageManager: 'bun',
+	useDefaultFilename: true,
+	utilsLocation: 'app/utils',
+	pluginsLocation: 'app/plugins',
+	composablesLocation: 'app/composables',
+	componentsLocation: 'app/components/Ui',
+	tailwindCSSLocation: 'app/assets/css/tailwind.css',
 }
