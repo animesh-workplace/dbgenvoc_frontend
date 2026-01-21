@@ -42,6 +42,7 @@
 							<Icon v-else name="solar:arrow-right-outline" class="!w-5 !h-5" />
 						</button>
 					</div>
+					<UiBorderBeam reverse :duration="10" :size="100" colorFrom="#1e3a8a" colorTo="#9f1239" />
 				</div>
 			</div>
 
