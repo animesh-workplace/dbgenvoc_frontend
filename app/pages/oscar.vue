@@ -36,7 +36,7 @@
 							@click="sendMessage"
 							:disabled="isLoading"
 							:class="{ 'opacity-50 cursor-not-allowed': isLoading }"
-							class="p-2 bg-blue-800 hover:bg-blue-700 text-white rounded-xl shadow-md transition flex items-center justify-center active:scale-95"
+							class="p-2 bg-blue-800 hover:bg-blue-700 text-white rounded-xl shadow-md transition flex items-center justify-center active:scale-95 cursor-pointer"
 						>
 							<Icon v-if="isLoading" name="svg-spinners:90-ring-with-bg" class="!w-5 !h-5" />
 							<Icon v-else name="solar:arrow-right-outline" class="!w-5 !h-5" />
