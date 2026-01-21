@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 @theme {
 	--font-sans: 'Lexend Deca', sans-serif;
@@ -22,4 +23,25 @@
 
 .Notivue__notification {
 	z-index: 999999999 !important;
+}
+
+:where(hr):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+:where(li):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+	margin-top: 0em;
+	margin-bottom: 0em;
+}
+
+:where(ul):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+	margin-top: 0em;
+	margin-bottom: 0em;
+	padding-inline-start: 1.5em;
+}
+
+:where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+	margin-top: 1em;
+	margin-bottom: 0.25em;
 }
