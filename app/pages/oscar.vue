@@ -17,9 +17,9 @@
 		<footer
 			class="sticky bottom-0 left-0 right-0 p-4 md:p-8 z-20 bg-gradient-to-t from-stone-100 to-transparent backdrop-blur-xs"
 		>
-			<div class="flex justify-center mx-auto relative group">
+			<div class="flex justify-center mx-auto relative">
 				<div
-					class="relative bg-white rounded-xl shadow-sm shadow-blue-200 flex items-end border border-stone-200 hover:scale-100 sm:hover:scale-105 transition-all duration-300 w-full sm:w-[32rem] md:w-[42rem] focus-within:w-5xl focus-within:ring-2 focus-within:ring-blue-800/50"
+					class="relative bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-100 rounded-xl shadow-sm shadow-blue-200 flex items-end hover:scale-100 sm:hover:scale-105 hover:shadow-lg hover:shadow-blue-200 transition-all duration-300 w-full sm:w-[32rem] md:w-[42rem] focus-within:w-5xl focus-within:ring-2 focus-within:ring-blue-800/50 group"
 				>
 					<textarea
 						rows="1"
@@ -27,7 +27,7 @@
 						v-model="userInput"
 						@input="adjustHeight"
 						@keydown.enter.prevent="sendMessage"
-						placeholder="Enter your research query"
+						placeholder="What can I help you with today?"
 						class="w-full resize-none bg-transparent border-none focus:ring-0 p-4 text-sm text-stone-800 placeholder-stone-400 outline-none max-h-60 overflow-y-auto"
 					/>
 
@@ -35,14 +35,28 @@
 						<button
 							@click="sendMessage"
 							:disabled="isLoading"
-							:class="{ 'opacity-50 cursor-not-allowed': isLoading }"
-							class="p-2 bg-blue-800 hover:bg-blue-700 text-white rounded-xl shadow-md transition flex items-center justify-center active:scale-95 cursor-pointer"
+							:class="{ 'opacity-50 cursor-not-allowed': isLoading, 'cursor-pointer': !isLoading }"
+							class="p-2 bg-blue-800 hover:bg-blue-700 text-white rounded-xl shadow-md transition flex items-center justify-center active:scale-95"
 						>
 							<Icon v-if="isLoading" name="svg-spinners:90-ring-with-bg" class="!w-5 !h-5" />
 							<Icon v-else name="solar:arrow-right-outline" class="!w-5 !h-5" />
 						</button>
 					</div>
-					<UiBorderBeam reverse :duration="10" :size="100" colorFrom="#1e3a8a" colorTo="#9f1239" />
+					<UiBorderBeam
+						:size="100"
+						:duration="10"
+						colorTo="transparent"
+						colorFrom="#1e3a8a"
+						class="group-hover:hidden group-focus-within:hidden"
+					/>
+					<UiBorderBeam
+						:size="100"
+						:duration="10"
+						colorTo="transparent"
+						colorFrom="#9f1239"
+						:initialOffset="50"
+						class="group-hover:hidden group-focus-within:hidden"
+					/>
 				</div>
 			</div>
 
