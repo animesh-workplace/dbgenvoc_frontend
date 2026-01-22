@@ -187,6 +187,30 @@ const getOncoplot = async () => {
 		Nonsense_Mutation: '#E31A1C',
 	}
 
+	// 	const colorMapping = {
+	// 	0: '#ffffff', // 0 - No mutation / Wild type
+	// 	1: '#1f78b4', // 1 - Missense_Mutation
+	// 	2: '#cab2d6', // 2 - Frame_Shift_Ins
+	// 	3: '#ff7f00', // 3 - In_Frame_Del
+	// 	4: '#a6cee3', // 4 - Frame_Shift_Del
+	// 	5: '#E31A1C', // 5 - Nonsense_Mutation
+	// 	6: '#fdbf6f', // 6 - Splice_Site
+	// 	7: '#b15928', // 7 - Nonstop_Mutation
+	// 	8: '#fb9a99', // 8 - In_Frame_Ins
+	// 	9: '#33a02c', // 9 - Multi_Hit
+	// }
+	// const sampleColorMapping = {
+	// 	Multi_Hit: '#33a02c',
+	// 	Splice_Site: '#fdbf6f',
+	// 	In_Frame_Del: '#ff7f00',
+	// 	In_Frame_Ins: '#fb9a99',
+	// 	Frame_Shift_Ins: '#cab2d6',
+	// 	Frame_Shift_Del: '#a6cee3',
+	// 	Nonstop_Mutation: '#b15928',
+	// 	Missense_Mutation: '#1f78b4',
+	// 	Nonsense_Mutation: '#e31a1c',
+	// }
+
 	try {
 		const response = await OncoplotAPI('tcga_exome_somatic_variant_oncoplot', {
 			genes: [
