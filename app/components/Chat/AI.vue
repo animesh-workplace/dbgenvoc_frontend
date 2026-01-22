@@ -102,7 +102,7 @@
 					</h2>
 
 					<div class="prose prose-sm prose-stone max-w-none" v-if="props.message.content">
-						<MDC :value="props.message.content" />
+						<MDC :value="props.message.content" unwrap="p" />
 					</div>
 					<span class="shimmer" v-else>Generating Text</span>
 				</div>
