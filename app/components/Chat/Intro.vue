@@ -4,11 +4,11 @@
 		<!-- Introduction message -->
 		<div class="bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-100 rounded-xl p-5 mb-6 shadow-xs">
 			<div class="max-w-none">
-				<p class="text-stone-700">
+				<div class="text-stone-700">
 					I am <strong class="font-semibold text-blue-900">OSCAR</strong>, an expert AI assistant for the
 					<strong class="font-semibold text-stone-800">dbGENVOC</strong> database. I specialize in
 					querying and analyzing somatic variants related to oral cancer research.
-				</p>
+				</div>
 			</div>
 		</div>
 
