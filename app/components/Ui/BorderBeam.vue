@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="pointer-events-none absolute inset-0 rounded-[inherit] border border-transparent mask-[linear-gradient(transparent,transparent),linear-gradient(#000,#000)] mask-intersect [mask-clip:padding-box,border-box]"
+		class="pointer-events-none absolute inset-0 rounded-[inherit] border-2 border-transparent mask-[linear-gradient(transparent,transparent),linear-gradient(#000,#000)] mask-intersect [mask-clip:padding-box,border-box]"
 	>
 		<motion.div
 			:class="styles({ class: props.class })"
