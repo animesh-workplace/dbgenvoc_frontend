@@ -41,7 +41,7 @@
 	padding-inline-start: 1.5em;
 }
 
-:where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+/* :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
 	margin-top: 1em;
 	margin-bottom: 0.25em;
-}
+} */
