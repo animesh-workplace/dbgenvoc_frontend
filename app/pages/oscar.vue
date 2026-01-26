@@ -19,7 +19,7 @@
 		>
 			<div class="flex justify-center mx-auto relative">
 				<div
-					class="relative bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-100 rounded-xl shadow-sm shadow-blue-200 flex items-end hover:scale-100 sm:hover:scale-105 hover:shadow-lg hover:shadow-blue-200 transition-all duration-300 w-full sm:w-[32rem] md:w-[42rem] focus-within:w-5xl focus-within:ring-2 focus-within:ring-blue-800/50 group"
+					class="relative bg-gradient-to-br from-blue-50 to-sky-50 rounded-xl border border-blue-100 shadow-lg shadow-blue-200 flex items-end hover:scale-100 sm:hover:scale-105 hover:shadow-lg hover:shadow-blue-200 hover:ring-2 hover:ring-blue-400 transition-all duration-300 w-full sm:w-[32rem] md:w-[42rem] focus-within:w-5xl focus-within:ring-2 focus-within:ring-blue-800/50 group"
 				>
 					<textarea
 						rows="1"
@@ -50,7 +50,7 @@
 						class="group-hover:hidden group-focus-within:hidden"
 					/>
 					<UiBorderBeam
-						:size="100"
+						:size="99"
 						:duration="10"
 						colorTo="transparent"
 						colorFrom="#9f1239"
